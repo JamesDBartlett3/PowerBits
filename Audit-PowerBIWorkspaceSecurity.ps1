@@ -10,8 +10,7 @@ $currentDate = Get-Date -UFormat "%Y-%m-%d"
 $OutputFileName = "Power BI Workspace Security Audit ($currentDate).xlsx"
 
 $ignoreWorkspaces = @(
-  "COVID-19"
-  , "COVID-19 Tracking Report"
+  "COVID-19 Tracking Report"
   , "COVID-19 US Tracking Report"
   , "Gen2 Utilization Metrics"
   , "Azure DevOps Dashboard"
@@ -19,11 +18,7 @@ $ignoreWorkspaces = @(
   , "Office365 Usage Analytics"
   , "Power BI Premium Capacity Metrics"
   , "Microsoft 365 Usage Analytics"
-  , "Apps Catalog on Microsoft AppSource"
-  , "Custom Visuals Exploration Tool"
   , "Dataflow Snapshots"
-  , "Template Apps Exploration Tool"
-  , "JSON Theme Guide by Curbal"
   )
 
 $workspaces = Get-PowerBIWorkspace -Scope Organization -All |
