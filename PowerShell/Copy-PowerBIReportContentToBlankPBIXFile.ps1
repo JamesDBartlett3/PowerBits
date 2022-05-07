@@ -23,6 +23,13 @@
           GitHub repo and publishing it to the same workspace as 
           the source report, so the user doesn't have to create
           and publish their own.
+          
+  .ACKNOWLEDGEMENTS
+    This PS function was inspired by a blog article written by 
+    one of the top minds in the Power BI space, Mathias Thierbach.
+    Check out his article here: https://bit.ly/37ofVou
+    And if you're not already using his pbi-tools for Power BI
+    version control, you should check it out: https://pbi.tools
 #>
 
 #Requires -Modules MicrosoftPowerBIMgmt.Profile
