@@ -1,6 +1,7 @@
 {
     "version": "0.0.3",
     "name": "Copy Server:Port",
+    "author": "@JamesDBartlett3",
     "description": "Copies the currently connected Sever name and Port number from Desktop onto your clipboard. Format of the copied connection string is of 'server:port'.",
     "path": "C:\\windows\\System32\\mshta.exe",
     "arguments": "vbscript:Execute(\"CreateObject(\"\"Wscript.Shell\"\").Run \"\"powershell.exe -NoLogo -Command \"\"\"\"& {'%server%' | Set-Clipboard}\"\"\"\"\"\", 0 : window.close\")",
