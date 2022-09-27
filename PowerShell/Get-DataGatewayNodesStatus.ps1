@@ -21,7 +21,7 @@ try {
     Get-DataGatewayAccessToken | Out-Null
 } catch {
     Write-Output "DataGatewayAccessToken required. Launching Azure Active Directory authentication dialog..."
-    Start-Sleep -s 2
+    Start-Sleep -s 1
     Login-DataGatewayServiceAccount -WarningAction SilentlyContinue | Out-Null
 }
 finally {
