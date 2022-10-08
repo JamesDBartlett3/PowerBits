@@ -3,6 +3,7 @@
 # Author: @JamesDBartlett3
 # Parameters: $DatasetWorkspaceTable (table with two columns: DatasetId and WorkspaceId)
 # Returns: Nothing, if everything goes right ;-)
+# Requires: $DatasetWorkspaceTable variable, set to output from Match-DatasetsWithWorkspaces.ps1
 # Usage: Takeover-UserDataset $DatasetWorkspaceTable
 
 #Requires -Modules MicrosoftPowerBIMgmt.Profile
