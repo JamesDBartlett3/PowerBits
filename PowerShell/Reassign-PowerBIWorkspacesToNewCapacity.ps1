@@ -1,4 +1,7 @@
 
+# TODO: Parameterize
+# TODO: Find & credit original author
+
 # Bearer Token should include the word 'Bearer' and a space, e.g. Bearer <token>
 $bearerToken = ''
 $oldCapacityId = ''
