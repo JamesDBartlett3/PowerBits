@@ -3,6 +3,7 @@
 # Author: @JamesDBartlett3
 # Parameters: $ds (list of dataset IDs)
 # Returns: Table with two columns: DatasetId and WorkspaceId
+# Requires: $ds variable, set to output from Get-UserDatasets.ps1
 # Usage: Match-DatasetsWithWorkspaces $ds
 
 Param(
