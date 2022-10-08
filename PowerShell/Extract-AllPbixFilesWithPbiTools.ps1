@@ -1,3 +1,5 @@
+# TODO: Finish this script
+
 Get-ChildItem -Recurse "*.pbix" | 
   Select-Object -Property FullName, BaseName, @{
     l="PbixInBaseNameFolder"; e={$_.BaseName -eq (Split-Path (Split-Path $_.FullName -Parent) -Leaf)}
