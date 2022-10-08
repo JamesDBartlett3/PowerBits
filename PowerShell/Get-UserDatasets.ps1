@@ -3,7 +3,7 @@
 # Author: @JamesDBartlett3
 # Parameters: $userEmail
 # Returns: "Id" column with DatasetId for all Power BI datasets marked as "configured by" the given user
-# Usage: Get-UserDatasets user@domain.com
+# Usage: Get-UserDatasets user@domain.tld
 
 #Requires -Modules MicrosoftPowerBIMgmt.Profile
 
