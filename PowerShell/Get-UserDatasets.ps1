@@ -1,11 +1,41 @@
+<#
 
-# Title: Get-UserDatasets
-# Author: @JamesDBartlett3
-# Parameters: $userEmail
-# Returns: "Id" column with DatasetId for all Power BI datasets marked as "configured by" the given user
-# Usage: Get-UserDatasets user@domain.tld
+  .SYNOPSIS
+    Function: Get-UserDatasets
+    Author: @JamesDBartlett3 (James D. Bartlett III)
 
-#Requires -Modules MicrosoftPowerBIMgmt.Profile
+  .DESCRIPTION
+    - Get a list of all Power BI datasets marked as "configured by" a given user
+
+  .PARAMETERS
+    - $userEmail (string) -- email address of the user
+
+  .RETURNS
+    - List of dataset IDs
+
+  .NOTES
+    This function does NOT require Azure AD app registration, 
+    service principal creation, or any other special setup.
+    The only requirements are:
+      - The user must be able to run PowerShell (and install the
+        MicrosoftPowerBIMgmt module, if it's not already installed).
+      - The user must have permissions to access the workspace(s)
+        in the Power BI service.
+
+  .EXAMPLE
+    Get-UserDatasets user@domain.tld
+
+  .TODO
+    - Write as function
+    - Re-implement token logic
+    - 
+
+  .ACKNOWLEDGEMENTS
+    -
+
+#>
+
+#Requires -Modules MicrosoftPowerBIMgmt
 
 Param(
   [string]$userEmail

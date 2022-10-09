@@ -1,12 +1,42 @@
+<#
 
-# Title: Takeover-UserDataset
-# Author: @JamesDBartlett3
-# Parameters: $DatasetWorkspaceTable (table with two columns: DatasetId and WorkspaceId)
-# Returns: Nothing, if everything goes right ;-)
-# Requires: $DatasetWorkspaceTable variable, set to output from Match-DatasetsWithWorkspaces.ps1
-# Usage: Takeover-UserDataset $DatasetWorkspaceTable
+  .SYNOPSIS
+    Function: Takeover-UserDataset
+    Author: @JamesDBartlett3 (James D. Bartlett III)
 
-#Requires -Modules MicrosoftPowerBIMgmt.Profile
+  .DESCRIPTION
+    - Take over a Power BI dataset that is currently configured by another user
+
+  .PARAMETERS
+    - $DatasetWorkspaceTable (table with two columns: DatasetId and WorkspaceId) -- set to output from Match-DatasetsWithWorkspaces
+
+  .RETURNS
+    - Nothing, if everything goes right ;-)
+
+  .NOTES
+    This function does NOT require Azure AD app registration, 
+    service principal creation, or any other special setup.
+    The only requirements are:
+      - The user must be able to run PowerShell (and install the
+        MicrosoftPowerBIMgmt module, if it's not already installed).
+      - The user must have permissions to access the workspace(s)
+        in the Power BI service.
+
+  .EXAMPLE
+    Takeover-UserDataset $DatasetWorkspaceTable
+
+  .TODO
+    - Write as function
+    - Re-implement token logic
+    - 
+
+  .ACKNOWLEDGEMENTS
+    -
+
+#>
+
+
+#Requires -Modules MicrosoftPowerBIMgmt
 
 Param(
   $DatasetWorkspaceTable
