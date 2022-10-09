@@ -35,7 +35,10 @@
       GitHub repo and publishing it to the same workspace as 
       the source report, so the user doesn't have to create
       and publish their own.
-          
+    
+  .EXAMPLE
+    - 
+
   .ACKNOWLEDGEMENTS
     This PS function was inspired by a blog article written by 
     one of the top minds in the Power BI space, Mathias Thierbach.
