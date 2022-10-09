@@ -1,3 +1,40 @@
+<#
+
+  .SYNOPSIS
+    Function: Audit-PowerBIWorkspaceSecurity
+    Author: @JamesDBartlett3 (James D. Bartlett III)
+
+  .DESCRIPTION
+    - Audit the security settings of Power BI Workspaces
+
+  .PARAMETERS
+    - 
+
+  .NOTES
+    This function does NOT require Azure AD app registration, 
+    service principal creation, or any other special setup.
+    The only requirements are:
+      - The user must be able to run PowerShell (and install the
+        MicrosoftPowerBIMgmt module, if it's not already installed).
+      - The user must have permissions to access the workspace(s)
+        in the Power BI service.
+
+  .TODO
+    - Write as function
+    - Re-implement token logic
+    - Re-implement REST API rate limiting logic
+    - Add usage, help, and examples
+    - Add parameters to specify output type, location, etc.
+    - Remove superfluous workspaces from ignoreWorkspaces list
+    - 
+
+  .ACKNOWLEDGEMENTS
+    -
+
+#>
+
+#Requires -Modules MicrosoftPowerBIMgmt
+
 $testing = $False
 
 $token = $null
