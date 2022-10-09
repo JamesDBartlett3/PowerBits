@@ -1,14 +1,38 @@
-# -------------------------------------------------------------------------
-# Title: Export-ReportsFromWorkspaces-Parallel.ps1
-# Author: @JamesDBartlett3
-# Description: Export Power BI reports from multiple workspaces in parallel
-# Usage: ".\Export-ReportsFromWorkspaces-Parallel.ps1"
-# -------------------------------------------------------------------------
-## TODO
-### Add: Option to overwrite existing report files
-### Change: "error_log_(timestamp).txt" -- keep  logs from previous runs
-### Convert: PowerShell Function
-# -------------------------------------------------------------------------
+<#
+
+  .SYNOPSIS
+    Function: Export-ReportsFromWorkspaces-Parallel
+    Author: @JamesDBartlett3 (James D. Bartlett III)
+
+  .DESCRIPTION
+    Export Power BI reports from multiple workspaces in parallel
+
+  .PARAMETERS
+    - 
+
+  .NOTES
+    This function does NOT require Azure AD app registration, 
+    service principal creation, or any other special setup.
+    The only requirements are:
+      - The user must be able to run PowerShell (and install the
+        MicrosoftPowerBIMgmt module, if it's not already installed).
+      - The user must have permissions to access the workspace(s)
+        in the Power BI service.
+
+  .TODO
+    - Convert to function
+    - Replace Out-Gridview with GraphicalTools version
+    - Add option to overwrite existing report files
+    - Add usage, help, and examples
+    - Change "error_log_(timestamp).txt" -- keep logs from previous runs
+    - Re-implement testing logic
+
+  .ACKNOWLEDGEMENTS
+    -
+
+#>
+
+#Requires -Modules MicrosoftPowerBIMgmt, Microsoft.PowerShell.GraphicalTools
 
 [bool]$testing = $False
 [int]$waitSeconds = 30
