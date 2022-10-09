@@ -68,6 +68,7 @@ $workspaces = Get-PowerBIWorkspace -Scope Organization -All |
   Sort-Object -Property Name -Unique
 
 $result = @()
+$callsToAPI = 0
 
 ForEach($w in $workspaces) {
   $workspaceName = $w.Name
@@ -86,8 +87,11 @@ ForEach($w in $workspaces) {
                     @{n='emailAddress';e={$_.emailAddress}},
                     @{n='identifier';e={$_.identifier}} |
     Sort-Object userRole, userName
-    Write-Output "Waiting 36 seconds to avoid hitting the API limit (200 req/hr)..."
-    Start-Sleep 36
+    if($callsToAPI -ge 199){
+      Write-Output "Waiting 36 seconds to avoid hitting the API limit (200 req/hr)..."
+      Start-Sleep 36
+    }
+    $callsToAPI++
 }
 
 if(-not $testing) {
