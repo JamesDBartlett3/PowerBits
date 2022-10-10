@@ -1,3 +1,24 @@
+<# 
+
+.SYNOPSIS
+  Function: Get-AADGroupMembers
+  Author: @JamesDBartlett3 (James D. Bartlett III)
+
+.DESCRIPTION
+  - Gets all members of an Azure AD group
+
+.PARAMETERS
+  - GroupNameSearchString: String to search for in group name
+
+.TODO
+  - Convert to function
+
+.EXAMPLE
+  Get-AADGroupMembers.ps1 -GroupNameSearchString "Power BI"
+
+#>
+
+#Requires -Module Az.Resources
 
 Param(
   [parameter(Mandatory = $true)][string]$GroupNameSearchString
