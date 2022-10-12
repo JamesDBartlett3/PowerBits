@@ -25,6 +25,7 @@ $functions = @(
     , "Match-DatasetsWithWorkspaces.ps1"
     , "Takeover-UserDataset.ps1"
     , "Copy-PowerBIReportContentToBlankPBIXFile.ps1"
+    , "Get-AADGroupMembers.ps1"
     # , "Export-ReportsFromWorkspaces-Parallel.ps1"
     # , "Audit-PowerBIWorkspaceSecurity.ps1"
     # , "Push-DataToPowerBIStreamingDataset_Demo.ps1"
