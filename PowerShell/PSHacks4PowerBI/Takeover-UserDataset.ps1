@@ -39,7 +39,7 @@
 #Requires -Modules MicrosoftPowerBIMgmt
 
 Function Takeover-UserDataset {
-
+  [CmdletBinding()]
   Param(
     $DatasetWorkspaceTable
   )

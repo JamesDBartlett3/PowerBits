@@ -38,7 +38,7 @@
 #Requires -Modules MicrosoftPowerBIMgmt
 
 Function Get-UserDatasets {
-
+  [CmdletBinding()]
   Param(
     [parameter(Mandatory = $true)][string]$userEmail
   )

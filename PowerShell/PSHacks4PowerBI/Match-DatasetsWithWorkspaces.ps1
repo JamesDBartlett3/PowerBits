@@ -39,8 +39,9 @@
 
 Function Match-DatasetsWithWorkspaces {
 
+  [CmdletBinding()]
   Param(
-    $ds
+    [parameter(Mandatory = $true, ValueFromPipeline = $true)] $ds
   )
 
   $hadToLogin = $false
