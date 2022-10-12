@@ -39,19 +39,15 @@
 #Requires -Modules MicrosoftPowerBIMgmt
 
 Param(
-  $DatasetWorkspaceTable
+  [parameter(Mandatory = $true, ValueFromPipeline = $true)]$DatasetWorkspaceTable
 )
-
-$hadToLogin = $false
 
 try {
   Get-PowerBIAccessToken | Out-Null
-}
-catch {
-  $hadToLogin = $true
+} catch {
+  Write-Output "Power BI Access Token required. Launching authentication dialog..."
   Connect-PowerBIServiceAccount | Out-Null
-}
-finally {
+} finally {
   ForEach($key in $DatasetWorkspaceTable.Keys) {
     $workspaceId = $DatasetWorkspaceTable[$key]
     $datasetId = $key
@@ -59,8 +55,7 @@ finally {
   
     # Try to transfer ownership of dataset to current user
     try { 
-      Invoke-PowerBIRestMethod -Url $uri -Method Post #-ErrorAction "SilentlyContinue" -WarningAction "SilentlyContinue"
-
+      $response = Invoke-PowerBIRestMethod -Url $uri -Method Post
       # Show error if we had a non-terminating error which catch won't catch
       if (-Not $?) {
         $errmsg = Resolve-PowerBIError -Last
@@ -69,10 +64,11 @@ finally {
     } catch {
       $errmsg = Resolve-PowerBIError -Last
       $errmsg.Message
+    } finally {
+      # Show success message
+      if ($response -and !$errmsg) {
+        Write-Output "Successfully took over dataset $datasetId in workspace $workspaceId"
+      }
     }
   }
-}
-
-if($hadToLogin) {
-  Disconnect-PowerBIServiceAccount
 }
