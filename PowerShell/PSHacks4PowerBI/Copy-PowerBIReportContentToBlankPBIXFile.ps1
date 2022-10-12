@@ -48,16 +48,17 @@
     
 #>
 
-#Requires -Modules MicrosoftPowerBIMgmt.Profile
+
 
 Function Copy-PowerBIReportContentToBlankPBIXFile {
+  #Requires -Modules MicrosoftPowerBIMgmt.Profile
   [CmdletBinding()]
   Param(
     [parameter(Mandatory = $true)][string]$sourceReportId,
     [parameter(Mandatory = $true)][string]$sourceWorkspaceId,
     [parameter(Mandatory = $true)][string]$targetReportId,
     [parameter(Mandatory = $false)][string]$targetWorkspaceId = $sourceWorkspaceId
-    )
+  )
 
   $headers = New-Object "System.Collections.Generic.Dictionary[[String],[String]]"
 
@@ -65,7 +66,9 @@ Function Copy-PowerBIReportContentToBlankPBIXFile {
 
     $headers = Get-PowerBIAccessToken
 
-  } catch {
+  }
+
+  catch {
 
     Write-Output "Power BI Access Token required. Launching authentication dialog..."
     Start-Sleep -s 2
@@ -75,7 +78,7 @@ Function Copy-PowerBIReportContentToBlankPBIXFile {
   }
 
   finally {
-
+    
     $pbiApiBaseUri = "https://api.powerbi.com/v1.0/myorg"
     $endpointUri = "$pbiApiBaseUri/groups/$targetWorkspaceId/reports/$targetReportId/UpdateReportContent"
     $body = @"
@@ -87,7 +90,7 @@ Function Copy-PowerBIReportContentToBlankPBIXFile {
         "sourceType": "ExistingReport"
       }
 "@
-    $headers.Add("Content-Type","application/json")
+    $headers.Add("Content-Type", "application/json")
     $response = Invoke-RestMethod -Uri $endpointUri -Method POST -Headers $headers -Body $body
     Write-Output $response
 

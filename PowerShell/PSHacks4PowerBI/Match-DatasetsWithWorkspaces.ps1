@@ -35,9 +35,8 @@
 
 #>
 
-#Requires -Modules MicrosoftPowerBIMgmt
-
 Function Match-DatasetsWithWorkspaces {
+  #Requires -Modules MicrosoftPowerBIMgmt
   [CmdletBinding()]
   Param(
     [parameter(Mandatory = $true, ValueFromPipeline = $true)]$DatasetList
@@ -48,20 +47,22 @@ Function Match-DatasetsWithWorkspaces {
 
   try {
     Get-PowerBIAccessToken | Out-Null
-  } catch {
+  }
+  catch {
     Write-Output "Power BI Access Token required. Launching authentication dialog..."
     Connect-PowerBIServiceAccount | Out-Null
-  } finally {
+  }
+  finally {
     $workspaces = Get-PowerBIWorkspace -Scope Organization -All |
-      Where-Object {$_.Type -EQ "Workspace" -AND $_.Name -NotIn $ignoreWorkspaces} |
-      Select-Object Id
+    Where-Object { $_.Type -EQ "Workspace" -AND $_.Name -NotIn $ignoreWorkspaces } |
+    Select-Object Id
     $datasets = $null
-    ForEach($w in $workspaces) {
+    ForEach ($w in $workspaces) {
       $workspaceId = $w.Id
       $datasets = Get-PowerBIDataset -WorkspaceId $workspaceId -ErrorAction "SilentlyContinue" |
-        Select-Object -Property Id |
-        Where-Object -Property Id -In $DatasetList.Id
-      ForEach($d in $datasets) {
+      Select-Object -Property Id |
+      Where-Object -Property Id -In $DatasetList.Id
+      ForEach ($d in $datasets) {
         $obj.Add($d.Id, $workspaceId)
       }
     }

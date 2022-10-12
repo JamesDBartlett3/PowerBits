@@ -18,21 +18,19 @@
 
 #>
 
-#Requires -Module Az.Resources
-
 Function Get-AADGroupMembers {
+  #Requires -Module Az.Resources
   [CmdletBinding()]
   Param(
     [parameter(Mandatory = $true)][string]$GroupNameSearchString
   )
-
   Get-AzADGroup -SearchString $GroupNameSearchString | 
   ForEach-Object {
     $group = $_;
     Get-AzADGroupMember -GroupObjectId $group.Id | 
     Select-Object DisplayName, @{
-      l="GroupName";
-      e={$group.DisplayName}
+      l = "GroupName";
+      e = { $group.DisplayName }
     }
   }
 

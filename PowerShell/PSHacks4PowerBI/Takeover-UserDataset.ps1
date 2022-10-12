@@ -35,10 +35,8 @@
 
 #>
 
-
-#Requires -Modules MicrosoftPowerBIMgmt
-
 Function Takeover-UserDataset {
+  #Requires -Modules MicrosoftPowerBIMgmt
   [CmdletBinding()]
   Param(
     [parameter(Mandatory = $true, ValueFromPipeline = $true)]$DatasetWorkspaceTable
@@ -51,7 +49,7 @@ Function Takeover-UserDataset {
     Connect-PowerBIServiceAccount | Out-Null
   }
   finally {
-    ForEach($key in $DatasetWorkspaceTable.Keys) {
+    ForEach ($key in $DatasetWorkspaceTable.Keys) {
       $workspaceId = $DatasetWorkspaceTable[$key]
       $datasetId = $key
       $uri = "https://api.powerbi.com/v1.0/myorg/groups/$workspaceId/datasets/$datasetId/Default.TakeOver"
@@ -65,7 +63,8 @@ Function Takeover-UserDataset {
           $errmsg = Resolve-PowerBIError -Last
           $errmsg.Message
         }
-      } catch {
+      }
+      catch {
         $errmsg = Resolve-PowerBIError -Last
         $errmsg.Message
       }
