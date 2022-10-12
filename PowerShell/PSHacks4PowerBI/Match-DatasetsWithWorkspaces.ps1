@@ -8,7 +8,7 @@
     - Audit the security settings of Power BI Workspaces
 
   .PARAMETERS
-    - $ds (list of dataset IDs) -- set to output from Get-UserDatasets
+    - $DatasetList (list of dataset IDs) -- set to output from Get-UserDatasets
 
   .RETURNS
     - Table with two columns: DatasetId and WorkspaceId
@@ -23,7 +23,7 @@
         in the Power BI service.
 
   .EXAMPLE
-    Match-DatasetsWithWorkspaces $ds
+    Match-DatasetsWithWorkspaces $DatasetList
 
   .TODO
     - Write as function
@@ -41,17 +41,15 @@ Function Match-DatasetsWithWorkspaces {
 
   [CmdletBinding()]
   Param(
-    [parameter(Mandatory = $true, ValueFromPipeline = $true)] $ds
+    [parameter(Mandatory = $true, ValueFromPipeline = $true)]$DatasetList
   )
 
-  $hadToLogin = $false
   $ignoreWorkspaces = "Azure DevOps Dashboard", "Microsoft Project Web App", "Power BI Premium Capacity Metrics"
   $obj = @{}
 
   try {
     Get-PowerBIAccessToken | Out-Null
   } catch {
-    $hadToLogin = $true
     Login-PowerBIServiceAccount | Out-Null
   } finally {
     $workspaces = Get-PowerBIWorkspace -Scope Organization -All |
@@ -62,15 +60,11 @@ Function Match-DatasetsWithWorkspaces {
       $workspaceId = $w.Id
       $datasets = Get-PowerBIDataset -WorkspaceId $workspaceId -ErrorAction "SilentlyContinue" |
         Select-Object -Property Id |
-        Where-Object -Property Id -In $ds.Id
+        Where-Object -Property Id -In $DatasetList.Id
       ForEach($d in $datasets) {
         $obj.Add($d.Id, $workspaceId)
       }
     }
-  }
-
-  if($hadToLogin) {
-    Logout-PowerBIServiceAccount
   }
 
   return $obj

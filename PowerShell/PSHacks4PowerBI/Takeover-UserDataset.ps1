@@ -41,7 +41,7 @@
 Function Takeover-UserDataset {
   [CmdletBinding()]
   Param(
-    $DatasetWorkspaceTable
+    [parameter(Mandatory = $true, ValueFromPipeline = $true)]$DatasetWorkspaceTable
   )
 
   $hadToLogin = $false
