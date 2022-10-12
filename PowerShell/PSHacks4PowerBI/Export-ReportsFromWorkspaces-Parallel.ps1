@@ -21,6 +21,7 @@
 
   .TODO
     - Convert to function
+    - Add "ExtractWithPbiTools" boolean parameter
     - Replace Out-Gridview with GraphicalTools version
     - Add option to overwrite existing report files
     - Add usage, help, and examples
