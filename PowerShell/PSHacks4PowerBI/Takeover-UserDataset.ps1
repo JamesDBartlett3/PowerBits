@@ -44,13 +44,10 @@ Function Takeover-UserDataset {
     [parameter(Mandatory = $true, ValueFromPipeline = $true)]$DatasetWorkspaceTable
   )
 
-  $hadToLogin = $false
-
   try {
     Get-PowerBIAccessToken | Out-Null
   }
   catch {
-    $hadToLogin = $true
     Connect-PowerBIServiceAccount | Out-Null
   }
   finally {
@@ -73,10 +70,6 @@ Function Takeover-UserDataset {
         $errmsg.Message
       }
     }
-  }
-
-  if($hadToLogin) {
-    Disconnect-PowerBIServiceAccount
   }
 
 }
