@@ -51,6 +51,7 @@
 
 
 Function Copy-PowerBIReportContentToBlankPBIXFile {
+  #Requires -PSEdition Core
   #Requires -Modules MicrosoftPowerBIMgmt.Profile
   [CmdletBinding()]
   Param(

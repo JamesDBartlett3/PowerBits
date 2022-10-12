@@ -19,6 +19,8 @@
 
 #>
 
+#Requires -PSEdition Core
+
 $endpoint = "" # Endpoint URL
 
 while($true) {

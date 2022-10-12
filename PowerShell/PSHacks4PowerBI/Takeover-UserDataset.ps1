@@ -36,6 +36,7 @@
 #>
 
 Function Takeover-UserDataset {
+  #Requires -PSEdition Core
   #Requires -Modules MicrosoftPowerBIMgmt
   [CmdletBinding()]
   Param(

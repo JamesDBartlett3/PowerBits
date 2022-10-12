@@ -33,6 +33,7 @@
 
 #>
 
+#Requires -PSEdition Core
 #Requires -Modules MicrosoftPowerBIMgmt, Microsoft.PowerShell.GraphicalTools
 
 [bool]$testing = $False

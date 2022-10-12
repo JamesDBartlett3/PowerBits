@@ -37,6 +37,7 @@
 
 
 Function Get-UserDatasets {
+  #Requires -PSEdition Core
   #Requires -Modules MicrosoftPowerBIMgmt
   [CmdletBinding()]
   Param(

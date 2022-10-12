@@ -36,6 +36,7 @@
 #>
 
 Function Match-DatasetsWithWorkspaces {
+  #Requires -PSEdition Core
   #Requires -Modules MicrosoftPowerBIMgmt
   [CmdletBinding()]
   Param(

@@ -19,6 +19,7 @@
 #>
 
 Function Get-AADGroupMembers {
+  #Requires -PSEdition Core
   #Requires -Module Az.Resources
   [CmdletBinding()]
   Param(

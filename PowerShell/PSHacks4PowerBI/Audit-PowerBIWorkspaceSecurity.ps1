@@ -33,6 +33,7 @@
 
 #>
 
+#Requires -PSEdition Core
 #Requires -Modules MicrosoftPowerBIMgmt
 
 $testing = $False

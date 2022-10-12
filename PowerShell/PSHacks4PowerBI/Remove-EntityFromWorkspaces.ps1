@@ -1,6 +1,9 @@
 ## NOT WORKING CURRENTLY ##
 ## Potential fix: https://github.com/microsoft/powerbi-powershell/issues/140 ##
 
+#Requires -PSEdition Core
+#Requires -Modules MicrosoftPowerBIMgmt
+
 $identifier = "Vitals@dmu.edu" # Identifier Options: <user_email_address>, <group_name>, <group_guid>
 
 $testing = $false
