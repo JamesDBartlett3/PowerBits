@@ -43,14 +43,12 @@ Function Get-UserDatasets {
     [parameter(Mandatory = $true)][string]$userEmail
   )
 
-  $hadToLogin = $false
   $ignoreReports = "Report Usage Metrics Report", "Dashboard Usage Metrics Report"
 
   try {
     Get-PowerBIAccessToken | Out-Null
   }
   catch {
-    $hadToLogin = $true
     Connect-PowerBIServiceAccount | Out-Null
   }
   finally{
@@ -60,11 +58,6 @@ Function Get-UserDatasets {
       Select-Object -Property Id, Name
   }
 
-  if($hadToLogin) {
-    Disconnect-PowerBIServiceAccount
-  }
-
-  Write-Output $result
-  # return $result
+  return $result
 
 }
