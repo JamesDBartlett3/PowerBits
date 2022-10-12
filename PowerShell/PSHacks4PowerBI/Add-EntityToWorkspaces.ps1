@@ -6,30 +6,19 @@ $principalType = "Group" # PrincipalType Options: App, Group, User
 $accessRight = "Admin" # AccessRight Options: Member, Admin, Contributor, Viewer
 
 try {
-
   Get-PowerBIAccessToken
-
 } catch {
-
   Write-Output "Power BI Access Token required. Launching authentication dialog..."
-  Start-Sleep -s 2
   Connect-PowerBIServiceAccount -WarningAction SilentlyContinue | Out-Null
-
-}
-
-finally {
-
+} finally {
   $workspaces = Get-PowerBIWorkspace -Scope Organization -All | 
   Where-Object {
     $_.State -EQ "Active" -AND
     $_.Type -EQ "Workspace"
     } | Select-Object -Property Id, Name, State  | Sort-Object -Property Name |
     Out-GridView -PassThru -Title "Select Workspaces (Ctrl+Click or Shift+Click to Multi-Select)"
-
   $objectId = $identifier
-
   if ($workspaces) {
-
     if($principalType -EQ "Group"){
       $aadToken = Get-AzureADCurrentSessionInfo
       if(!$aadToken){
@@ -44,7 +33,6 @@ finally {
       $objectId = Get-AzureADGroup -SearchString $identifier |
         ForEach-Object {$_.ObjectId} | Select-Object -First 1
     }
-
     ForEach ($w in $workspaces) {
       $name = $w.Name
       $Params = @{
@@ -60,11 +48,7 @@ finally {
       Write-Output "Waiting 18 seconds to avoid hitting the API limit (200 req/hr)..."
       Start-Sleep 18
     }
-
   } else {
-
     Write-Output "No workspaces specified. Exiting..."
-  
   }
-
 }
