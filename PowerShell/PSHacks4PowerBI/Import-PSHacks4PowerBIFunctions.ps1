@@ -22,10 +22,11 @@
 # List of functions to import
 $functions = @(
     "Get-UserDatasets.ps1"
-    , "Match-DatasetsWithWorkspaces.ps1"
-    , "Takeover-UserDataset.ps1"
+    , "Join-DatasetsWithWorkspaces.ps1"
+    , "Update-UserDatasetOwner.ps1"
     , "Copy-PowerBIReportContentToBlankPBIXFile.ps1"
     , "Get-AADGroupMembers.ps1"
+    , "ConvertTo-PbiToolsProj.ps1"
     # , "Export-ReportsFromWorkspaces-Parallel.ps1"
     # , "Audit-PowerBIWorkspaceSecurity.ps1"
     # , "Push-DataToPowerBIStreamingDataset_Demo.ps1"

@@ -1,7 +1,7 @@
 <#
 
   .SYNOPSIS
-    Function: Takeover-UserDataset
+    Function: Update-UserDatasetOwner
     Author: @JamesDBartlett3 (James D. Bartlett III)
 
   .DESCRIPTION
@@ -23,7 +23,7 @@
         in the Power BI service.
 
   .EXAMPLE
-    Takeover-UserDataset $DatasetWorkspaceTable
+    Update-UserDatasetOwner $DatasetWorkspaceTable
 
   .TODO
     - Write as function
@@ -35,7 +35,7 @@
 
 #>
 
-Function Takeover-UserDataset {
+Function Update-UserDatasetOwner {
   #Requires -PSEdition Core
   #Requires -Modules MicrosoftPowerBIMgmt
   [CmdletBinding()]

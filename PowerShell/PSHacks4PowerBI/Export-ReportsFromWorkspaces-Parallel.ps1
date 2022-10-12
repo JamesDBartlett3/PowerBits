@@ -21,7 +21,8 @@
 
   .TODO
     - Convert to function
-    - Add "ExtractWithPbiTools" boolean parameter
+    - Add "ConvertToPbiToolsProj" boolean parameter
+    - Invoke ConvertTo-PbiToolsProj cmdlet if parameter is true
     - Replace Out-Gridview with GraphicalTools version
     - Add option to overwrite existing report files
     - Add usage, help, and examples

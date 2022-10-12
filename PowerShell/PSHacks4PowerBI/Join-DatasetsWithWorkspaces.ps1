@@ -1,7 +1,7 @@
 <#
 
   .SYNOPSIS
-    Function: Match-DatasetsWithWorkspaces
+    Function: Join-DatasetsWithWorkspaces
     Author: @JamesDBartlett3 (James D. Bartlett III)
 
   .DESCRIPTION
@@ -23,7 +23,7 @@
         in the Power BI service.
 
   .EXAMPLE
-    Match-DatasetsWithWorkspaces $DatasetList
+    Join-DatasetsWithWorkspaces $DatasetList
 
   .TODO
     - Write as function
@@ -35,7 +35,7 @@
 
 #>
 
-Function Match-DatasetsWithWorkspaces {
+Function Join-DatasetsWithWorkspaces {
   #Requires -PSEdition Core
   #Requires -Modules MicrosoftPowerBIMgmt
   [CmdletBinding()]
