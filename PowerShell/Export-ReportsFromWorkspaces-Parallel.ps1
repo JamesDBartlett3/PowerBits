@@ -21,7 +21,7 @@
 
   .TODO
     - Convert to function
-    - Replace Out-Gridview with GraphicalTools version
+    - Replace Out-Gridview with ConsoleGuiTools version
     - Add option to overwrite existing report files
     - Add usage, help, and examples
     - Change "error_log_(timestamp).txt" -- keep logs from previous runs
@@ -32,7 +32,7 @@
 
 #>
 
-#Requires -Modules MicrosoftPowerBIMgmt, Microsoft.PowerShell.GraphicalTools
+#Requires -Modules MicrosoftPowerBIMgmt, Microsoft.PowerShell.ConsoleGuiTools
 
 [bool]$testing = $False
 [int]$waitSeconds = 30
