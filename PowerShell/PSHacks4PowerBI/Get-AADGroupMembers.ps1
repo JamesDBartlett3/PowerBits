@@ -20,7 +20,7 @@
 
 Function Get-AADGroupMembers {
   #Requires -PSEdition Core
-  #Requires -Module Az.Resources
+  #Requires -Modules Az.Resources
   [CmdletBinding()]
   Param(
     [parameter(Mandatory = $true)][string]$GroupNameSearchString
