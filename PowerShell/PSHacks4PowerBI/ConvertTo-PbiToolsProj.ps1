@@ -22,8 +22,7 @@ Function ConvertTo-PbiToolsProj {
     #Requires -PSEdition Core
     #Requires 
 
-    [CmdletBinding()]
-    Param(
+        Param(
         [parameter(Mandatory = $true)][string]$PbixPath,
         [parameter(Mandatory = $false)][string]$ExtractFolder = $null,
         [parameter(Mandatory = $false)][string]$ModelSerialization = "Default",

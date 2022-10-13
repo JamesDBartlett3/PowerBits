@@ -53,8 +53,7 @@
 Function Copy-PowerBIReportContentToBlankPBIXFile {
   #Requires -PSEdition Core
   #Requires -Modules MicrosoftPowerBIMgmt.Profile
-  [CmdletBinding()]
-  Param(
+    Param(
     [parameter(Mandatory = $true)][string]$sourceReportId,
     [parameter(Mandatory = $true)][string]$sourceWorkspaceId,
     [parameter(Mandatory = $true)][string]$targetReportId,

@@ -38,8 +38,7 @@
 Function Update-UserDatasetOwner {
   #Requires -PSEdition Core
   #Requires -Modules MicrosoftPowerBIMgmt
-  [CmdletBinding()]
-  Param(
+    Param(
     [parameter(Mandatory = $true, ValueFromPipeline = $true)]$DatasetWorkspaceTable
   )
 
