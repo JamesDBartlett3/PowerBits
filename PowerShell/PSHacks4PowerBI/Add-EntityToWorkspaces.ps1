@@ -7,40 +7,43 @@ $accessRight = "Admin" # AccessRight Options: Member, Admin, Contributor, Viewer
 
 try {
   Get-PowerBIAccessToken
-} catch {
+}
+catch {
   Write-Output "Power BI Access Token required. Launching authentication dialog..."
   Connect-PowerBIServiceAccount -WarningAction SilentlyContinue | Out-Null
-} finally {
+}
+finally {
   $workspaces = Get-PowerBIWorkspace -Scope Organization -All | 
   Where-Object {
     $_.State -EQ "Active" -AND
     $_.Type -EQ "Workspace"
-    } | Select-Object -Property Id, Name, State  | Sort-Object -Property Name |
-    Out-GridView -PassThru -Title "Select Workspaces (Ctrl+Click or Shift+Click to Multi-Select)"
+  } | Select-Object -Property Id, Name, State  | Sort-Object -Property Name |
+  Out-GridView -PassThru -Title "Select Workspaces (Ctrl+Click or Shift+Click to Multi-Select)"
   $objectId = $identifier
   if ($workspaces) {
-    if($principalType -EQ "Group"){
+    if ($principalType -EQ "Group") {
       $aadToken = Get-AzureADCurrentSessionInfo
-      if(!$aadToken){
-        if($PSVersionTable.PSEdition -EQ "Core"){
+      if (!$aadToken) {
+        if ($PSVersionTable.PSEdition -EQ "Core") {
           Remove-Module AzureAD
           Import-Module AzureAD -UseWindowsPowerShell -WarningAction SilentlyContinue
-        } else {
+        }
+        else {
           Import-Module AzureAD
         }
         Connect-AzureAD | Out-Null
       }
       $objectId = Get-AzureADGroup -SearchString $identifier |
-        ForEach-Object {$_.ObjectId} | Select-Object -First 1
+      ForEach-Object { $_.ObjectId } | Select-Object -First 1
     }
     ForEach ($w in $workspaces) {
       $name = $w.Name
       $Params = @{
-        Scope = "Organization"
-        Id = $w.Id
-        Identifier = $objectId
+        Scope         = "Organization"
+        Id            = $w.Id
+        Identifier    = $objectId
         PrincipalType = $principalType
-        AccessRight = $accessRight
+        AccessRight   = $accessRight
         WarningAction = "SilentlyContinue"
       }
       Write-Output "Adding `e[38;2;0;255;0m$identifier`e[0m to workspace `e[38;2;255;0;0m$name`e[0m"
@@ -48,7 +51,8 @@ try {
       Write-Output "Waiting 18 seconds to avoid hitting the API limit (200 req/hr)..."
       Start-Sleep 18
     }
-  } else {
+  }
+  else {
     Write-Output "No workspaces specified. Exiting..."
   }
 }

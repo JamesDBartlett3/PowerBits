@@ -21,7 +21,7 @@
 Function Get-AADGroupMembers {
   #Requires -PSEdition Core
   #Requires -Modules Az.Resources
-    Param(
+  Param(
     [parameter(Mandatory = $true)][string]$GroupNameSearchString
   )
   Get-AzADGroup -SearchString $GroupNameSearchString | 

@@ -44,7 +44,7 @@
 
 $token = $null
 $token = Get-PowerBIAccessToken
-if (!$token){
+if (!$token) {
   Connect-PowerBIServiceAccount | Out-Null
 }
 
@@ -59,7 +59,7 @@ $ignoreWorkspaces = @(
   , "Power BI Premium Capacity Metrics"
   , "Microsoft 365 Usage Analytics"
   , "Dataflow Snapshots"
-  )
+)
 $ignoreReports = @(
   "Report Usage Metrics Report"
   , "Dashboard Usage Metrics Report"
@@ -67,13 +67,14 @@ $ignoreReports = @(
 
 if ($testing) {
   $workspaces = Get-PowerBIWorkspace -Scope Organization -All |
-    Where-Object {
-                  $_.Type -eq "Workspace" -and
-                  $_.Name -eq "Testing" -and
-                  $_.State -eq "Active"
-                }
+  Where-Object {
+    $_.Type -eq "Workspace" -and
+    $_.Name -eq "Testing" -and
+    $_.State -eq "Active"
+  }
   $targetDir = "C:\temp"
-} else {
+}
+else {
   Function Get-TargetDirectory($initialDirectory) {
     [System.Reflection.Assembly]::LoadWithPartialName("System.windows.forms") | Out-Null
     $FolderBrowserDialog = New-Object System.Windows.Forms.FolderBrowserDialog
@@ -83,29 +84,29 @@ if ($testing) {
     $FolderBrowserDialog.SelectedPath
   }
   $workspaces = Get-PowerBIWorkspace -Scope Organization -All |
-    Where-Object {
-                  $_.Type -eq "Workspace" -and
-                  $_.State -eq "Active" -and
-                  $_.Name -notIn $ignoreWorkspaces
-                } |
-    Select-Object Id, Name |
-    Sort-Object -Property Name |
-    Out-GridView -PassThru -Title "Select Workspaces (Ctrl+Click to Multi-Select)"
+  Where-Object {
+    $_.Type -eq "Workspace" -and
+    $_.State -eq "Active" -and
+    $_.Name -notIn $ignoreWorkspaces
+  } |
+  Select-Object Id, Name |
+  Sort-Object -Property Name |
+  Out-GridView -PassThru -Title "Select Workspaces (Ctrl+Click to Multi-Select)"
   $targetDir = Get-TargetDirectory(Get-Location)
 }
 
 $errorLog = "$targetDir\error_log.txt"
 Clear-Content -LiteralPath $errorLog
 
-ForEach($w in $workspaces) {
+ForEach ($w in $workspaces) {
   $workspaceID = $w.Id
   $workspaceName = $w.Name
   $reports = Get-PowerBIReport -WorkspaceId $workspaceID |
-    Where-Object {
-                  $_.Name -notIn $ignoreReports -and
-                  $_.WebUrl -notLike "*rdlreports*"
-                } |
-    Sort-Object -Property Name
+  Where-Object {
+    $_.Name -notIn $ignoreReports -and
+    $_.WebUrl -notLike "*rdlreports*"
+  } |
+  Sort-Object -Property Name
 
   if ($reports -like "*Unauthorized*") {
     Add-Content -LiteralPath $errorLog "Error on $workspaceName workspace: Unauthorized."
@@ -136,9 +137,10 @@ ForEach($w in $workspaces) {
 
     if (Test-Path -LiteralPath $targetFile) {
       Write-Verbose "$targetFile already exists; Skipping."
-    } else {
+    }
+    else {
       $message = Export-PowerBIReport -WorkspaceId $workspaceID -Id $reportID -OutFile ".\$reportName.pbix" 2>&1 |
-        Out-String
+      Out-String
 
       if ($message -like "*BadRequest*") {
         $message = "Incremental Refresh"
@@ -152,7 +154,7 @@ ForEach($w in $workspaces) {
       elseif ($message -like "*Unauthorized*") {
         $message = "Unauthorized"
       }
-      else {$message = "Done"}
+      else { $message = "Done" }
 
       $fullPathMessage = "$targetFile" + ": $message"
       $shortPathMessage = "$workspaceName\$reportName" + ": $message"
@@ -178,7 +180,7 @@ if (-not $testing) {
 
 # Remove any empty directories
 Get-ChildItem $targetDir -Recurse -Attributes Directory |
-  Where-Object {$_.GetFileSystemInfos().Count -eq 0} |
-  Remove-Item
+Where-Object { $_.GetFileSystemInfos().Count -eq 0 } |
+Remove-Item
 
 Invoke-Item $targetDir

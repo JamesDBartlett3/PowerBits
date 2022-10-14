@@ -38,7 +38,7 @@
 Function Join-DatasetsWithWorkspaces {
   #Requires -PSEdition Core
   #Requires -Modules MicrosoftPowerBIMgmt
-    Param(
+  Param(
     [parameter(Mandatory = $true, ValueFromPipeline = $true)]$DatasetList
   )
 

@@ -39,7 +39,7 @@
 Function Get-UserDatasets {
   #Requires -PSEdition Core
   #Requires -Modules MicrosoftPowerBIMgmt
-    Param(
+  Param(
     [parameter(Mandatory = $true)][string]$userEmail
   )
 

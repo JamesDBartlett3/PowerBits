@@ -10,25 +10,25 @@ $testing = $false
 
 $pbiToken = $null
 $pbiToken = Get-PowerBIAccessToken
-if(!$pbiToken){
+if (!$pbiToken) {
   Login-PowerBIServiceAccount | Out-Null
 }
 
 $workspaces = Get-PowerBIWorkspace -Scope Organization -All | 
-  Where-Object {
-    $_.State -EQ "Active" -AND
-    $_.IsOrphaned -EQ $False -AND
-    $_.Type -EQ "Workspace"
-  } | Select-Object -Property Id, Name | Sort-Object -Property Name |
-    Out-GridView -PassThru -Title "Select Workspaces (Ctrl+Click or Shift+Click to Multi-Select)"
+Where-Object {
+  $_.State -EQ "Active" -AND
+  $_.IsOrphaned -EQ $False -AND
+  $_.Type -EQ "Workspace"
+} | Select-Object -Property Id, Name | Sort-Object -Property Name |
+Out-GridView -PassThru -Title "Select Workspaces (Ctrl+Click or Shift+Click to Multi-Select)"
 
 ForEach ($w in $workspaces) {
   $name = $w.Name
   $Params = @{
-    Scope = "Organization"
-    Id = $w.Id
+    Scope             = "Organization"
+    Id                = $w.Id
     UserPrincipalName = $identifier
-    WarningAction = "SilentlyContinue"
+    WarningAction     = "SilentlyContinue"
   }
   Write-Output "Removing `e[38;2;0;255;0m$identifier`e[0m from workspace `e[38;2;255;0;0m$name`e[0m "
   Remove-PowerBIWorkspaceUser @Params | Out-Null
@@ -36,6 +36,6 @@ ForEach ($w in $workspaces) {
   Start-Sleep 18
 }
 
-if(-not $testing) {
+if (-not $testing) {
   Logout-PowerBIServiceAccount | Out-Null
 }
