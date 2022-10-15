@@ -19,7 +19,7 @@
 
 #>
 
-# Pre-emptively import problematic module
+# Pre-emptively import problematic modules
 Import-Module Az.Resources
 
 # List of functions to import
