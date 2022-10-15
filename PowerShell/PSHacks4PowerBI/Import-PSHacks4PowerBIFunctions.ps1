@@ -19,6 +19,9 @@
 
 #>
 
+# Pre-emptively import problematic module
+Import-Module Az.Resources
+
 # List of functions to import
 $functions = @(
     "Get-UserDatasets.ps1"
