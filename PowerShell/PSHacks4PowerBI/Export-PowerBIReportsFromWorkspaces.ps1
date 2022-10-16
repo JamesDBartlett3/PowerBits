@@ -20,6 +20,7 @@
         (see: "Download reports" setting in the Power BI Admin Portal).
 
   .TODO
+    - Refactor target directory selection to use terminal prompt
     - Add "extractWithPbiTools" boolean parameter
       - Implement "extractWithPbiTools" parameter
     - Add option to overwrite existing report files
@@ -27,7 +28,7 @@
     - Add usage, help, and examples
     - Change "error_log_(timestamp).txt" -- keep logs from previous runs
     - Remove all "testing" code
-    
+
   .ACKNOWLEDGEMENTS
     -
 
@@ -46,6 +47,7 @@ Function Export-PowerBIReportsFromWorkspaces {
   )
 
   [int]$waitSeconds = 30
+  $currentDateTime = Get-Date -UFormat "%Y%m%d_%H%M%S"
   
   $headers = New-Object "System.Collections.Generic.Dictionary[[String],[String]]"
 
@@ -78,15 +80,7 @@ Function Export-PowerBIReportsFromWorkspaces {
       , "Dashboard Usage Metrics Report"
     )
 
-    Function Get-TargetDirectory($initialDirectory) {
-      [System.Reflection.Assembly]::LoadWithPartialName("System.windows.forms") | Out-Null
-      $FolderBrowserDialog = New-Object System.Windows.Forms.FolderBrowserDialog
-      $FolderBrowserDialog.SelectedPath = $initialDirectory
-      $FolderBrowserDialog.Description = "Select Target Directory"
-      $FolderBrowserDialog.ShowDialog() | Out-Null
-      $FolderBrowserDialog.SelectedPath
-    }
-
+    # Get list of workspaces and prompt user to select which ones to export
     $workspaces = Get-PowerBIWorkspace -Scope Organization -All |
       Where-Object {
         $_.Type -eq "Workspace" -and
@@ -97,12 +91,11 @@ Function Export-PowerBIReportsFromWorkspaces {
       Sort-Object -Property Name |
       Out-ConsoleGridView -Title "Select Workspaces to Export"
 
-    $targetDir = if ( !$destinationFolder ) { 
-      Get-TargetDirectory($env:TEMP)
-    } else { $destinationFolder }
+    # If user didn't specify a destination folder, use the standard temp directory
+    $targetDir = !$destinationFolder ? $env:TEMP : $destinationFolder
 
-    $errorLog = "$targetDir\error_log.txt"
-    Clear-Content -LiteralPath $errorLog
+    # Create a log file to record errors
+    $errorLog = "$targetDir\error_log_$currentDateTime.txt"
 
     # TODO: Handle report type (rdl vs pbix)
       # $_.WebUrl -contains "/rdlreports/"
@@ -121,7 +114,7 @@ Function Export-PowerBIReportsFromWorkspaces {
       }
 
       if (-not (Test-Path -LiteralPath "$targetDir\$workspaceName" -PathType Container)) {
-        New-Item -Path "$targetDir\$workspaceName" -ItemType Directory | Out-Null
+        New-Item -LiteralPath "$targetDir\$workspaceName" -ItemType Directory | Out-Null
       }
 
       $reports | ForEach-Object -Parallel {
@@ -137,7 +130,7 @@ Function Export-PowerBIReportsFromWorkspaces {
         $targetFile = "$targetReportDir\$reportName.pbix"
 
         if (-not (Test-Path -LiteralPath $targetReportDir -PathType Container)) {
-          New-Item -Path $targetReportDir -ItemType Directory | Out-Null
+          New-Item -LiteralPath $targetReportDir -ItemType Directory | Out-Null
         }
         Set-Location -LiteralPath $targetReportDir
         Write-Verbose "_______________________________________________________"
