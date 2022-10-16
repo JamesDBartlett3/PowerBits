@@ -30,11 +30,9 @@
 
   .TODO
     - Add usage, help, and examples.
-    - Add response codes and error handling.
-    - Add support for downloading a blank PBIX file from a
-      GitHub repo and publishing it to the same workspace as 
-      the source report, so the user doesn't have to create
-      and publish their own.
+    - Add ability to fetch IDs from names and vice versa.
+    - Add outFile parameter to allow saving the new PBIX file to disk.
+    - Rename the function to something more accurate to its current capabilities.
     
   .EXAMPLE
     - 
@@ -52,7 +50,7 @@
 
 Function Copy-PowerBIReportContentToBlankPBIXFile {
   #Requires -PSEdition Core
-  #Requires -Modules MicrosoftPowerBIMgmt.Profile
+  #Requires -Modules MicrosoftPowerBIMgmt
   [CmdletBinding()]
   Param(
     [parameter(Mandatory = $true)][string]$sourceReportId,
@@ -79,7 +77,7 @@ Function Copy-PowerBIReportContentToBlankPBIXFile {
     $fileIsBlank = (Get-Item $file).length / 1KB -lt 20
     $zip.Dispose()
     if($fileIsPbix -and $fileIsBlank) {
-      Write-Verbose "$file is a valid blank pbix file."
+      Write-Debug "$file is a valid blank pbix file."
       return $true
     }
     else {
@@ -88,45 +86,51 @@ Function Copy-PowerBIReportContentToBlankPBIXFile {
     }
   }
 
+  # If user did not specify a target report ID, use a blank PBIX file
+  If(!$targetReportId) {
 
-  # If user specified a URL to a file, download and validate it as a blank PBIX file
-  if ($blankPbixIsUrl){
-    Write-Verbose "Downloading file: $blankPbix..."
-    Invoke-WebRequest -Uri $blankPbix -OutFile $blankPbixTempFile
-    Write-Verbose "Validating downloaded file..."
-    $remoteFileIsValid = FileIsBlankPbix($blankPbixTempFile)
-  }
+    # If user specified a URL to a file, download and validate it as a blank PBIX file
+    if ($blankPbixIsUrl){
+      Write-Debug "Downloading file: $blankPbix..."
+      Invoke-WebRequest -Uri $blankPbix -OutFile $blankPbixTempFile
+      Write-Debug "Validating downloaded file..."
+      $remoteFileIsValid = FileIsBlankPbix($blankPbixTempFile)
+    }
 
-  # If user specified a local path to a file, validate it as a blank PBIX file
-  elseif ($localFileExists) {
-    Write-Verbose "Validating user-supplied file: $blankPbix..."
-    $localFileIsValid = FileIsBlankPbix($blankPbix)
-  }
+    # If user specified a local path to a file, validate it as a blank PBIX file
+    elseif ($localFileExists) {
+      Write-Debug "Validating user-supplied file: $blankPbix..."
+      $localFileIsValid = FileIsBlankPbix($blankPbix)
+    }
 
-  # If user didn't specify a blank PBIX file, check for a valid blank PBIX in the temp location
-  elseif ($blankPbixTempFile) {
-    Write-Verbose "Validating pbix file found in temp location: $blankPbixTempFile..."
-    $defaultFileIsValid = FileIsBlankPbix($blankPbixTempFile)
-  }
-
-  # If user did not specify a blank PBIX file, and a valid blank PBIX is not in the temp location,
-  # download one from GitHub and check if it's valid and blank
-  else { 
-      Write-Verbose "Downloading a blank pbix file from GitHub to $blankPbixTempFile..."
-      $blankPbixUri = "https://github.com/JamesDBartlett3/PowerBits/raw/main/Misc/blank.pbix"
-      Invoke-WebRequest -Uri $blankPbixUri -OutFile $blankPbixTempFile
+    # If user didn't specify a blank PBIX file, check for a valid blank PBIX in the temp location
+    elseif (Test-Path $blankPbixTempFile) {
+      Write-Debug "Validating pbix file found in temp location: $blankPbixTempFile..."
       $defaultFileIsValid = FileIsBlankPbix($blankPbixTempFile)
-  }
-  
-  # If we downloaded a valid blank PBIX file, use it.
-  if ($remoteFileIsValid -or $defaultFileIsValid) {
-    $blankPbix = $blankPbixTempFile
-  }
+    }
 
-  # If a valid blank PBIX file could not be obtained by any of the above methods, throw an error.
-  if (!$targetReportId -and !$localFileIsValid -and !$remoteFileIsValid -and !$defaultFileIsValid) {
-    Write-Error "No targetReportId specified & no valid blank PBIX file found. Please specify one or the other."
-    return
+    # If user did not specify a blank PBIX file, and a valid blank PBIX is not in the temp location,
+    # download one from GitHub and check if it's valid and blank
+    else { 
+        Write-Debug "Downloading a blank pbix file from GitHub to $blankPbixTempFile..."
+        $blankPbixUri = "https://github.com/JamesDBartlett3/PowerBits/raw/main/Misc/blank.pbix"
+        Invoke-WebRequest -Uri $blankPbixUri -OutFile $blankPbixTempFile
+        $defaultFileIsValid = FileIsBlankPbix($blankPbixTempFile)
+    }
+    
+    # If we downloaded a valid blank PBIX file, use it.
+    if ($remoteFileIsValid -or $defaultFileIsValid) {
+      $blankPbix = $blankPbixTempFile
+    }
+
+    # If a valid blank PBIX file could not be obtained by any of the above methods, throw an error.
+    if (!$targetReportId -and !$localFileIsValid -and !$remoteFileIsValid -and !$defaultFileIsValid) {
+      Write-Error "No targetReportId specified & no valid blank PBIX file found. Please specify one or the other."
+      return
+    }
+
+    [bool]$pbixIsValid = ($localFileIsValid -or $remoteFileIsValid -or $defaultFileIsValid)
+
   }
   
   try {
@@ -145,8 +149,19 @@ Function Copy-PowerBIReportContentToBlankPBIXFile {
   }
   
   finally {
-    
+
+    Write-Debug "Target Report ID is null: $(!$targetReportId)" 
+
     $pbiApiBaseUri = "https://api.powerbi.com/v1.0/myorg"
+
+    # If a valid blank PBIX was found, publish it to the target workspace
+    if ($pbixIsValid) {
+      Write-Debug "Publishing $blankPbix to target workspace..."
+      $publishResponse = New-PowerBIReport -Path $blankPbix -WorkspaceId $targetWorkspaceId -ConflictAction CreateOrOverwrite
+      Write-Debug "Response: $publishResponse"
+      $targetReportId = $publishResponse.Id
+    }
+    
     $endpointUri = "$pbiApiBaseUri/groups/$targetWorkspaceId/reports/$targetReportId/UpdateReportContent"
     $body = @"
       {
@@ -159,8 +174,10 @@ Function Copy-PowerBIReportContentToBlankPBIXFile {
 "@
     $headers.Add("Content-Type", "application/json")
     $response = Invoke-RestMethod -Uri $endpointUri -Method POST -Headers $headers -Body $body
-    Write-Output $response
-    
+    $sourceReportName = (Get-PowerBIReport -Id $sourceReportId -WorkspaceId $sourceWorkspaceId).Name
+    Export-PowerBIReport -WorkspaceId $targetWorkspaceId -Id $response.id -OutFile "$($sourceReportName)_Cloned.pbix"
+    Invoke-RestMethod $pbiApiBaseUri/groups/$targetWorkspaceId/datasets/$($response.datasetId) -Method DELETE -Headers $headers
+
   }
   
 }
