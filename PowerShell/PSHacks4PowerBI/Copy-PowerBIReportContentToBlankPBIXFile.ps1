@@ -16,7 +16,7 @@
     - sourceWorkspaceId: The ID of the workspace to copy from
     - targetReportId: The ID of the report to copy to
     - targetWorkspaceId (optional): The ID of the workspace to copy to
-    
+
   .NOTES
     This function does NOT require Azure AD app registration, 
     service principal creation, or any other special setup.
@@ -45,7 +45,7 @@
     Check out his article here: https://bit.ly/37ofVou
     And if you're not already using his pbi-tools for Power BI
     version control, you should check it out: https://pbi.tools
-    
+
 #>
 
 
@@ -53,30 +53,97 @@
 Function Copy-PowerBIReportContentToBlankPBIXFile {
   #Requires -PSEdition Core
   #Requires -Modules MicrosoftPowerBIMgmt.Profile
+  [CmdletBinding()]
   Param(
     [parameter(Mandatory = $true)][string]$sourceReportId,
     [parameter(Mandatory = $true)][string]$sourceWorkspaceId,
-    [parameter(Mandatory = $true)][string]$targetReportId,
+    [parameter(Mandatory = $false)][string]$targetReportId,
+    [Parameter(Mandatory = $false)][string]$blankPbix,
     [parameter(Mandatory = $false)][string]$targetWorkspaceId = $sourceWorkspaceId
   )
-
+  
   $headers = New-Object "System.Collections.Generic.Dictionary[[String],[String]]"
 
-  try {
+  [string]$blankPbixTempFile = Join-Path -Path $env:TEMP -ChildPath "blank.pbix"
+  [array]$validPbixContents = @("[Content_Types].xml", "Version", "Layout", "Metadata")
 
-    $headers = Get-PowerBIAccessToken
+  [bool]$blankPbixIsUrl = $blankPbix.StartsWith("http")
+  [bool]$localFileExists = Test-Path $blankPbix
+  [bool]$remoteFileIsValid = $false
+  [bool]$localFileIsValid = $false
+  [bool]$defaultFileIsValid = $false
 
+  Function FileIsBlankPbix($file) {
+    $zip = [System.IO.Compression.ZipFile]::OpenRead($file)
+    $fileIsPbix = @($validPbixContents | Where-Object {$zip.Entries.Name -Contains $_}).Count -gt 0
+    $fileIsBlank = (Get-Item $file).length / 1KB -lt 20
+    $zip.Dispose()
+    if($fileIsPbix -and $fileIsBlank) {
+      Write-Verbose "$file is a valid blank pbix file."
+      return $true
+    }
+    else {
+      Write-Error "$file is NOT a valid blank pbix file."
+      return $false
+    }
   }
 
-  catch {
 
+  # If user specified a URL to a file, download and validate it as a blank PBIX file
+  if ($blankPbixIsUrl){
+    Write-Verbose "Downloading file: $blankPbix..."
+    Invoke-WebRequest -Uri $blankPbix -OutFile $blankPbixTempFile
+    Write-Verbose "Validating downloaded file..."
+    $remoteFileIsValid = FileIsBlankPbix($blankPbixTempFile)
+  }
+
+  # If user specified a local path to a file, validate it as a blank PBIX file
+  elseif ($localFileExists) {
+    Write-Verbose "Validating user-supplied file: $blankPbix..."
+    $localFileIsValid = FileIsBlankPbix($blankPbix)
+  }
+
+  # If user didn't specify a blank PBIX file, check for a valid blank PBIX in the temp location
+  elseif ($blankPbixTempFile) {
+    Write-Verbose "Validating pbix file found in temp location: $blankPbixTempFile..."
+    $defaultFileIsValid = FileIsBlankPbix($blankPbixTempFile)
+  }
+
+  # If user did not specify a blank PBIX file, and a valid blank PBIX is not in the temp location,
+  # download one from GitHub and check if it's valid and blank
+  else { 
+      Write-Verbose "Downloading a blank pbix file from GitHub to $blankPbixTempFile..."
+      $blankPbixUri = "https://github.com/JamesDBartlett3/PowerBits/raw/main/Misc/blank.pbix"
+      Invoke-WebRequest -Uri $blankPbixUri -OutFile $blankPbixTempFile
+      $defaultFileIsValid = FileIsBlankPbix($blankPbixTempFile)
+  }
+  
+  # If we downloaded a valid blank PBIX file, use it.
+  if ($remoteFileIsValid -or $defaultFileIsValid) {
+    $blankPbix = $blankPbixTempFile
+  }
+
+  # If a valid blank PBIX file could not be obtained by any of the above methods, throw an error.
+  if (!$targetReportId -and !$localFileIsValid -and !$remoteFileIsValid -and !$defaultFileIsValid) {
+    Write-Error "No targetReportId specified & no valid blank PBIX file found. Please specify one or the other."
+    return
+  }
+  
+  try {
+    
+    $headers = Get-PowerBIAccessToken
+    
+  }
+  
+  catch {
+    
     Write-Output "Power BI Access Token required. Launching authentication dialog..."
-    Start-Sleep -s 2
+    Start-Sleep -s 1
     Connect-PowerBIServiceAccount -WarningAction SilentlyContinue | Out-Null
     $headers = Get-PowerBIAccessToken
-
+    
   }
-
+  
   finally {
     
     $pbiApiBaseUri = "https://api.powerbi.com/v1.0/myorg"
@@ -93,7 +160,7 @@ Function Copy-PowerBIReportContentToBlankPBIXFile {
     $headers.Add("Content-Type", "application/json")
     $response = Invoke-RestMethod -Uri $endpointUri -Method POST -Headers $headers -Body $body
     Write-Output $response
-
+    
   }
-
+  
 }
