@@ -107,19 +107,19 @@ function ParseQueriesFromPbit ($inputFile) {
 
     try {
         # create a copy of a PBIT file with the extesion .ZIP
-        Copy-Item -Path $inputFile -Destination $zipFileName
+        Copy-Item -LiteralPath $inputFile -Destination $zipFileName
 
         # unzip
-        Expand-Archive -Path $zipFileName -DestinationPath $zipDirectory
+        Expand-Archive -LiteralPath $zipFileName -DestinationPath $zipDirectory
         # read the content of the file DataMashup in the unzipped file
-        $DataMashupFileContent = Get-Content -Path "$zipDirectory\DataMashup" -Encoding UTF8 -Raw
+        $DataMashupFileContent = Get-Content -LiteralPath "$zipDirectory\DataMashup" -Encoding UTF8 -Raw
         # read the content of the file DataModelSchema in the unzipped file
-        $DataModelSchemaFileContent = Get-Content -Path "$zipDirectory\DataModelSchema" -Encoding Unicode -Raw
+        $DataModelSchemaFileContent = Get-Content -LiteralPath "$zipDirectory\DataModelSchema" -Encoding Unicode -Raw
     }
     finally {
         # clean up all the temp files I have created
-        Remove-Item -Path $zipFileName -Force
-        Remove-Item -Path $zipDirectory -Force -Recurse
+        Remove-Item -LiteralPath $zipFileName -Force
+        Remove-Item -LiteralPath $zipDirectory -Force -Recurse
     }
 
     # get the innerXML string of <Items>

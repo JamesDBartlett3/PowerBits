@@ -109,7 +109,7 @@ ForEach($w in $workspaces) {
   }
 
   if (-not (Test-Path -LiteralPath "$targetDir\$workspaceName" -PathType Container)) {
-    New-Item -Path "$targetDir\$workspaceName" -ItemType Directory | Out-Null
+    New-Item -LiteralPath "$targetDir\$workspaceName" -ItemType Directory | Out-Null
   }
 
   $reports | ForEach-Object -Parallel {
@@ -125,7 +125,7 @@ ForEach($w in $workspaces) {
     $targetFile = "$targetReportDir\$reportName.pbix"
 
     if (-not (Test-Path -LiteralPath $targetReportDir -PathType Container)) {
-      New-Item -Path $targetReportDir -ItemType Directory | Out-Null
+      New-Item -LiteralPath $targetReportDir -ItemType Directory | Out-Null
     }
     Set-Location -LiteralPath $targetReportDir
     Write-Verbose "_______________________________________________________"
