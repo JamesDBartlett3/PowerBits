@@ -92,7 +92,7 @@ Function Export-PowerBIReportsFromWorkspaces {
       Out-ConsoleGridView -Title "Select Workspaces to Export"
 
     # If user didn't specify a destination folder, use the standard temp directory
-    $targetDir = !$destinationFolder ? $env:TEMP : $destinationFolder
+    $targetDir = $destinationFolder ?? "$env:TEMP\PowerBIWorkspaces"
 
     # Create a log file to record errors
     $errorLog = "$targetDir\error_log_$currentDateTime.txt"

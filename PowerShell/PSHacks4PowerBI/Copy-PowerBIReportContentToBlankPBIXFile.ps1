@@ -172,10 +172,9 @@ Function Copy-PowerBIReportContentToBlankPBIXFile {
     $response = Invoke-RestMethod -Uri $updateReportContentEndpoint -Method POST -Headers $headers -Body $body
     
     # If user did not specify an output file, use the source report's name
-    $outfile = 
-      !$outfile ? 
-      "$((Get-PowerBIReport -Id $sourceReportId -WorkspaceId $sourceWorkspaceId).Name)_Clone.pbix" 
-      : $outfile
+    $outfile = $outfile ?? "$( `
+      (Get-PowerBIReport -Id $sourceReportId -WorkspaceId $sourceWorkspaceId).Name `
+      )_Clone.pbix"
     
     # Export the target report to a PBIX file
     Export-PowerBIReport -WorkspaceId $targetWorkspaceId -Id $response.id -OutFile $outFile
