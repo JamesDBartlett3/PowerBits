@@ -20,13 +20,15 @@
         (see: "Download reports" setting in the Power BI Admin Portal).
 
   .TODO
+    - Put reports in the workspace folder, not a subfolder named after the report
     - Refactor target directory selection to use terminal prompt
     - Add "extractWithPbiTools" boolean parameter
       - Implement "extractWithPbiTools" parameter
     - Add option to overwrite existing report files
     - Add rdl support
+    - Replace $waitSeconds with a more robust wait mechanism
+      - Use pbimonitor scripts for inspiration
     - Add usage, help, and examples
-    - Change "error_log_(timestamp).txt" -- keep logs from previous runs
     - Remove all "testing" code
 
   .ACKNOWLEDGEMENTS
@@ -43,11 +45,13 @@ Function Export-PowerBIReportsFromWorkspaces {
   Param(
     [parameter(Mandatory = $true)][string]$destinationFolder,
     [parameter(Mandatory = $false)][int]$throttleLimit = 1,
-    [parameter(Mandatory = $false)][switch]$extractWithPbiTools
+    [parameter(Mandatory = $false)][switch]$extractWithPbiTools,
+    [parameter(Mandatory = $false)][switch]$skipExistingFiles
   )
 
   [int]$waitSeconds = 30
   $currentDateTime = Get-Date -UFormat "%Y%m%d_%H%M%S"
+  $fallbackDir = "$env:TEMP\PowerBIWorkspaces"
   
   $headers = New-Object "System.Collections.Generic.Dictionary[[String],[String]]"
 
@@ -91,74 +95,74 @@ Function Export-PowerBIReportsFromWorkspaces {
       Sort-Object -Property Name |
       Out-ConsoleGridView -Title "Select Workspaces to Export"
 
-    # If user didn't specify a destination folder, use the standard temp directory
-    $targetDir = $destinationFolder ?? "$env:TEMP\PowerBIWorkspaces"
+    # If user didn't specify a destination folder, fall back to $fallbackDir
+    $targetDir = $destinationFolder ?? $fallbackDir
+
+    # If target directory doesn't exist, create it
+    if (!Test-Path -LiteralPath $targetDir) {
+      New-Item -LiteralPath $targetDir -ItemType Directory | Out-Null
+    }
 
     # Create a log file to record errors
-    $errorLog = "$targetDir\error_log_$currentDateTime.txt"
+    $errorLog = Join-Path -Path $targetDir -ChildPath "error_log_$currentDateTime.txt"
 
-    # TODO: Handle report type (rdl vs pbix)
-      # $_.WebUrl -contains "/rdlreports/"
-      # $_.WebUrl -contains "/reports/"
+    # Loop through all selected workspaces and get list of reports in them
     ForEach ($w in $workspaces) {
       $workspaceID = $w.Id
       $workspaceName = $w.Name
       $reports = Get-PowerBIReport -WorkspaceId $workspaceID |
-      Where-Object {
-        $_.Name -notIn $ignoreReports
-      } |
-      Sort-Object -Property Name
+        Where-Object {
+          $_.Name -notIn $ignoreReports
+        } | Sort-Object -Property Name
 
-      if ($reports -like "*Unauthorized*") {
+      # If user does not have access to the current workspace, log an error and skip it
+      if ($reports -like "*Unauthorized*") { #TODO: Proper error handling
         Add-Content -LiteralPath $errorLog "Error on $workspaceName workspace: Unauthorized."
       }
 
-      if (-not (Test-Path -LiteralPath "$targetDir\$workspaceName" -PathType Container)) {
-        New-Item -LiteralPath "$targetDir\$workspaceName" -ItemType Directory | Out-Null
+      # Declare $workspacePath variable and create workspace folder if it doesn't exist
+      $workspacePath = Join-Path -Path $targetDir -ChildPath $workspaceName
+      if (!(Test-Path -LiteralPath $workspacePath -PathType Container)) {
+        New-Item -LiteralPath $workspacePath -ItemType Directory | Out-Null
       }
 
+      # Loop through all reports in the current workspace and download them
       $reports | ForEach-Object -Parallel {
         $waitSeconds = $using:waitSeconds
-        $throttleLimit = $using:throttleLimit
         $reportID = $_.Id
         $reportName = $_.Name
         $errorLog = $using:errorLog
         $targetDir = $using:targetDir
         $workspaceID = $using:workspaceID
         $workspaceName = $using:workspaceName
-        $targetReportDir = "$targetDir\$workspaceName\$reportName"
-        $targetFile = "$targetReportDir\$reportName.pbix"
+        $targetReportPathBaseName = Join-Path -Path $workspacePath -ChildPath $reportName
+        $targetFilePath = ($_.WebUrl -contains "/rdlreports/") ?
+          "$targetReportPathBaseName.rdl" : "$targetReportPathBaseName.pbix"
 
-        if (-not (Test-Path -LiteralPath $targetReportDir -PathType Container)) {
-          New-Item -LiteralPath $targetReportDir -ItemType Directory | Out-Null
-        }
-        Set-Location -LiteralPath $targetReportDir
         Write-Verbose "_______________________________________________________"
-        Write-Verbose "Exporting $reportName to $targetFile..."
+        Write-Verbose "Exporting $reportName to $targetFilePath..."
 
-        if (Test-Path -LiteralPath $targetFile) {
-          Write-Verbose "$targetFile already exists; Skipping."
+        # If user specified to skip existing files, check if the file exists
+        if (Test-Path -LiteralPath $targetFilePath -and $skipExistingFiles) {
+          Write-Verbose "$targetFilePath already exists; Skipping."
         }
+        # Otherwise, download the report
         else {
-          $message = Export-PowerBIReport -WorkspaceId $workspaceID -Id $reportID -OutFile ".\$reportName.pbix" 2>&1 |
+          $message = Export-PowerBIReport -WorkspaceId $workspaceID -Id $reportID -OutFile $targetFilePath 2>&1 |
           Out-String
 
-          if ($message -like "*BadRequest*") {
-            $message = "Incremental Refresh"
+          # Error handling for Export-PowerBIReport 
+          #TODO: Proper error handling
+          $message = switch ($true) {
+            { $message -like "*BadRequest*" } { "Incremental Refresh" }
+            { $message -like "*NotFound*" -or $message -like "*Forbidden*" } { "Downloads Disabled" }
+            { $message -like "*TooManyRequests*" } { "Reached Power BI API Rate Limit; Try Again Later." }
+            { $message -like "*Unauthorized*" } { "Unauthorized" }
+            { $true } { "Done" }
           }
-          elseif ($message -like "*NotFound*" -or $message -like "*Forbidden*") {
-            $message = "Downloads Disabled"
-          }
-          elseif ($message -like "*TooManyRequests*") {
-            $message = "Reached Power BI API Rate Limit; Try Again Later"
-          }
-          elseif ($message -like "*Unauthorized*") {
-            $message = "Unauthorized"
-          }
-          else { $message = "Done" }
 
-          $fullPathMessage = "$targetFile" + ": $message"
-          $shortPathMessage = "$workspaceName\$reportName" + ": $message"
+          $fullPathMessage = "$targetFilePath" + ": $message"
+          $shortPathMessage = (Join-Path -Path $workspaceName -ChildPath $reportName) + ": $message"
 
           if ($message -ne "Done") {
             Add-Content -LiteralPath $errorLog $fullPathMessage
@@ -177,9 +181,8 @@ Function Export-PowerBIReportsFromWorkspaces {
 
     # Remove any empty directories
     Get-ChildItem $targetDir -Recurse -Attributes Directory |
-    Where-Object { $_.GetFileSystemInfos().Count -eq 0 } |
-    Remove-Item
-
+      Where-Object { $_.GetFileSystemInfos().Count -eq 0 } | Remove-Item
+    
     Invoke-Item $targetDir
 
   }
