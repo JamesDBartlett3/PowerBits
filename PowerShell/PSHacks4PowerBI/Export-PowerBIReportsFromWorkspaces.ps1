@@ -48,7 +48,6 @@ Function Export-PowerBIReportsFromWorkspaces {
   [string]$fallbackDir = Join-Path -Path $env:TEMP -ChildPath "PowerBIWorkspaces"
   
   $headers = New-Object "System.Collections.Generic.Dictionary[[String],[String]]"
-  # $DebugPreference = $Debug.IsPresent ? "Continue" : "SilentlyContinue"
 
   try {
     $headers = Get-PowerBIAccessToken
