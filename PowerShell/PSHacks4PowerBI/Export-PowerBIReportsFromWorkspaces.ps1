@@ -20,16 +20,11 @@
         (see: "Download reports" setting in the Power BI Admin Portal).
 
   .TODO
-    - Put reports in the workspace folder, not a subfolder named after the report
-    - Refactor target directory selection to use terminal prompt
     - Add "extractWithPbiTools" boolean parameter
       - Implement "extractWithPbiTools" parameter
-    - Add option to overwrite existing report files
-    - Add rdl support
     - Replace $waitSeconds with a more robust wait mechanism
       - Use pbimonitor scripts for inspiration
     - Add usage, help, and examples
-    - Remove all "testing" code
 
   .ACKNOWLEDGEMENTS
     -
@@ -43,15 +38,14 @@ Function Export-PowerBIReportsFromWorkspaces {
 
   [CmdletBinding()]
   Param(
-    [parameter(Mandatory = $true)][string]$destinationFolder,
+    [parameter(Mandatory = $false)][string]$destinationFolder = $null,
     [parameter(Mandatory = $false)][int]$throttleLimit = 1,
     [parameter(Mandatory = $false)][switch]$extractWithPbiTools,
     [parameter(Mandatory = $false)][switch]$skipExistingFiles
   )
 
-  [int]$waitSeconds = 30
-  $currentDateTime = Get-Date -UFormat "%Y%m%d_%H%M%S"
-  $fallbackDir = "$env:TEMP\PowerBIWorkspaces"
+  [string]$currentDateTime = Get-Date -UFormat "%Y%m%d_%H%M%S"
+  [string]$fallbackDir = Join-Path -Path $env:TEMP -ChildPath "PowerBIWorkspaces"
   
   $headers = New-Object "System.Collections.Generic.Dictionary[[String],[String]]"
 
@@ -67,7 +61,7 @@ Function Export-PowerBIReportsFromWorkspaces {
   }
 
   finally {
-    Out-Debug "Headers: `n" $headers
+    Write-Debug "Headers: `n $($headers.Name)`n $($headers.Value)"
     [array]$ignoreWorkspaces = @(
       "COVID-19 Tracking Report"
       , "COVID-19 US Tracking Report"
@@ -96,11 +90,12 @@ Function Export-PowerBIReportsFromWorkspaces {
       Out-ConsoleGridView -Title "Select Workspaces to Export"
 
     # If user didn't specify a destination folder, fall back to $fallbackDir
-    $targetDir = $destinationFolder ?? $fallbackDir
+    $targetDir = if(!$destinationFolder) { $fallbackDir } else { $destinationFolder }
+    Write-Output "Target directory: $targetDir"
 
     # If target directory doesn't exist, create it
-    if (!Test-Path -LiteralPath $targetDir) {
-      New-Item -LiteralPath $targetDir -ItemType Directory | Out-Null
+    if (!(Test-Path -LiteralPath $targetDir)) {
+      New-Item -Path $targetDir -ItemType Directory | Out-Null
     }
 
     # Create a log file to record errors
@@ -123,31 +118,37 @@ Function Export-PowerBIReportsFromWorkspaces {
       # Declare $workspacePath variable and create workspace folder if it doesn't exist
       $workspacePath = Join-Path -Path $targetDir -ChildPath $workspaceName
       if (!(Test-Path -LiteralPath $workspacePath -PathType Container)) {
-        New-Item -LiteralPath $workspacePath -ItemType Directory | Out-Null
+        New-Item -Path $workspacePath -ItemType Directory | Out-Null
       }
+
+      # Open $targetDir in Windows Explorer
+      Invoke-Item $targetDir
 
       # Loop through all reports in the current workspace and download them
       $reports | ForEach-Object -Parallel {
-        $waitSeconds = $using:waitSeconds
         $reportID = $_.Id
         $reportName = $_.Name
+        $reportWebUrl = $_.WebUrl
         $errorLog = $using:errorLog
         $targetDir = $using:targetDir
         $workspaceID = $using:workspaceID
         $workspaceName = $using:workspaceName
+        $workspacePath = $using:workspacePath
         $targetReportPathBaseName = Join-Path -Path $workspacePath -ChildPath $reportName
-        $targetFilePath = ($_.WebUrl -contains "/rdlreports/") ?
+        $targetFilePath = ($reportWebUrl -like "*/rdlreports/*") ?
           "$targetReportPathBaseName.rdl" : "$targetReportPathBaseName.pbix"
-
+        Write-Debug "Report WebUrl: $reportWebUrl"
         Write-Verbose "_______________________________________________________"
         Write-Verbose "Exporting $reportName to $targetFilePath..."
 
         # If user specified to skip existing files, check if the file exists
-        if (Test-Path -LiteralPath $targetFilePath -and $skipExistingFiles) {
+        if ((Test-Path -LiteralPath $targetFilePath) -and $skipExistingFiles) {
           Write-Verbose "$targetFilePath already exists; Skipping."
         }
         # Otherwise, download the report
         else {
+          # If $targetFilePath already exists, remove it
+          if (Test-Path $targetFilePath) { Remove-Item $targetFilePath -Force -ErrorAction SilentlyContinue }
           $message = Export-PowerBIReport -WorkspaceId $workspaceID -Id $reportID -OutFile $targetFilePath 2>&1 |
           Out-String
 
@@ -167,13 +168,10 @@ Function Export-PowerBIReportsFromWorkspaces {
           if ($message -ne "Done") {
             Add-Content -LiteralPath $errorLog $fullPathMessage
             Write-Output "❌ `e[38;2;255;0;0m$shortPathMessage (see $errorLog for details)`e[0m" # Red
-          }
-          else {
-            Write-Output "✔ $shortPathMessage"
-          }
+          } 
+          else { Write-Output "✅ $shortPathMessage" }
           Write-Verbose "_______________________________________________________"
-          # Write-Verbose "Waiting $waitSeconds seconds to avoid hitting the Power BI API Rate Limit (200 req/hr)..."
-          Start-Sleep $waitSeconds
+
         }
         Set-Location -LiteralPath $targetDir
       } -ThrottleLimit $throttleLimit
@@ -182,8 +180,6 @@ Function Export-PowerBIReportsFromWorkspaces {
     # Remove any empty directories
     Get-ChildItem $targetDir -Recurse -Attributes Directory |
       Where-Object { $_.GetFileSystemInfos().Count -eq 0 } | Remove-Item
-    
-    Invoke-Item $targetDir
 
   }
 
