@@ -20,6 +20,10 @@
         (see: "Download reports" setting in the Power BI Admin Portal).
 
   .TODO
+    - Add $workspacesToExport parameter to allow user to specify
+      which workspaces to export from.
+      - This would require a change to the Get-PowerBIWorkspace
+        function to allow filtering by workspace name.
     - Add "extractWithPbiTools" boolean parameter
       - Implement "extractWithPbiTools" parameter
     - Replace $waitSeconds with a more robust wait mechanism
@@ -135,6 +139,7 @@ Function Export-PowerBIReportsFromWorkspaces {
         $workspaceID = $using:workspaceID
         $workspaceName = $using:workspaceName
         $workspacePath = $using:workspacePath
+        $skipExistingFiles = $using:skipExistingFiles
         $targetReportPathBaseName = Join-Path -Path $workspacePath -ChildPath $reportName
         $shortPathBaseName = Join-Path -Path $workspaceName -ChildPath $reportName
         $targetFilePath, $shortPath = ($reportWebUrl -like "*/rdlreports/*") ?
@@ -145,13 +150,13 @@ Function Export-PowerBIReportsFromWorkspaces {
         Write-Verbose "Exporting $reportName to $targetFilePath..."
 
         # If user specified to skip existing files, check if the file exists
-        if ((Test-Path $targetFilePath) -and $using:skipExistingFiles) {
+        if ((Test-Path -Path $targetFilePath) -and $skipExistingFiles) {
           Write-Output "⤵️  $shortPath already exists; Skipping..."
         }
         # Otherwise, download the report
         else {
           # If $targetFilePath already exists, remove it
-          if (Test-Path $targetFilePath) { Remove-Item $targetFilePath -Force -ErrorAction SilentlyContinue }
+          if (Test-Path -Path $targetFilePath) { Remove-Item $targetFilePath -Force -ErrorAction SilentlyContinue }
           $message = Export-PowerBIReport -WorkspaceId $workspaceID -Id $reportID -OutFile $targetFilePath 2>&1 |
           Out-String
 
