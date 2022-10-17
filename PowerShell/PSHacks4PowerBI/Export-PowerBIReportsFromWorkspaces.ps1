@@ -48,6 +48,7 @@ Function Export-PowerBIReportsFromWorkspaces {
   [string]$fallbackDir = Join-Path -Path $env:TEMP -ChildPath "PowerBIWorkspaces"
   
   $headers = New-Object "System.Collections.Generic.Dictionary[[String],[String]]"
+  # $DebugPreference = $Debug.IsPresent ? "Continue" : "SilentlyContinue"
 
   try {
     $headers = Get-PowerBIAccessToken
@@ -61,11 +62,9 @@ Function Export-PowerBIReportsFromWorkspaces {
   }
 
   finally {
-    Write-Debug "Headers: `n $($headers.Name)`n $($headers.Value)"
+    Write-Debug "Headers: `n $($headers.Keys)`n $($headers.Values)"
     [array]$ignoreWorkspaces = @(
-      "COVID-19 Tracking Report"
-      , "COVID-19 US Tracking Report"
-      , "Gen2 Utilization Metrics"
+      "Gen2 Utilization Metrics"
       , "Azure DevOps Dashboard"
       , "Microsoft Project Web App"
       , "Office365 Usage Analytics"
@@ -101,6 +100,9 @@ Function Export-PowerBIReportsFromWorkspaces {
     # Create a log file to record errors
     $errorLog = Join-Path -Path $targetDir -ChildPath "error_log_$currentDateTime.txt"
 
+    # Open $targetDir in Windows Explorer
+    Invoke-Item $targetDir
+
     # Loop through all selected workspaces and get list of reports in them
     ForEach ($w in $workspaces) {
       $workspaceID = $w.Id
@@ -121,11 +123,11 @@ Function Export-PowerBIReportsFromWorkspaces {
         New-Item -Path $workspacePath -ItemType Directory | Out-Null
       }
 
-      # Open $targetDir in Windows Explorer
-      Invoke-Item $targetDir
-
       # Loop through all reports in the current workspace and download them
       $reports | ForEach-Object -Parallel {
+        $DebugPreference = $using:DebugPreference # bug work around
+        $VerbosePreference = $using:VerbosePreference # bug work around
+        $InformationPreference = $using:InformationPreference # bug work around
         $reportID = $_.Id
         $reportName = $_.Name
         $reportWebUrl = $_.WebUrl
@@ -135,15 +137,17 @@ Function Export-PowerBIReportsFromWorkspaces {
         $workspaceName = $using:workspaceName
         $workspacePath = $using:workspacePath
         $targetReportPathBaseName = Join-Path -Path $workspacePath -ChildPath $reportName
-        $targetFilePath = ($reportWebUrl -like "*/rdlreports/*") ?
-          "$targetReportPathBaseName.rdl" : "$targetReportPathBaseName.pbix"
+        $shortPathBaseName = Join-Path -Path $workspaceName -ChildPath $reportName
+        $targetFilePath, $shortPath = ($reportWebUrl -like "*/rdlreports/*") ?
+          "$targetReportPathBaseName.rdl", "$shortPathBaseName.rdl" :
+          "$targetReportPathBaseName.pbix", "$shortPathBaseName.pbix"
         Write-Debug "Report WebUrl: $reportWebUrl"
         Write-Verbose "_______________________________________________________"
         Write-Verbose "Exporting $reportName to $targetFilePath..."
 
         # If user specified to skip existing files, check if the file exists
-        if ((Test-Path -LiteralPath $targetFilePath) -and $skipExistingFiles) {
-          Write-Verbose "$targetFilePath already exists; Skipping."
+        if ((Test-Path $targetFilePath) -and $using:skipExistingFiles) {
+          Write-Output "⤵️  $shortPath already exists; Skipping..."
         }
         # Otherwise, download the report
         else {
@@ -162,8 +166,8 @@ Function Export-PowerBIReportsFromWorkspaces {
             { $true } { "Done" }
           }
 
-          $fullPathMessage = "$targetFilePath" + ": $message"
-          $shortPathMessage = (Join-Path -Path $workspaceName -ChildPath $reportName) + ": $message"
+          $fullPathMessage = "$targetFilePath`: $message"
+          $shortPathMessage = "$shortPath`: $message"
 
           if ($message -ne "Done") {
             Add-Content -LiteralPath $errorLog $fullPathMessage
