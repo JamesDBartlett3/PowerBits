@@ -128,9 +128,13 @@ Function Export-PowerBIReportsFromWorkspaces {
 
       # Loop through all reports in the current workspace and download them
       $reports | ForEach-Object -Parallel {
-        $DebugPreference = $using:DebugPreference # bug work around
-        $VerbosePreference = $using:VerbosePreference # bug work around
-        $InformationPreference = $using:InformationPreference # bug work around
+
+        # Workaround for Write-Debug, Write-Verbose, and Write-Warning not working in parallel
+        $DebugPreference = $using:DebugPreference 
+        $VerbosePreference = $using:VerbosePreference 
+        $InformationPreference = $using:InformationPreference
+
+        # Declare variables for current report
         $reportID = $_.Id
         $reportName = $_.Name
         $reportWebUrl = $_.WebUrl
@@ -157,11 +161,13 @@ Function Export-PowerBIReportsFromWorkspaces {
         else {
           # If $targetFilePath already exists, remove it
           if (Test-Path -Path $targetFilePath) { Remove-Item $targetFilePath -Force -ErrorAction SilentlyContinue }
-          $message = Export-PowerBIReport -WorkspaceId $workspaceID -Id $reportID -OutFile $targetFilePath 2>&1 |
-          Out-String
+
+          # Export the report and store the response in $message
+          $message = Export-PowerBIReport -WorkspaceId $workspaceID -Id $reportID -OutFile $targetFilePath 2>&1 | Out-String
 
           # Error handling for Export-PowerBIReport 
-          #TODO: Proper error handling
+          #TODO: proper error handling
+          #TODO: rate limiting
           $message = switch ($true) {
             { $message -like "*BadRequest*" } { "Incremental Refresh" }
             { $message -like "*NotFound*" -or $message -like "*Forbidden*" } { "Downloads Disabled" }
@@ -181,7 +187,6 @@ Function Export-PowerBIReportsFromWorkspaces {
           Write-Verbose "_______________________________________________________"
 
         }
-        Set-Location -LiteralPath $targetDir
       } -ThrottleLimit $throttleLimit
     }
 
