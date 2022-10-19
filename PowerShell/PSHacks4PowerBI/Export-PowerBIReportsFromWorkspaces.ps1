@@ -28,6 +28,7 @@
       - Implement "extractWithPbiTools" parameter
     - Replace $waitSeconds with a more robust wait mechanism
       - Use pbimonitor scripts for inspiration
+    - Add logic to spread parallelism over multiple workspaces
     - Add usage, help, and examples
 
   .ACKNOWLEDGEMENTS
@@ -43,9 +44,9 @@ Function Export-PowerBIReportsFromWorkspaces {
   [CmdletBinding()]
   Param(
     [parameter(Mandatory = $false)][string]$destinationFolder = $null,
-    [parameter(Mandatory = $false)][int]$throttleLimit = 1,
     [parameter(Mandatory = $false)][switch]$extractWithPbiTools,
-    [parameter(Mandatory = $false)][switch]$skipExistingFiles
+    [parameter(Mandatory = $false)][switch]$skipExistingFiles,
+    [parameter(Mandatory = $false)][int]$throttleLimit = 1
   )
 
   [string]$currentDateTime = Get-Date -UFormat "%Y%m%d_%H%M%S"
@@ -82,17 +83,17 @@ Function Export-PowerBIReportsFromWorkspaces {
 
     # Get list of workspaces and prompt user to select which ones to export
     $workspaces = Get-PowerBIWorkspace -Scope Organization -All |
-      Where-Object {
-        $_.Type -eq "Workspace" -and
-        $_.State -eq "Active" -and
-        $_.Name -notIn $ignoreWorkspaces
-      } |
-      Select-Object Name, Id |
-      Sort-Object -Property Name |
-      Out-ConsoleGridView -Title "Select Workspaces to Export"
+    Where-Object {
+      $_.Type -eq "Workspace" -and
+      $_.State -eq "Active" -and
+      $_.Name -notIn $ignoreWorkspaces
+    } |
+    Select-Object Name, Id |
+    Sort-Object -Property Name |
+    Out-ConsoleGridView -Title "Select Workspaces to Export"
 
     # If user didn't specify a destination folder, fall back to $fallbackDir
-    $targetDir = if(!$destinationFolder) { $fallbackDir } else { $destinationFolder }
+    $targetDir = if (!$destinationFolder) { $fallbackDir } else { $destinationFolder }
     Write-Output "Target directory: $targetDir"
 
     # If target directory doesn't exist, create it
@@ -111,12 +112,13 @@ Function Export-PowerBIReportsFromWorkspaces {
       $workspaceID = $w.Id
       $workspaceName = $w.Name
       $reports = Get-PowerBIReport -WorkspaceId $workspaceID |
-        Where-Object {
-          $_.Name -notIn $ignoreReports
-        } | Sort-Object -Property Name
+      Where-Object {
+        $_.Name -notIn $ignoreReports
+      } | Sort-Object -Property Name
 
       # If user does not have access to the current workspace, log an error and skip it
-      if ($reports -like "*Unauthorized*") { #TODO: Proper error handling
+      #TODO: Proper error handling
+      if ($reports -like "*Unauthorized*") {
         Add-Content -LiteralPath $errorLog "Error on $workspaceName workspace: Unauthorized."
       }
 
@@ -192,7 +194,7 @@ Function Export-PowerBIReportsFromWorkspaces {
 
     # Remove any empty directories
     Get-ChildItem $targetDir -Recurse -Attributes Directory |
-      Where-Object { $_.GetFileSystemInfos().Count -eq 0 } | Remove-Item
+    Where-Object { $_.GetFileSystemInfos().Count -eq 0 } | Remove-Item
 
   }
 
