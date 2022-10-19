@@ -7,9 +7,6 @@
   .DESCRIPTION
     Export Power BI reports from multiple workspaces in parallel
 
-  .PARAMETERS
-    - 
-
   .NOTES
     This function does NOT require Azure AD app registration, 
     service principal creation, or any other special setup.
@@ -19,14 +16,27 @@
       - The user must be allowed to download report PBIX files
         (see: "Download reports" setting in the Power BI Admin Portal).
 
+  .PARAMETER OutputFolder
+    The folder where the reports will be saved. If the folder does
+    not exist, it will be created.
+  .PARAMETER ExtractWithPbiTools
+    If specified, exported PBIX reports will be extracted with 
+    pbi-tools after they are exported. Requires pbi-tools to be
+    installed. See: https://pbi.tools
+  .PARAMETER SkipExistingFiles
+    If specified, existing files will be skipped. If not specified,
+    existing files will be overwritten.
+  .PARAMETER ThrottleLimit
+    The maximum number of reports that will be exported in parallel.
+    Defaults to 1.
+
   .TODO
     - Add $workspacesToExport parameter to allow user to specify
       which workspaces to export from.
       - This would require a change to the Get-PowerBIWorkspace
         function to allow filtering by workspace name.
-    - Add "extractWithPbiTools" boolean parameter
-      - Implement "extractWithPbiTools" parameter
-    - Replace $waitSeconds with a more robust wait mechanism
+    - Implement "ExtractWithPbiTools" parameter
+    - Add dynamic rate limiting to avoid throttling
       - Use pbimonitor scripts for inspiration
     - Add logic to spread parallelism over multiple workspaces
     - Add usage, help, and examples
@@ -43,10 +53,10 @@ Function Export-PowerBIReportsFromWorkspaces {
 
   [CmdletBinding()]
   Param(
-    [parameter(Mandatory = $false)][string]$destinationFolder = $null,
-    [parameter(Mandatory = $false)][switch]$extractWithPbiTools,
-    [parameter(Mandatory = $false)][switch]$skipExistingFiles,
-    [parameter(Mandatory = $false)][int]$throttleLimit = 1
+    [parameter(Mandatory = $false)][string]$OutputFolder = $null,
+    [parameter(Mandatory = $false)][switch]$ExtractWithPbiTools,
+    [parameter(Mandatory = $false)][switch]$SkipExistingFiles,
+    [parameter(Mandatory = $false)][int]$ThrottleLimit = 1
   )
 
   [string]$currentDateTime = Get-Date -UFormat "%Y%m%d_%H%M%S"
@@ -83,17 +93,15 @@ Function Export-PowerBIReportsFromWorkspaces {
 
     # Get list of workspaces and prompt user to select which ones to export
     $workspaces = Get-PowerBIWorkspace -Scope Organization -All |
-    Where-Object {
-      $_.Type -eq "Workspace" -and
-      $_.State -eq "Active" -and
-      $_.Name -notIn $ignoreWorkspaces
-    } |
-    Select-Object Name, Id |
-    Sort-Object -Property Name |
-    Out-ConsoleGridView -Title "Select Workspaces to Export"
+      Where-Object {
+        $_.Type -eq "Workspace" -and
+        $_.State -eq "Active" -and
+        $_.Name -notIn $ignoreWorkspaces
+      } | Select-Object Name, Id | Sort-Object -Property Name |
+      Out-ConsoleGridView -Title "Select Workspaces to Export"
 
     # If user didn't specify a destination folder, fall back to $fallbackDir
-    $targetDir = if (!$destinationFolder) { $fallbackDir } else { $destinationFolder }
+    $targetDir = if (!$OutputFolder) { $fallbackDir } else { $OutputFolder }
     Write-Output "Target directory: $targetDir"
 
     # If target directory doesn't exist, create it
@@ -112,9 +120,9 @@ Function Export-PowerBIReportsFromWorkspaces {
       $workspaceID = $w.Id
       $workspaceName = $w.Name
       $reports = Get-PowerBIReport -WorkspaceId $workspaceID |
-      Where-Object {
-        $_.Name -notIn $ignoreReports
-      } | Sort-Object -Property Name
+        Where-Object {
+          $_.Name -notIn $ignoreReports
+        } | Sort-Object -Property Name
 
       # If user does not have access to the current workspace, log an error and skip it
       #TODO: Proper error handling
@@ -128,8 +136,8 @@ Function Export-PowerBIReportsFromWorkspaces {
         New-Item -Path $workspacePath -ItemType Directory | Out-Null
       }
 
-      # Loop through all reports in the current workspace and download them
-      $reports | ForEach-Object -Parallel {
+      # Loop through all reports in the current workspace and download them in parallel
+      $reports | ForEach-Object -ThrottleLimit $ThrottleLimit -Parallel {
 
         # Workaround for Write-Debug, Write-Verbose, and Write-Warning not working in parallel
         $DebugPreference = $using:DebugPreference 
@@ -145,7 +153,7 @@ Function Export-PowerBIReportsFromWorkspaces {
         $workspaceID = $using:workspaceID
         $workspaceName = $using:workspaceName
         $workspacePath = $using:workspacePath
-        $skipExistingFiles = $using:skipExistingFiles
+        $SkipExistingFiles = $using:SkipExistingFiles
         $targetReportPathBaseName = Join-Path -Path $workspacePath -ChildPath $reportName
         $shortPathBaseName = Join-Path -Path $workspaceName -ChildPath $reportName
         $targetFilePath, $shortPath = ($reportWebUrl -like "*/rdlreports/*") ?
@@ -156,7 +164,7 @@ Function Export-PowerBIReportsFromWorkspaces {
         Write-Verbose "Exporting $reportName to $targetFilePath..."
 
         # If user specified to skip existing files, check if the file exists
-        if ((Test-Path -Path $targetFilePath) -and $skipExistingFiles) {
+        if ((Test-Path -Path $targetFilePath) -and $SkipExistingFiles) {
           Write-Output "⤵️  $shortPath already exists; Skipping..."
         }
         # Otherwise, download the report
@@ -189,12 +197,12 @@ Function Export-PowerBIReportsFromWorkspaces {
           Write-Verbose "_______________________________________________________"
 
         }
-      } -ThrottleLimit $throttleLimit
+      }
     }
 
     # Remove any empty directories
     Get-ChildItem $targetDir -Recurse -Attributes Directory |
-    Where-Object { $_.GetFileSystemInfos().Count -eq 0 } | Remove-Item
+      Where-Object { $_.GetFileSystemInfos().Count -eq 0 } | Remove-Item
 
   }
 
