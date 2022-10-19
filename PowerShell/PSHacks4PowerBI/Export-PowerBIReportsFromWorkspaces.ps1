@@ -76,7 +76,12 @@ Function Export-PowerBIReportsFromWorkspaces {
   }
 
   finally {
+
+    # If debugging, display the access token
     Write-Debug "Headers: `n $($headers.Keys)`n $($headers.Values)"
+
+    # Define names of workspaces and reports to ignore
+    # Most of these are auto-generated stuff from Microsoft
     [array]$ignoreWorkspaces = @(
       "Gen2 Utilization Metrics"
       , "Azure DevOps Dashboard"
