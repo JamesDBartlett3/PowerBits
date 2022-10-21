@@ -46,7 +46,7 @@ Function Get-DataGatewayNodesStatus {
 				@{l = "ClusterName"; e = { $clusterName }}, 
 				@{l = "NodeId"; e = { $_.Id }}, 
 				@{l = "NodeName"; e = { $_.Name }}, 
-				@{l = "GatewayMachine"; e = {($_.Annotation | ConvertFrom-Json).gatewayMachine}}, 
+				@{l = "GatewayMachine"; e = { ($_.Annotation | ConvertFrom-Json).gatewayMachine }}, 
 				Status, Version, VersionStatus, State
 		}
 	}
