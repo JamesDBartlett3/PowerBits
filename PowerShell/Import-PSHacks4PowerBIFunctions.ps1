@@ -28,7 +28,7 @@ $functions = @(
 )
 
 # Dotsource all functions in current directory whose names match those in $functions array
-Get-ChildItem -LiteralPath $PSScriptRoot -Filter *.ps1 -Recurse |
+Get-ChildItem -LiteralPath $PSScriptRoot -Filter *.ps1 |
 	Where-Object { $_.Name -in $functions -and $_.FullName -ne $PSCommandPath } |
 	ForEach-Object {
 		Write-Output "Importing `e[38;2;0;255;0m$($_.BaseName)`e[0m..."
