@@ -7,8 +7,7 @@
 		- Imports functions for the "PowerShell Hacks for Power BI" demo session
 
 	.NOTES
-		TODO
-			- Add all needed functions
+		- Version: 1.0
 
 	.EXAMPLE
 		Import-PSHacks4PowerBIFunctions.ps1
