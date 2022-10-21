@@ -26,11 +26,8 @@
 #>
 
 Function Get-DataGatewayNodesStatus {
-
 	#Requires -Modules DataGateway
-
 	Write-Output "Retrieving status of all accesssible Data Gateway nodes..."
-
 	try {
 		Get-DataGatewayAccessToken | Out-Null
 	}
@@ -44,19 +41,13 @@ Function Get-DataGatewayNodesStatus {
 			$clusterName = $_.Name
 			$clusterId = $_.Id
 			$_ | Select-Object -ExpandProperty MemberGateways | 
-			Select-Object -Property @{
-				l = "ClusterId"; e = { $clusterId }
-			}, @{
-				l = "ClusterName"; e = { $clusterName }
-			}, @{
-				l = "NodeId"; e = { $_.Id }
-			}, @{
-				l = "NodeName"; e = { $_.Name }
-			}, @{
-				l = "GatewayMachine"; e = {
-          ($_.Annotation | ConvertFrom-Json).gatewayMachine
-				}
-			}, Status, Version, VersionStatus, State
+			Select-Object -Property `
+				@{l = "ClusterId"; e = { $clusterId }}, 
+				@{l = "ClusterName"; e = { $clusterName }}, 
+				@{l = "NodeId"; e = { $_.Id }}, 
+				@{l = "NodeName"; e = { $_.Name }}, 
+				@{l = "GatewayMachine"; e = {($_.Annotation | ConvertFrom-Json).gatewayMachine}}, 
+				Status, Version, VersionStatus, State
 		}
 	}
 }
