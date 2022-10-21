@@ -1,17 +1,19 @@
 <#
-
   .SYNOPSIS
     Function: Get-UserDatasets
     Author: @JamesDBartlett3 (James D. Bartlett III)
 
   .DESCRIPTION
-    - Get a list of all Power BI datasets marked as "configured by" a given user
+    Get a list of all Power BI datasets marked as "configured by" a given user
 
-  .PARAMETERS
-    - $userEmail (string) -- email address of the user
+  .PARAMETER UserEmail
+    Email address of the user
 
-  .RETURNS
-    - List of dataset IDs
+  .EXAMPLE
+    Get-UserDatasets user@domain.tld
+
+  .OUTPUTS
+    List of dataset IDs
 
   .NOTES
     This function does NOT require Azure AD app registration, 
@@ -22,44 +24,30 @@
       - The user must have permissions to access the workspace(s)
         in the Power BI service.
 
-  .EXAMPLE
-    Get-UserDatasets user@domain.tld
-
-  .TODO
-    - Write as function
-    - Re-implement token logic
-    - 
-
-  .ACKNOWLEDGEMENTS
-    -
-
+    TODO
+      - Re-implement token logic
+      - Testing
 #>
 
-#Requires -Modules MicrosoftPowerBIMgmt
-
-Param(
-  [string]$userEmail
-)
-
-$hadToLogin = $false
-$ignoreReports = "Report Usage Metrics Report", "Dashboard Usage Metrics Report"
-
-try {
-  Get-PowerBIAccessToken | Out-Null
+Function Get-UserDatasets {
+  #Requires -PSEdition Core
+  #Requires -Modules MicrosoftPowerBIMgmt
+  Param(
+    [parameter(Mandatory = $true)][string]$UserEmail
+  )
+  $ignoreReports = "Report Usage Metrics Report", "Dashboard Usage Metrics Report"
+  try {
+    Get-PowerBIAccessToken | Out-Null
+  }
+  catch {
+    Write-Output "Power BI Access Token required. Launching authentication dialog..."
+    Connect-PowerBIServiceAccount | Out-Null
+  }
+  finally {
+    $result = Get-PowerBIDataset -Scope Organization |
+      Where-Object -Property ConfiguredBy -eq $UserEmail |
+      Where-Object -Property Name -NotIn $ignoreReports |
+      Select-Object -Property Id, Name
+  }
+  return $result
 }
-catch {
-  $hadToLogin = $true
-  Connect-PowerBIServiceAccount | Out-Null
-}
-finally{
-  $result = Get-PowerBIDataset -Scope Organization |
-    Where-Object -Property ConfiguredBy -eq $userEmail |
-    Where-Object -Property Name -NotIn $ignoreReports |
-    Select-Object -Property Id, Name
-}
-
-if($hadToLogin) {
-  Disconnect-PowerBIServiceAccount
-}
-
-return $result

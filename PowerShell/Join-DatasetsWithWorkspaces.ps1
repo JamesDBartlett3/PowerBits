@@ -1,5 +1,4 @@
 <#
-
   .SYNOPSIS
     Function: Join-DatasetsWithWorkspaces
     Author: @JamesDBartlett3 (James D. Bartlett III)
@@ -7,11 +6,14 @@
   .DESCRIPTION
     - Audit the security settings of Power BI Workspaces
 
-  .PARAMETERS
-    - $DatasetList (list of dataset IDs) -- set to output from Get-UserDatasets
+  .PARAMETER DatasetList
+    - list of dataset IDs -- set to output from Get-UserDatasets
 
-  .RETURNS
+  .OUTPUTS
     - Table with two columns: DatasetId and WorkspaceId
+
+  .EXAMPLE
+    Join-DatasetsWithWorkspaces $DatasetList
 
   .NOTES
     This function does NOT require Azure AD app registration, 
@@ -22,17 +24,8 @@
       - The user must have permissions to access the workspace(s)
         in the Power BI service.
 
-  .EXAMPLE
-    Join-DatasetsWithWorkspaces $DatasetList
-
-  .TODO
-    - Write as function
-    - Re-implement token logic
-    - 
-
-  .ACKNOWLEDGEMENTS
-    -
-
+    TODO
+      - Re-implement token logic
 #>
 
 Function Join-DatasetsWithWorkspaces {
@@ -41,10 +34,8 @@ Function Join-DatasetsWithWorkspaces {
   Param(
     [parameter(Mandatory = $true, ValueFromPipeline = $true)]$DatasetList
   )
-
   $ignoreWorkspaces = "Azure DevOps Dashboard", "Microsoft Project Web App", "Power BI Premium Capacity Metrics"
   $obj = @{}
-
   try {
     Get-PowerBIAccessToken | Out-Null
   }
@@ -67,7 +58,5 @@ Function Join-DatasetsWithWorkspaces {
       }
     }
   }
-
   return $obj
-
 }

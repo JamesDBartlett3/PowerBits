@@ -35,30 +35,31 @@
 
 #>
 
+#Requires -Modules MicrosoftPowerBIMgmt
 
-Function Get-UserDatasets {
-  #Requires -PSEdition Core
-  #Requires -Modules MicrosoftPowerBIMgmt
-  Param(
-    [parameter(Mandatory = $true)][string]$userEmail
-  )
+Param(
+  [string]$userEmail
+)
 
-  $ignoreReports = "Report Usage Metrics Report", "Dashboard Usage Metrics Report"
+$hadToLogin = $false
+$ignoreReports = "Report Usage Metrics Report", "Dashboard Usage Metrics Report"
 
-  try {
-    Get-PowerBIAccessToken | Out-Null
-  }
-  catch {
-    Write-Output "Power BI Access Token required. Launching authentication dialog..."
-    Connect-PowerBIServiceAccount | Out-Null
-  }
-  finally {
-    $result = Get-PowerBIDataset -Scope Organization |
+try {
+  Get-PowerBIAccessToken | Out-Null
+}
+catch {
+  $hadToLogin = $true
+  Connect-PowerBIServiceAccount | Out-Null
+}
+finally{
+  $result = Get-PowerBIDataset -Scope Organization |
     Where-Object -Property ConfiguredBy -eq $userEmail |
     Where-Object -Property Name -NotIn $ignoreReports |
     Select-Object -Property Id, Name
-  }
-
-  return $result
-
 }
+
+if($hadToLogin) {
+  Disconnect-PowerBIServiceAccount
+}
+
+return $result

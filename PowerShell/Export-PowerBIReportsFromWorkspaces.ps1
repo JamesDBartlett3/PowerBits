@@ -7,6 +7,26 @@
   .DESCRIPTION
     Export Power BI reports from multiple workspaces in parallel
 
+  .EXAMPLE
+    Export-PowerBIReportsFromWorkspaces -OutputFolder C:\Reports -ExtractWithPbiTools -SkipExistingFiles -ThrottleLimit 10
+
+  .PARAMETER OutputFolder
+    The folder where the reports will be saved. If the folder does
+    not exist, it will be created.
+
+  .PARAMETER ExtractWithPbiTools
+    If specified, exported PBIX reports will be extracted with 
+    pbi-tools after they are exported. Requires pbi-tools to be
+    installed. See: https://pbi.tools
+
+  .PARAMETER SkipExistingFiles
+    If specified, existing files will be skipped. If not specified,
+    existing files will be overwritten.
+
+  .PARAMETER ThrottleLimit
+    The maximum number of reports that will be exported in parallel.
+    Defaults to 1.
+
   .NOTES
     This function does NOT require Azure AD app registration, 
     service principal creation, or any other special setup.
@@ -15,34 +35,19 @@
         MicrosoftPowerBIMgmt module, if it's not already installed).
       - The user must be allowed to download report PBIX files
         (see: "Download reports" setting in the Power BI Admin Portal).
-
-  .PARAMETER OutputFolder
-    The folder where the reports will be saved. If the folder does
-    not exist, it will be created.
-  .PARAMETER ExtractWithPbiTools
-    If specified, exported PBIX reports will be extracted with 
-    pbi-tools after they are exported. Requires pbi-tools to be
-    installed. See: https://pbi.tools
-  .PARAMETER SkipExistingFiles
-    If specified, existing files will be skipped. If not specified,
-    existing files will be overwritten.
-  .PARAMETER ThrottleLimit
-    The maximum number of reports that will be exported in parallel.
-    Defaults to 1.
-
-  .TODO
-    - Add $workspacesToExport parameter to allow user to specify
-      which workspaces to export from.
-      - This would require a change to the Get-PowerBIWorkspace
-        function to allow filtering by workspace name.
-    - Implement "ExtractWithPbiTools" parameter
-    - Add dynamic rate limiting to avoid throttling
-      - Use pbimonitor scripts for inspiration
-    - Add logic to spread parallelism over multiple workspaces
-    - Add usage, help, and examples
-
-  .ACKNOWLEDGEMENTS
-    -
+    
+    TODO
+      - Add $workspacesToExport parameter to allow user to specify
+        which workspaces to export from.
+        - This would require a change to the Get-PowerBIWorkspace
+          function to allow filtering by workspace name.
+      - Implement "ExtractWithPbiTools" parameter
+      - Add dynamic rate limiting to avoid throttling
+        - Use pbimonitor scripts for inspiration
+      - Add logic to spread parallelism over multiple workspaces
+      - Experiment with using classes (https://bit.ly/3glYGZf)
+        to improve parallelism performance
+      - Add usage, help, and examples
 
 #>
 
@@ -53,7 +58,7 @@ Function Export-PowerBIReportsFromWorkspaces {
 
   [CmdletBinding()]
   Param(
-    [parameter(Mandatory = $false)][string]$OutputFolder = $null,
+    [parameter(Mandatory = $false)][string]$OutputFolder,
     [parameter(Mandatory = $false)][switch]$ExtractWithPbiTools,
     [parameter(Mandatory = $false)][switch]$SkipExistingFiles,
     [parameter(Mandatory = $false)][int]$ThrottleLimit = 1
@@ -63,6 +68,30 @@ Function Export-PowerBIReportsFromWorkspaces {
   [string]$fallbackDir = Join-Path -Path $env:TEMP -ChildPath "PowerBIWorkspaces"
   
   $headers = New-Object "System.Collections.Generic.Dictionary[[String],[String]]"
+
+  Function Convert-PbixToProj {
+    Param(
+      [Parameter(Mandatory = $true)][string]$PbixPath,
+      [Parameter(Mandatory = $true)][string]$ShortPath
+    )
+    try {
+      Invoke-Expression pbi-tools | Out-Null
+    }
+    catch {
+      Write-Error "'pbi-tools' command not found. See: https://pbi.tools"
+      Write-Warning $Error[0]
+    }
+    finally{
+      if (!$Error[0]) {
+        $command = "pbi-tools extract -pbixPath $PbixPath"
+        Write-Debug "Running command: $command"
+        Write-Output "📦 Extracting: $ShortPath"
+        Invoke-Expression $command | Out-Null
+      }
+    }
+  }
+
+  $fn_PbixToProj = ${function:Convert-PbixToProj}.ToString()
 
   try {
     $headers = Get-PowerBIAccessToken
@@ -106,7 +135,7 @@ Function Export-PowerBIReportsFromWorkspaces {
       Out-ConsoleGridView -Title "Select Workspaces to Export"
 
     # If user didn't specify a destination folder, fall back to $fallbackDir
-    $targetDir = if (!$OutputFolder) { $fallbackDir } else { $OutputFolder }
+    $targetDir = $OutputFolder ? $OutputFolder : $fallbackDir
     Write-Output "Target directory: $targetDir"
 
     # If target directory doesn't exist, create it
@@ -159,6 +188,7 @@ Function Export-PowerBIReportsFromWorkspaces {
         $workspaceName = $using:workspaceName
         $workspacePath = $using:workspacePath
         $SkipExistingFiles = $using:SkipExistingFiles
+        ${function:Convert-PbixToProj} = $using:fn_PbixToProj
         $targetReportPathBaseName = Join-Path -Path $workspacePath -ChildPath $reportName
         $shortPathBaseName = Join-Path -Path $workspaceName -ChildPath $reportName
         $targetFilePath, $shortPath = ($reportWebUrl -like "*/rdlreports/*") ?
@@ -202,6 +232,11 @@ Function Export-PowerBIReportsFromWorkspaces {
           Write-Verbose "_______________________________________________________"
 
         }
+
+        if ($using:ExtractWithPbiTools -and $targetFilePath -like "*.pbix") {
+          Convert-PbixToProj -PbixPath $targetFilePath -ShortPath $shortPath
+        }
+
       }
     }
 

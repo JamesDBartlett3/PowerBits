@@ -19,11 +19,9 @@
 
 #>
 
-#Requires -PSEdition Core
-
 $endpoint = "" # Endpoint URL
 
-while ($true) {
+while($true) {
 
   $timeStamp = (Get-Date).ToUniversalTime().ToString('yyyy-MM-ddTHH:mmZ')
   $randomNumber0 = (Get-Random -Maximum 100) / 100
@@ -36,9 +34,9 @@ while ($true) {
   $payload = @{
     "someNumber0" = $randomNumber0
     "someNumber1" = $randomNumber1
-    "someText"    = $randomString
-    "someColor"   = $randomColor
-    "timeStamp"   = $timeStamp
+    "someText" = $randomString
+    "someColor" = $randomColor
+    "timeStamp" = $timeStamp
   }
 
   Invoke-RestMethod -Method Post -Uri "$endpoint" -Body (ConvertTo-Json @($payload)) | Out-Null

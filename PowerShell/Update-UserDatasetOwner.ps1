@@ -1,17 +1,19 @@
 <#
-
   .SYNOPSIS
     Function: Update-UserDatasetOwner
     Author: @JamesDBartlett3 (James D. Bartlett III)
 
   .DESCRIPTION
-    - Take over a Power BI dataset that is currently configured by another user
+    Take over a Power BI dataset that is currently configured by another user
 
-  .PARAMETERS
-    - $DatasetWorkspaceTable (table with two columns: DatasetId and WorkspaceId) -- set to output from Match-DatasetsWithWorkspaces
+  .PARAMETER DatasetWorkspaceTable
+    Table with two columns: DatasetId and WorkspaceId -- set to output from Join-DatasetsWithWorkspaces
 
-  .RETURNS
-    - Nothing, if everything goes right ;-)
+  .EXAMPLE
+    Update-UserDatasetOwner -DatasetWorkspaceTable $DatasetWorkspaceTable
+
+  .OUTPUTS
+    Nothing, if everything goes right ;-)
 
   .NOTES
     This function does NOT require Azure AD app registration, 
@@ -22,17 +24,10 @@
       - The user must have permissions to access the workspace(s)
         in the Power BI service.
 
-  .EXAMPLE
-    Update-UserDatasetOwner $DatasetWorkspaceTable
-
-  .TODO
-    - Write as function
-    - Re-implement token logic
-    - 
-
-  .ACKNOWLEDGEMENTS
-    -
-
+    TODO
+      - Write as function
+      - Re-implement token logic
+      - Testing
 #>
 
 Function Update-UserDatasetOwner {
@@ -41,7 +36,6 @@ Function Update-UserDatasetOwner {
   Param(
     [parameter(Mandatory = $true, ValueFromPipeline = $true)]$DatasetWorkspaceTable
   )
-
   try {
     Get-PowerBIAccessToken | Out-Null
   }
@@ -56,8 +50,7 @@ Function Update-UserDatasetOwner {
     
       # Try to transfer ownership of dataset to current user
       try { 
-        Invoke-PowerBIRestMethod -Url $uri -Method Post #-ErrorAction "SilentlyContinue" -WarningAction "SilentlyContinue"
-
+        Invoke-PowerBIRestMethod -Url $uri -Method Post -ErrorAction "SilentlyContinue" -WarningAction "SilentlyContinue"
         # Show error if we had a non-terminating error which catch won't catch
         if (-Not $?) {
           $errmsg = Resolve-PowerBIError -Last
@@ -70,5 +63,4 @@ Function Update-UserDatasetOwner {
       }
     }
   }
-
 }
