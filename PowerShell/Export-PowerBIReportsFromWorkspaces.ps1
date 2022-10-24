@@ -44,6 +44,7 @@
       - Implement "ExtractWithPbiTools" parameter
       - Add dynamic rate limiting to avoid throttling
         - Use pbimonitor scripts for inspiration
+        - https://github.com/RuiRomano/pbiscripts/blob/main/Workspace-TenantScan.ps1
       - Add logic to spread parallelism over multiple workspaces
       - Experiment with using classes (https://bit.ly/3glYGZf)
         to improve parallelism performance
