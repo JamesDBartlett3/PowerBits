@@ -37,6 +37,8 @@
         (see: "Download reports" setting in the Power BI Admin Portal).
     
     TODO
+      - Add ability to find and export report-less datasets
+      - Fix bug where reports with illegal characters in name cannot be extracted
       - Add $workspacesToExport parameter to allow user to specify
         which workspaces to export from.
         - This would require a change to the Get-PowerBIWorkspace
