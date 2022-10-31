@@ -86,7 +86,7 @@ Function Export-PowerBIReportsFromWorkspaces {
     }
     finally{
       if (!$Error[0]) {
-        $command = "pbi-tools extract -pbixPath $PbixPath"
+        $command = "pbi-tools extract -pbixPath ""$PbixPath"""
         Write-Debug "Running command: $command"
         Write-Output "📦 Extracting: $ShortPath"
         Invoke-Expression $command | Out-Null
