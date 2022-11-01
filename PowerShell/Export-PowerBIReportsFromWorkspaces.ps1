@@ -43,7 +43,6 @@
         which workspaces to export from.
         - This would require a change to the Get-PowerBIWorkspace
           function to allow filtering by workspace name.
-      - Implement "ExtractWithPbiTools" parameter
       - Add dynamic rate limiting to avoid throttling
         - Use pbimonitor scripts for inspiration
         - https://github.com/RuiRomano/pbiscripts/blob/main/Workspace-TenantScan.ps1
