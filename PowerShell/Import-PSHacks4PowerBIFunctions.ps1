@@ -10,7 +10,7 @@
 		- Version: 1.0
 
 	.EXAMPLE
-		Import-PSHacks4PowerBIFunctions.ps1
+		. .\Import-PSHacks4PowerBIFunctions.ps1
 #>
 
 # Pre-emptively import problematic modules
