@@ -1,7 +1,7 @@
 {
     "version": "0.0.1",
     "name": "pbi-tools: Watch",
-    "author": "@JamesDBartlett3",
+    "author": "@JamesDBartlett3@techhub.social",
     "description": "Launches pbi-tools in a PowerShell window, and automatically begins watching the current file for changes to extract.",
     "installation": "Save a copy of this file in 'C:\\Program Files (x86)\\Common Files\\Microsoft Shared\\Power BI Desktop\\External Tools' and re-launch Power BI Desktop.",
     "path": "C:\\Program Files\\PowerShell\\7\\pwsh.exe",
