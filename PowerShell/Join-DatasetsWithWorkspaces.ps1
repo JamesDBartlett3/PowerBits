@@ -1,7 +1,7 @@
 <#
   .SYNOPSIS
     Function: Join-DatasetsWithWorkspaces
-    Author: @JamesDBartlett3 (James D. Bartlett III)
+    Author: @JamesDBartlett3@techhub.social (James D. Bartlett III)
 
   .DESCRIPTION
     - Audit the security settings of Power BI Workspaces

@@ -2,7 +2,7 @@
 
   .SYNOPSIS
     Function: Export-PowerBIReportsFromWorkspaces
-    Author: @JamesDBartlett3 (James D. Bartlett III)
+    Author: @JamesDBartlett3@techhub.social (James D. Bartlett III)
 
   .DESCRIPTION
     Export Power BI reports from multiple workspaces in parallel

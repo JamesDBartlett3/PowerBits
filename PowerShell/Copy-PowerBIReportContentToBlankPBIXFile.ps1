@@ -1,7 +1,7 @@
 <#
   .SYNOPSIS
     Function: Copy-PowerBIReportContentToBlankPBIXFile
-    Author: @JamesDBartlett3 (James D. Bartlett III)
+    Author: @JamesDBartlett3@techhub.social (James D. Bartlett III)
 
   .DESCRIPTION
     - This script will copy the contents of a published Power BI 

@@ -1,7 +1,7 @@
 <# 
 	.SYNOPSIS
 		Title: Import-PSHacks4PowerBIFunctions
-		Author: @JamesDBartlett3 (James D. Bartlett III)
+		Author: @JamesDBartlett3@techhub.social (James D. Bartlett III)
 
 	.DESCRIPTION
 		- Imports functions for the "PowerShell Hacks for Power BI" demo session

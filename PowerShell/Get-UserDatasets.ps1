@@ -1,7 +1,7 @@
 <#
   .SYNOPSIS
     Function: Get-UserDatasets
-    Author: @JamesDBartlett3 (James D. Bartlett III)
+    Author: @JamesDBartlett3@techhub.social (James D. Bartlett III)
 
   .DESCRIPTION
     Get a list of all Power BI datasets marked as "configured by" a given user

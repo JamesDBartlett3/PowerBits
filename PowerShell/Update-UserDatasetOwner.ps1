@@ -1,7 +1,7 @@
 <#
   .SYNOPSIS
     Function: Update-UserDatasetOwner
-    Author: @JamesDBartlett3 (James D. Bartlett III)
+    Author: @JamesDBartlett3@techhub.social (James D. Bartlett III)
 
   .DESCRIPTION
     Take over a Power BI dataset that is currently configured by another user

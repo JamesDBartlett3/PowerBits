@@ -1,7 +1,7 @@
 <#
 	.SYNOPSIS
 		Function: Get-DataGatewayNodesStatus
-		Author: @JamesDBartlett3 (James D. Bartlett III)
+		Author: @JamesDBartlett3@techhub.social (James D. Bartlett III)
 
 	.DESCRIPTION
 		This function will retrieve the status of all nodes in 
