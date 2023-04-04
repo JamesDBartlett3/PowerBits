@@ -210,7 +210,12 @@ Function Export-PowerBIReportsFromWorkspaces {
           if (Test-Path -Path $targetFilePath) { Remove-Item $targetFilePath -Force -ErrorAction SilentlyContinue }
 
           # Export the report and store the response in $message
-          $message = Export-PowerBIReport -WorkspaceId $workspaceID -Id $reportID -OutFile $targetFilePath 2>&1 | Out-String
+          $message = Invoke-RestMethod -Uri "https://api.powerbi.com/v1.0/myorg/groups/$workspaceID/reports/$reportID/Export" `
+            -Method GET -Headers $using:headers `
+            -ContentType "application/octet-stream" `
+            -Body '{"preferClientRouting":true}' `
+            -ErrorVariable message -ErrorAction SilentlyContinue `
+            -OutFile $targetFilePath 2>&1 | Out-String
 
           # Error handling for Export-PowerBIReport 
           #TODO: proper error handling
@@ -240,6 +245,7 @@ Function Export-PowerBIReportsFromWorkspaces {
         }
 
       }
+      $headers = Get-PowerBIAccessToken
     }
 
     # Remove any empty directories
