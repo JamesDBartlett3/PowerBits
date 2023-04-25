@@ -72,7 +72,7 @@ Function Copy-PowerBIReportContentToBlankPBIXFile {
   
   $headers = New-Object "System.Collections.Generic.Dictionary[[String],[String]]"
   
-  [string]$blankPbixTempFile = Join-Path -LiteralPath $env:TEMP -ChildPath "blank.pbix"
+  [string]$blankPbixTempFile = Join-Path -Path $env:TEMP -ChildPath "blank.pbix"
   [array]$validPbixContents = @("Layout", "Metadata")
   
   [bool]$blankPbixIsUrl = $BlankPbix.StartsWith("http")
@@ -183,7 +183,7 @@ Function Copy-PowerBIReportContentToBlankPBIXFile {
     
     # If user did not specify an output file, use the source report's name
     $sourceReportName = (Get-PowerBIReport -Id $SourceReportId -WorkspaceId $SourceWorkspaceId).Name
-    $OutFile = $OutFile ?? "$($sourceReportName)_Clone.pbix"
+    $OutFile = !!$OutFile ? $OutFile : "$($sourceReportName)_Clone.pbix"
     
     # Export the target report to a PBIX file
     Export-PowerBIReport -WorkspaceId $TargetWorkspaceId -Id $response.id -OutFile $OutFile
