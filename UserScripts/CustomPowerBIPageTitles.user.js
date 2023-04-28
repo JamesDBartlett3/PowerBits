@@ -12,14 +12,20 @@
 // ==/UserScript==
 
 /*
-  Installation & Usage Guide
-  1) Install the Tampermonkey browser extension: https://www.tampermonkey.net
-  2) Open this file in "Raw" mode on GitHub: https://github.com/JamesDBartlett3/PowerBits/raw/main/UserScripts/CustomPowerBIPageTitles.user.js
-  3) Click the "Install" button
-  4) Open the TamperMonkey dashboard and open the "Custom Power BI Page Titles" script for editing
-  5) Edit the "tabNames" object below, adding the tab names you want on the left and the corresponding artifact IDs on the right
-  6) Save your changes (Ctrl+S) and close the editor
-  7) Refresh any Power BI tabs you have open
+  Installation & Usage Guide:
+    1) Install the Tampermonkey browser extension: https://www.tampermonkey.net
+    2) Open this file in "Raw" mode on GitHub: https://github.com/JamesDBartlett3/PowerBits/raw/main/UserScripts/CustomPowerBIPageTitles.user.js
+    3) Click the "Install" button
+    4) Open the TamperMonkey dashboard and open the "Custom Power BI Page Titles" script for editing
+    5) Edit the "tabNames" object below, adding the tab names you want on the left and the corresponding artifact IDs on the right
+    6) Save your changes (Ctrl+S) and close the editor
+    7) Refresh any Power BI tabs you have open
+
+  Known Issues:
+    1) Sometimes when you refresh a page, the title will revert to the default "Power BI" title.
+      This is due to a race condition between this script and Power BI's own internal JavaScript.
+      If you force a full page refresh (Shift+F5), the title should be correct again.
+      I'm working on a fix for this.
 */
 
 (function () {
