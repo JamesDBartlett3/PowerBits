@@ -11,6 +11,16 @@
 // @grant        none
 // ==/UserScript==
 
+/*
+  Installation Guide
+  1) Install the Tampermonkey browser extension: https://www.tampermonkey.net
+  2) Open this file in "Raw" mode on GitHub: https://github.com/JamesDBartlett3/PowerBits/raw/main/UserScripts/CustomPowerBIPageTitles.user.js
+  3) Click the "Install" button
+  4) Edit the "tabNames" object below, adding the tab names you want on the left and the corresponding artifact IDs on the right
+  5) Save your changes (Ctrl+S)
+  6) Refresh any Power BI tabs you have open
+*/
+
 (function () {
   "use strict";
 
