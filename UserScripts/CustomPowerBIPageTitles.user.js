@@ -12,21 +12,19 @@
 // ==/UserScript==
 
 /*
-  Installation Guide
+  Installation & Usage Guide
   1) Install the Tampermonkey browser extension: https://www.tampermonkey.net
   2) Open this file in "Raw" mode on GitHub: https://github.com/JamesDBartlett3/PowerBits/raw/main/UserScripts/CustomPowerBIPageTitles.user.js
   3) Click the "Install" button
-  4) Edit the "tabNames" object below, adding the tab names you want on the left and the corresponding artifact IDs on the right
-  5) Save your changes (Ctrl+S)
-  6) Refresh any Power BI tabs you have open
+  4) Open the TamperMonkey dashboard and open the "Custom Power BI Page Titles" script for editing
+  5) Edit the "tabNames" object below, adding the tab names you want on the left and the corresponding artifact IDs on the right
+  6) Save your changes (Ctrl+S) and close the editor
+  7) Refresh any Power BI tabs you have open
 */
 
 (function () {
   "use strict";
 
-  function getKeyByValue(object, value) {
-    return Object.keys(object).find((key) => value.includes(object[key]));
-  }
   let tabNames = {
     "Exec[Pipe]": "ac8ae510-54f4-4046-a64c-58c7b2541b89",
     "Exec[Dev]": "ab86bc72-796d-41dc-9201-15954a866758",
@@ -42,14 +40,20 @@
     _DMU_D2L: "c5208007-3114-420b-bb97-3e75ee613b86",
   };
 
+  function getKeyByValue(object, value) {
+    return Object.keys(object).find((key) => value.includes(object[key]));
+  }
+
   function setTitle(t) {
     document.title = t;
   }
+
   for (var key in tabNames) {
     if (document.URL.includes(tabNames[key])) {
       setTitle(key);
     }
   }
+
   (function (history) {
     var pushState = history.pushState;
     history.pushState = function (state, key, path) {
