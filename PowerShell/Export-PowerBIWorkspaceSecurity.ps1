@@ -5,8 +5,7 @@ Function Export-PowerBIWorkspaceSecurity {
 
   try {
     Get-PowerBIAccessToken | Out-Null
-  }
-  catch {
+  } catch {
     Write-Output "Power BI Access Token required. Launching authentication dialog..."
     Connect-PowerBIServiceAccount -WarningAction SilentlyContinue | Out-Null
   }
@@ -64,8 +63,8 @@ Function Export-PowerBIWorkspaceSecurity {
       BoldTopRow = $true
     }
     $result | 
-      Select-Object -Property workspaceId, workspaceName, userName, emailAddress, identifier, userRole, userType |
-      Sort-Object -Property workspaceName, userRole, userName | Export-Excel @params 
+      Select-Object -Property workspaceId, workspaceName, emailAddress, userRole, userType |
+      Sort-Object -Property workspaceName, userRole, emailAddress | Export-Excel @params 
 
   }
 

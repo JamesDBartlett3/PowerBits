@@ -38,12 +38,10 @@ Function Get-UserDatasets {
   $ignoreReports = "Report Usage Metrics Report", "Dashboard Usage Metrics Report"
   try {
     Get-PowerBIAccessToken | Out-Null
-  }
-  catch {
+  } catch {
     Write-Output "Power BI Access Token required. Launching authentication dialog..."
     Connect-PowerBIServiceAccount -WarningAction SilentlyContinue | Out-Null
-  }
-  finally {
+  } finally {
     $result = Get-PowerBIDataset -Scope Organization |
       Where-Object -Property ConfiguredBy -eq $UserEmail |
       Where-Object -Property Name -NotIn $ignoreReports |

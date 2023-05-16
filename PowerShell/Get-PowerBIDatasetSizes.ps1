@@ -1,9 +1,18 @@
 # WARNING: This script utilizes an undocumented internal API, and is thus not supported by Microsoft. Use at your own considerable risk.
+try {
+  Get-PowerBIAccessToken
+} catch {
+  Write-Output "Power BI Access Token required. Launching authentication dialog..."
+  Start-Sleep -s 1
+  Connect-PowerBIServiceAccount -WarningAction SilentlyContinue | Out-Null
+  Get-PowerBIAccessToken
+}
 
+finally {
 $session = New-Object Microsoft.PowerShell.Commands.WebRequestSession
 $session.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36 Edg/110.0.1587.63"
 $myRegionUrl = "wabi-us-north-central-h-primary-redirect.analysis.windows.net" # Replace with your own region's URL
-$myBearerToken = "Bearer xxxxx" # Add your own bearer token here
+$myBearerToken = (Get-PowerBIAccessToken).Value # Add your own bearer token here
 (Invoke-WebRequest -UseBasicParsing -Uri "https://$myRegionUrl/metadata/gallery/SharedDatasets" `
 -WebSession $session -Headers @{
 "authority"="$myRegionUrl"
@@ -30,3 +39,4 @@ $myBearerToken = "Bearer xxxxx" # Add your own bearer token here
 	ForEach-Object {$_ | Select-Object WorkspaceName -ExpandProperty model} |
 	Select-Object @{l="Workspace";e="workspaceName"},@{l="Dataset";e="displayName"}, @{l="Size (MB)"; e="sizeInMBs"} |
 	Sort-Object -Property Workspace, Dataset
+}

@@ -30,13 +30,11 @@ Function Get-DataGatewayNodesStatus {
 	Write-Output "Retrieving status of all accesssible Data Gateway nodes..."
 	try {
 		Get-DataGatewayAccessToken | Out-Null
-	}
-	catch {
+	} catch {
 		Write-Output "DataGatewayAccessToken required. Launching Azure Active Directory authentication dialog..."
 		Start-Sleep -s 1
 		Login-DataGatewayServiceAccount -WarningAction SilentlyContinue | Out-Null
-	}
-	finally {
+	} finally {
 		Get-DataGatewayCluster | ForEach-Object {
 			$clusterName = $_.Name
 			$clusterId = $_.Id

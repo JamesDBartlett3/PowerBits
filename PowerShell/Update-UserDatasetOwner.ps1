@@ -38,11 +38,9 @@ Function Update-UserDatasetOwner {
   )
   try {
     Get-PowerBIAccessToken | Out-Null
-  }
-  catch {
+  } catch {
     Connect-PowerBIServiceAccount -WarningAction SilentlyContinue | Out-Null
-  }
-  finally {
+  } finally {
     ForEach ($key in $DatasetWorkspaceTable.Keys) {
       $workspaceId = $DatasetWorkspaceTable[$key]
       $datasetId = $key
