@@ -40,7 +40,7 @@ Function Update-UserDatasetOwner {
     Get-PowerBIAccessToken | Out-Null
   }
   catch {
-    Connect-PowerBIServiceAccount | Out-Null
+    Connect-PowerBIServiceAccount -WarningAction SilentlyContinue | Out-Null
   }
   finally {
     ForEach ($key in $DatasetWorkspaceTable.Keys) {

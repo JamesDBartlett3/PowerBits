@@ -2,15 +2,15 @@
 
 ## Technical
 
-- SQL Server
-- SQL Agent Job
-- Dataflow w/ REST API
-- Test Dataflow refresh on job completion
-- Add "-Warningaction SilentlyContinue" to all Connect-*ServiceAccount" calls
-- Debug "takeover dataset" workflow. This series of piped cmdlets crashed the terminal in both the Havens Consulting and Lagos PBIUG livestreams, so there's definitely something wrong.
+- SQL Server ✅
+- SQL Agent Job ✅
+- Dataflow w/ REST API ✅
+- Test Dataflow refresh on job completion ✅
+- Add "-Warningaction SilentlyContinue" to all Connect-*ServiceAccount" calls ✅
+- Debug "takeover dataset" workflow - this series of piped cmdlets crashed the terminal in both the Havens Consulting and Lagos PBIUG livestreams, so there's definitely something wrong
+- Add output showing all datasets that were taken over
 - Re-word intro to, and refactor synopsis of Copy-PowerBIReportContentToBlankPBIXFile, explicitly calling out its usefulness for downloading thin reports connected to datasets in other workspaces
 - Add Power BI security audit script
-- Add output showing all datasets that were taken over
 
 - Check out the Admin in a Day scripts for ideas
 - Re-examine the "??" operator, which was recently replaced. Determine if that was actually necessary, and change back if possible. 

@@ -41,7 +41,7 @@ Function Get-UserDatasets {
   }
   catch {
     Write-Output "Power BI Access Token required. Launching authentication dialog..."
-    Connect-PowerBIServiceAccount | Out-Null
+    Connect-PowerBIServiceAccount -WarningAction SilentlyContinue | Out-Null
   }
   finally {
     $result = Get-PowerBIDataset -Scope Organization |
