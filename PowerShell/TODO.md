@@ -12,11 +12,18 @@
 - Add Power BI security audit script
 - Add output showing all datasets that were taken over
 
+- Check out the Admin in a Day scripts for ideas
 - Re-examine the "??" operator, which was recently replaced. Determine if that was actually necessary, and change back if possible. 
 - Consider renaming Copy-PowerBIReportContentToBlankPBIXFile to something more semantic.
 - Refactor Copy-PowerBIReportContentToBlankPBIXFile default behavior to output a report file named the same as the original report, save it in the temp folder, and then open that location, using the same method as in Export-PowerBIReportsFromWorkspaces. 
 - Refactor all functions into scripts
 - Handle thin reports & datasets
+- Use Resolve-PowerBIError -Last for error logging & handling
+- Redundant Permissions
+- Delete all dashboards ending in ".pbix"
+- Remove ex-emplyees from all assets
+- Inventory all assets with ownership, permissions, and usage history
+
 
 ## Presentation
 - PPT w/ offline demo & space in upper-right corner
