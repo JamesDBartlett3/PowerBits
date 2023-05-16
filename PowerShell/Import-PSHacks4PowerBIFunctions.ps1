@@ -24,6 +24,7 @@ $functions = @(
 	, "Copy-PowerBIReportContentToBlankPBIXFile.ps1"
 	, "Get-DataGatewayNodesStatus.ps1"
 	, "Export-PowerBIReportsFromWorkspaces.ps1"
+  , "Export-PowerBIWorkspaceSecurity.ps1"
 )
 
 # Dotsource all functions in current directory whose names match those in $functions array
