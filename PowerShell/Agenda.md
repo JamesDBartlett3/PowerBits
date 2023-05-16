@@ -1,4 +1,4 @@
-# Agenda
+# PowerShell Hacks for Power BI: Agenda
 
 - Intro to me
 - How I got into Power BI
