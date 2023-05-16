@@ -132,7 +132,8 @@ Function Export-PowerBIReportsFromWorkspaces {
       Where-Object {
         $_.Type -eq "Workspace" -and
         $_.State -eq "Active" -and
-        $_.Name -notIn $ignoreWorkspaces
+        $_.Name -notIn $ignoreWorkspaces -and
+        $_.Name -notLike ".*"
       } | Select-Object Name, Id | Sort-Object -Property Name |
       Out-ConsoleGridView -Title "Select Workspaces to Export"
 
