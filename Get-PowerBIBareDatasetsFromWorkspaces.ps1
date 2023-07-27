@@ -1,3 +1,31 @@
+<#
+
+  .SYNOPSIS
+    Function: Get-PowerBIBareDatasetsFromWorkspaces
+    Author: @JamesDBartlett3@techhub.social (James D. Bartlett III)
+
+  .DESCRIPTION
+    Export Power BI datasets from multiple workspaces in parallel
+
+  .EXAMPLE
+    Get-PowerBIBareDatasetsFromWorkspaces -ThrottleLimit 10
+
+
+  .PARAMETER ThrottleLimit
+    The maximum number of datasets that will be exported in parallel.
+    Defaults to 1.
+
+  .NOTES
+    This function does NOT require Azure AD app registration, 
+    service principal creation, or any other special setup.
+    The only requirements are:
+      - The user must be able to run PowerShell (and install the
+        MicrosoftPowerBIMgmt module, if it's not already installed).
+    
+    TODO
+
+#>
+
 Function Get-PowerBIBareDatasetsFromWorkspaces {
   [CmdletBinding()]
   param (
