@@ -118,7 +118,7 @@ Function Export-PowerBIDatasetsFromWorkspaces {
       , "Dashboard Usage Metrics Report"
     )
 
-    # Declare $datasets array
+    # Declare $datasets array as a concurrent (thread-safe) PSObject
     $datasets = [System.Collections.Concurrent.ConcurrentBag[psobject]]::new()
 
     # Get list of workspaces
