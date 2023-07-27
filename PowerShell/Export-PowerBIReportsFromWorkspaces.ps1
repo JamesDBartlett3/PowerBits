@@ -79,7 +79,7 @@ Function Export-PowerBIReportsFromWorkspaces {
     try {
       Invoke-Expression pbi-tools | Out-Null
     } catch {
-      Write-Error "'pbi-tools' command not found. See: https://pbi.tools"
+      Write-Error "'pbi-tools' command not found. See: https://pbi.tools/tutorials/getting-started-cli.html"
       Write-Warning $Error[0]
     }
     finally{
