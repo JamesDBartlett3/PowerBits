@@ -130,9 +130,7 @@ Function Export-PowerBIDatasetsFromWorkspaces {
       Out-ConsoleGridView -Title "Select Workspaces to Export"
 
     # For each workspace, find datasets with no corresponding report and add them to the $datasets array
-    $workspaces | ForEach-Object {
-
-      Write-Output "📁 $workspaceName"
+    $workspaces | ForEach-Object -ThrottleLimit $ThrottleLimit -Parallel {
 
       # Declare loop variables
       $workspaceName = $_.Name
@@ -171,6 +169,7 @@ Function Export-PowerBIDatasetsFromWorkspaces {
         $report = $workspaceReports | Where-Object {
           $_.Name -eq $datasetName
         }
+
         # If no corresponding report is found, add the current dataset to the $datasets array
         if (!$report) {
           $datasetProperties.Name = $datasetName
@@ -189,7 +188,7 @@ Function Export-PowerBIDatasetsFromWorkspaces {
     $datasets
 
   }
-  
+
 }
 
-Export-PowerBIDatasetsFromWorkspaces
+Export-PowerBIDatasetsFromWorkspaces -ThrottleLimit 10
