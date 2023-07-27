@@ -118,9 +118,10 @@ Function Export-PowerBIDatasetsFromWorkspaces {
       , "Dashboard Usage Metrics Report"
     )
 
-    $datasets = @()
-    $datasetProperties = "" | Select-Object Name, Id, WebUrl, IsRefreshable, WorkspaceName, WorkspaceId
+    # Declare $datasets array
+    $datasets = [System.Collections.Concurrent.ConcurrentBag[psobject]]::new()
 
+    # Get list of workspaces
     $workspaces = Get-PowerBIWorkspace -Scope Organization -All -ErrorAction SilentlyContinue | 
       Where-Object {
         $_.Type -eq "Workspace" -and
@@ -132,9 +133,11 @@ Function Export-PowerBIDatasetsFromWorkspaces {
     # For each workspace, find datasets with no corresponding report and add them to the $datasets array
     $workspaces | ForEach-Object -ThrottleLimit $ThrottleLimit -Parallel {
 
-      # Declare loop variables
+      # Declare local variables
       $workspaceName = $_.Name
       $workspaceId = $_.Id
+      $localDatasets = $using:datasets
+      $datasetProperties = "" | Select-Object Name, Id, WebUrl, IsRefreshable, WorkspaceName, WorkspaceId
 
       # Get datasets from the workspace
       $workspaceDatasets = Get-PowerBIDataset -Scope Organization -WorkspaceId $workspaceId -ErrorAction SilentlyContinue |
@@ -178,17 +181,17 @@ Function Export-PowerBIDatasetsFromWorkspaces {
           $datasetProperties.IsRefreshable = $datasetIsRefreshable
           $datasetProperties.WorkspaceName = $datasetWorkspaceName
           $datasetProperties.WorkspaceId = $datasetWorkspaceId
-          $datasets += $datasetProperties
+          $localDatasets.Add($datasetProperties)
         }
 
       }
 
     }
 
-    $datasets
+    $datasets | Select-Object -Unique -Property * | Format-Table -AutoSize
 
   }
 
 }
 
-Export-PowerBIDatasetsFromWorkspaces -ThrottleLimit 10
+Export-PowerBIDatasetsFromWorkspaces -ThrottleLimit 8
