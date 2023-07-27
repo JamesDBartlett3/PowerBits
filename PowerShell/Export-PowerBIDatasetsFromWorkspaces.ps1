@@ -152,8 +152,9 @@ Function Export-PowerBIDatasetsFromWorkspaces {
       # Get reports from the workspace
       $workspaceReports = Get-PowerBIReport -Scope Organization -WorkspaceId $workspaceId -ErrorAction SilentlyContinue |
         Where-Object {
-          $_.Name -notIn $ignoreReports
-          } | Select-Object Name, Id, WebUrl, ReportType, @{
+          $_.Name -notIn $ignoreReports -and
+          $_.WebUrl -notlike "*/rdlreports/*"
+          } | Select-Object Name, Id, WebUrl, ReportType, DatasetId, @{
               Name="WorkspaceName"; Expression={$workspaceName}
             }, @{
               Name="WorkspaceId"; Expression={$workspaceId}
@@ -188,6 +189,7 @@ Function Export-PowerBIDatasetsFromWorkspaces {
     $datasets
 
   }
+  
 }
 
 Export-PowerBIDatasetsFromWorkspaces
