@@ -11,7 +11,7 @@
     Get-PowerBIBareDatasetsFromWorkspaces -ThrottleLimit 10
 
   .PARAMETER ThrottleLimit
-    The maximum number of datasets that will be exported in parallel.
+    The maximum number of parallel processes to run.
     Defaults to 1.
 
   .NOTES
