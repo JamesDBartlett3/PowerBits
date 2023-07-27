@@ -5,7 +5,7 @@
     Author: @JamesDBartlett3@techhub.social (James D. Bartlett III)
 
   .DESCRIPTION
-    Export Power BI datasets from multiple workspaces in parallel
+    Get all "bare" Power BI datasets (datasets without a corresponding report) from selected workspaces in parallel
 
   .EXAMPLE
     Get-PowerBIBareDatasetsFromWorkspaces -ThrottleLimit 10
