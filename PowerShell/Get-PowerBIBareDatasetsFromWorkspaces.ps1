@@ -74,20 +74,20 @@ Function Get-PowerBIBareDatasetsFromWorkspaces {
       "Dashboard Usage Metrics Report"
       , "Report Usage Metrics Report"
     )
-
-    # Declare $bareDatasets array as a concurrent (thread-safe) PSObject
-    $bareDatasets = [System.Collections.Concurrent.ConcurrentBag[psobject]]::new()
-
+    
     # Get list of workspaces
     $workspaces = Get-PowerBIWorkspace -Scope Organization -All -ErrorAction SilentlyContinue | 
-      Where-Object {
-        $_.Type -eq "Workspace" -and
-        $_.State -eq "Active" -and
-        $_.Name -notIn $ignoreWorkspaces
-      } | Select-Object Name, Id | Sort-Object -Property Name
+    Where-Object {
+      $_.Type -eq "Workspace" -and
+      $_.State -eq "Active" -and
+      $_.Name -notIn $ignoreWorkspaces
+    } | Select-Object Name, Id | Sort-Object -Property Name
     
     # If interactive, display a grid view of workspaces and allow the user to select which ones to scan for bare datasets
     $workspaces = $Interactive ? ($workspaces | Out-ConsoleGridView -Title "Select Workspaces to Scan") : $workspaces
+
+    # Declare $bareDatasets array as a concurrent (thread-safe) PSObject
+    $bareDatasets = [System.Collections.Concurrent.ConcurrentBag[psobject]]::new()
 
     # For each workspace, find datasets with no corresponding report and add them to the $bareDatasets array
     $workspaces | ForEach-Object -ThrottleLimit $ThrottleLimit -Parallel {
@@ -128,9 +128,7 @@ Function Get-PowerBIBareDatasetsFromWorkspaces {
         $datasetIsRefreshable = $_.IsRefreshable
         $datasetWorkspaceName = $_.WorkspaceName
         $datasetWorkspaceId = $_.WorkspaceId
-        $report = $workspaceReports | Where-Object {
-          $_.Name -eq $datasetName
-        }
+        $report = $workspaceReports | Where-Object {$_.Name -eq $datasetName}
 
         # If no corresponding report is found, add the current dataset to the $bareDatasets array
         if (!$report) {
