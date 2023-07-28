@@ -54,25 +54,25 @@ Function Get-PowerBIBareDatasetsFromWorkspaces {
     # Define names of workspaces and reports to ignore
     # Most of these are auto-generated stuff from Microsoft
     [array]$ignoreWorkspaces = @(
-      "Gen2 Utilization Metrics"
+      "Apps Catalog on Microsoft AppSource"
       , "Azure DevOps Dashboard"
-      , "Microsoft Project Web App"
-      , "Office365 Usage Analytics"
-      , "Power BI Premium Capacity Metrics"
-      , "Microsoft 365 Usage Analytics"
-      , "Dataflow Snapshots"
-      , "Power BI Release Plan"
-      , "Power BI JSON Theme Guide"
-      , "Apps Catalog on Microsoft AppSource"
       , "COVID-19 Global Report"
       , "COVID-19 US Tracking Report"
       , "Custom Visuals Exploration Tool"
-      , "Template Apps Exploration Tool"
+      , "Dataflow Snapshots"
+      , "Gen2 Utilization Metrics"
+      , "Microsoft 365 Usage Analytics"
       , "Microsoft Fabric Capacity Metrics"
+      , "Microsoft Project Web App"
+      , "Office365 Usage Analytics"
+      , "Power BI JSON Theme Guide"
+      , "Power BI Premium Capacity Metrics"
+      , "Power BI Release Plan"
+      , "Template Apps Exploration Tool"
     )
     [array]$ignoreReports = @(
-      "Report Usage Metrics Report"
-      , "Dashboard Usage Metrics Report"
+      "Dashboard Usage Metrics Report"
+      , "Report Usage Metrics Report"
     )
 
     # Declare $bareDatasets array as a concurrent (thread-safe) PSObject
