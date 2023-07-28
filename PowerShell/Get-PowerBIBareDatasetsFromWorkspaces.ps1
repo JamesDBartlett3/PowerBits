@@ -14,6 +14,9 @@
     The maximum number of parallel processes to run.
     Defaults to 1.
 
+  .PARAMETER Interactive
+    If specified, displays a grid view of workspaces and allows the user to select which ones to scan for bare datasets.
+
   .NOTES
     This function does NOT require Azure AD app registration, 
     service principal creation, or any other special setup.
@@ -150,4 +153,4 @@ Function Get-PowerBIBareDatasetsFromWorkspaces {
 
 }
 
-Get-PowerBIBareDatasetsFromWorkspaces -ThrottleLimit 8 -Interactive
+Get-PowerBIBareDatasetsFromWorkspaces -ThrottleLimit 8
