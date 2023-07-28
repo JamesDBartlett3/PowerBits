@@ -28,7 +28,8 @@
 Function Get-PowerBIBareDatasetsFromWorkspaces {
   [CmdletBinding()]
   param (
-    [Parameter(Mandatory=$false)][int]$ThrottleLimit = 1
+    [Parameter(Mandatory=$false)][int]$ThrottleLimit = 1,
+    [Parameter(Mandatory=$false)][switch]$Interactive
   )
 
   #Requires -PSEdition Core -Modules MicrosoftPowerBIMgmt, Microsoft.PowerShell.ConsoleGuiTools
@@ -80,8 +81,10 @@ Function Get-PowerBIBareDatasetsFromWorkspaces {
         $_.Type -eq "Workspace" -and
         $_.State -eq "Active" -and
         $_.Name -notIn $ignoreWorkspaces
-      } | Select-Object Name, Id | Sort-Object -Property Name |
-      Out-ConsoleGridView -Title "Select Workspaces to Export"
+      } | Select-Object Name, Id | Sort-Object -Property Name
+    
+    # If interactive, display a grid view of workspaces and allow the user to select which ones to scan for bare datasets
+    $workspaces = $Interactive ? ($workspaces | Out-ConsoleGridView -Title "Select Workspaces to Scan") : $workspaces
 
     # For each workspace, find datasets with no corresponding report and add them to the $bareDatasets array
     $workspaces | ForEach-Object -ThrottleLimit $ThrottleLimit -Parallel {
@@ -147,4 +150,4 @@ Function Get-PowerBIBareDatasetsFromWorkspaces {
 
 }
 
-Get-PowerBIBareDatasetsFromWorkspaces -ThrottleLimit 8
+Get-PowerBIBareDatasetsFromWorkspaces -ThrottleLimit 8 -Interactive
