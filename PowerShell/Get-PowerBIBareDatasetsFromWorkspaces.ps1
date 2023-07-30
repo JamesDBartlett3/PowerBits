@@ -40,13 +40,13 @@ Function Get-PowerBIBareDatasetsFromWorkspaces {
 	try {
 		$headers = Get-PowerBIAccessToken
 	}
- catch {
+	catch {
 		Write-Output "🔒 Power BI Access Token required. Launching authentication dialog..."
 		Start-Sleep -s 1
 		Connect-PowerBIServiceAccount -WarningAction SilentlyContinue | Out-Null
 		$headers = Get-PowerBIAccessToken
-	}
- finally {
+	} 
+	finally {
 		
 		Write-Output "🔑 Power BI Access Token acquired."
 		
