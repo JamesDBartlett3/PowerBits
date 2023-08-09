@@ -31,10 +31,11 @@ Function Get-DataGatewayNodesStatus {
 	try {
 		Get-DataGatewayAccessToken | Out-Null
 	} catch {
-		Write-Output "DataGatewayAccessToken required. Launching Azure Active Directory authentication dialog..."
+		Write-Output "🔒 DataGatewayAccessToken required. Launching Azure Active Directory authentication dialog..."
 		Start-Sleep -s 1
 		Login-DataGatewayServiceAccount -WarningAction SilentlyContinue | Out-Null
 	} finally {
+		Write-Output "🔑 Power BI Access Token acquired."
 		Get-DataGatewayCluster | ForEach-Object {
 			$clusterName = $_.Name
 			$clusterId = $_.Id

@@ -39,9 +39,11 @@ Function Get-UserDatasets {
   try {
     Get-PowerBIAccessToken | Out-Null
   } catch {
-    Write-Output "Power BI Access Token required. Launching authentication dialog..."
+    Write-Output "🔒 Power BI Access Token required. Launching Azure Active Directory authentication dialog..."
+    Start-Sleep -s 1
     Connect-PowerBIServiceAccount -WarningAction SilentlyContinue | Out-Null
   } finally {
+    Write-Output "🔑 Power BI Access Token acquired."
     $result = Get-PowerBIDataset -Scope Organization |
       Where-Object -Property ConfiguredBy -eq $UserEmail |
       Where-Object -Property Name -NotIn $ignoreReports |

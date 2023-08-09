@@ -39,9 +39,11 @@ Function Join-DatasetsWithWorkspaces {
   try {
     Get-PowerBIAccessToken | Out-Null
   } catch {
-    Write-Output "Power BI Access Token required. Launching authentication dialog..."
+    Write-Output "🔒 Power BI Access Token required. Launching Azure Active Directory authentication dialog..."
+    Start-Sleep -s 1
     Connect-PowerBIServiceAccount -WarningAction SilentlyContinue | Out-Null
   } finally {
+    Write-Output "🔑 Power BI Access Token acquired."
     $workspaces = Get-PowerBIWorkspace -Scope Organization -All |
     Where-Object { $_.Type -EQ "Workspace" -AND $_.Name -NotIn $ignoreWorkspaces } |
     Select-Object Id

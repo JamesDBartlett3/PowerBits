@@ -83,7 +83,7 @@ Function Export-PowerBIDatasetsFromWorkspaces {
   try {
     $headers = Get-PowerBIAccessToken
   } catch {
-    Write-Output "🔒 Power BI Access Token required. Launching authentication dialog..."
+    Write-Output "🔒 Power BI Access Token required. Launching Azure Active Directory authentication dialog..."
     Start-Sleep -s 1
     Connect-PowerBIServiceAccount -WarningAction SilentlyContinue | Out-Null
     $headers = Get-PowerBIAccessToken
