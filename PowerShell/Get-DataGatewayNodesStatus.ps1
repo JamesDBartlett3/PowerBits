@@ -27,7 +27,7 @@
 
 Function Get-DataGatewayNodesStatus {
 	#Requires -Modules DataGateway
-	Write-Output "Retrieving status of all accesssible Data Gateway nodes..."
+	Write-Output "⏳ Retrieving status of all accesssible Data Gateway nodes..."
 	try {
 		Get-DataGatewayAccessToken | Out-Null
 	} catch {
