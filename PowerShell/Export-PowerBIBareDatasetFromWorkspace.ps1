@@ -4,10 +4,10 @@
   Author: @JamesDBartlett3@techhub.social (James D. Bartlett III)
 
 .DESCRIPTION
-  - Exports Bare Dataset (Dataset with no corresponding Report) from Power BI as PBIX file
+  Exports Bare Dataset (Dataset with no corresponding Report) from Power BI as PBIX file
 
 .PARAMETER DatasetId
-The ID of the Dataset to export
+  The ID of the Dataset to export
 
 .PARAMETER WorkspaceId
   The ID of the workspace containing the Dataset to export
