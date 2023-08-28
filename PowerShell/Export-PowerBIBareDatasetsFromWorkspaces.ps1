@@ -57,7 +57,7 @@ Function Export-PowerBIBareDatasetsFromWorkspaces {
   $headers = New-Object "System.Collections.Generic.Dictionary[[String],[String]]"
   
 	[string]$tempFolder = Join-Path -Path $env:TEMP -ChildPath "PowerBIBareDatasets"
-  [string]$blankPbixTempFile = Join-Path -Path $tempFolder -ChildPath "blank.pbix"
+  [string]$blankPbixTempFile = Join-Path -Path $env:TEMP -ChildPath "blank.pbix"
   [array]$validPbixContents = @("Layout", "Metadata")
 	[string]$urlRegex = "(http[s]?|[s]?ftp[s]?)(:\/\/)([^\s,]+)"
 	[string]$uniqueName = "temp_" + [guid]::NewGuid().ToString().Replace("-","")
@@ -143,7 +143,7 @@ Function Export-PowerBIBareDatasetsFromWorkspaces {
 		$publishResponse = New-PowerBIReport -Path $BlankPbix -WorkspaceId $WorkspaceId -Name $uniqueName -ConflictAction CreateOrOverwrite
 		Write-Debug "Response: $publishResponse"
 		$publishedReportId = $publishResponse.Id
-		$publishedDatasetId = (Get-PowerBIDataset -WorkspaceId $WorkspaceId | Where-Object {$_.Name -eq $publishResponse.Name}).Id
+		$publishedDatasetId = (Get-PowerBIDataset -WorkspaceId $WorkspaceId | Where-Object {$_.Name -eq $uniqueName}).Id
 		Write-Debug "Published report ID: $publishedReportId; Published dataset ID: $publishedDatasetId"
 
 		# Assemble the Datasets API URI
