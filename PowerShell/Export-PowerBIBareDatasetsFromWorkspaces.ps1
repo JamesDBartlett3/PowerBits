@@ -4,19 +4,19 @@
     Author: @JamesDBartlett3@techhub.social (James D. Bartlett III)
 
   .DESCRIPTION
-    - Exports bare datasets (having no corresponding report) from Power BI as PBIX files
+    - Exports Bare Datasets (Datasets with no corresponding Reports) from Power BI as PBIX files
 
   .PARAMETER DatasetId
-    The ID of the report to copy to
+    The ID of the Dataset to export
 
   .PARAMETER WorkspaceId
-    The ID of the workspace to copy from
+    The ID of the workspace containing the Dataset to export
 
   .PARAMETER BlankPbix
-    Local path (or URL) to a blank PBIX file to upload and copy the source report's contents into
+    Path (local or URL) to a blank PBIX file to upload and copy the source report's contents into
 
   .PARAMETER OutFile
-    Local path to save the new PBIX file to
+    Local path to save the dataset PBIX file to
 
   .EXAMPLE
     Export-PowerBIBareDatasetsFromWorkspaces -DatasetId "00000000-0000-0000-0000-000000000000" -WorkspaceId "00000000-0000-0000-0000-000000000000" -BlankPbix "C:\blank.pbix" -OutFile "C:\new.pbix"
@@ -34,10 +34,8 @@
     
     TODO
 			- Add support for multiple datasets and workspaces
-			- Generate and use a random name for the published report to avoid collisions
+			- Refactor to use the Power BI REST API directly instead of the MicrosoftPowerBIMgmt cmdlets
       - Testing
-      - Add usage, help, and examples.
-      - Rename the function to something more accurate to its current capabilities.
   
     ACKNOWLEDGEMENTS
 			- Thanks to my wife (@likeawednesday@techhub.social) for her support and encouragement.
@@ -58,7 +56,8 @@ Function Export-PowerBIBareDatasetsFromWorkspaces {
   
   $headers = New-Object "System.Collections.Generic.Dictionary[[String],[String]]"
   
-  [string]$blankPbixTempFile = Join-Path -Path $env:TEMP -ChildPath "blank.pbix"
+	[string]$tempFolder = Join-Path -Path $env:TEMP -ChildPath "PowerBIBareDatasets"
+  [string]$blankPbixTempFile = Join-Path -Path $tempFolder -ChildPath "blank.pbix"
   [array]$validPbixContents = @("Layout", "Metadata")
 	[string]$urlRegex = "(http[s]?|[s]?ftp[s]?)(:\/\/)([^\s,]+)"
 	[string]$uniqueName = "temp_" + [guid]::NewGuid().ToString().Replace("-","")
@@ -82,6 +81,11 @@ Function Export-PowerBIBareDatasetsFromWorkspaces {
       return $false
     }
   }
+
+	# If the temp folder doesn't exist and user has not specified OutFile location, create the temp folder
+	if (!(Test-Path -LiteralPath $tempFolder) -and !$OutFile) {
+		New-Item -Path $tempFolder -ItemType Directory | Out-Null
+	}
   
 	# If user specified a URL to a file, download and validate it as a blank PBIX file
 	if ($blankPbixIsUrl){
@@ -156,18 +160,21 @@ Function Export-PowerBIBareDatasetsFromWorkspaces {
     $headers.Add("Content-Type", "application/json")
 
 		# Rebind the published report to the bare dataset
+		Write-Debug "Rebinding published report $publishedReportId to dataset $DatasetId..."
     Invoke-RestMethod -Uri $updateReportContentEndpoint -Method POST -Headers $headers -Body $body
     
     # If user did not specify an output file name, use the dataset's name and save it in the default temp folder
     $OutFile = if(!!$OutFile) {$OutFile} else {
-			Join-Path -Path $env:TEMP -ChildPath "$((Get-PowerBIDataset -Id $DatasetId -WorkspaceId $WorkspaceId).Name).pbix"
-			Invoke-Item -Path $env:TEMP
+			Join-Path -Path $tempFolder -ChildPath "$((Get-PowerBIDataset -Id $DatasetId -WorkspaceId $WorkspaceId).Name).pbix"
+			Invoke-Item -Path $tempFolder
 		}
     
-    # Export the rebound report and dataset (a.k.a. "thick report") to a PBIX file
+    # Export the re-bound report and dataset (a.k.a. "thick report") to a PBIX file
+		Write-Debug "Exporting re-bound blank report and dataset (a.k.a. 'thick report') $publishedReportId to $OutFile..."
     Export-PowerBIReport -WorkspaceId $WorkspaceId -Id $publishedReportId -OutFile $OutFile
   
     # Delete the published blank dataset and report from the workspace
+		Write-Debug "Deleting temporary blank dataset $publishedDatasetId and report $publishedReportId from workspace $WorkspaceId..."
     Invoke-RestMethod "$datasetsEndpoint/$publishedDatasetId" -Method DELETE -Headers $headers
 		Invoke-RestMethod "$reportsEndpoint/$publishedReportId" -Method DELETE -Headers $headers
     
