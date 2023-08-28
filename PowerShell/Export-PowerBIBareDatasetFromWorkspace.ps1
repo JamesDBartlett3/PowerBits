@@ -58,10 +58,10 @@ Function Export-PowerBIBareDatasetFromWorkspace {
   
   [string]$tempFolder = Join-Path -Path $env:TEMP -ChildPath 'PowerBIBareDatasets'
   [string]$blankPbixTempFile = Join-Path -Path $env:TEMP -ChildPath 'blank.pbix'
-  [array]$validPbixContents = @('Layout', 'Metadata')
   [string]$urlRegex = '(http[s]?|[s]?ftp[s]?)(:\/\/)([^\s,]+)'
   [string]$uniqueName = 'temp_' + [guid]::NewGuid().ToString().Replace('-', '')
   [string]$pbiApiBaseUri = 'https://api.powerbi.com/v1.0/myorg'
+  [array]$validPbixContents = @('Layout', 'Metadata')
   [bool]$blankPbixIsUrl = $BlankPbix -Match $urlRegex
   [bool]$localFileExists = Test-Path $BlankPbix
   [bool]$remoteFileIsValid = $false
