@@ -74,10 +74,10 @@ Function Export-PowerBIBareDatasetFromWorkspace {
     $fileIsBlank = (Get-Item $file).length / 1KB -lt 20
     $zip.Dispose()
     if ($fileIsPbix -and $fileIsBlank) {
-      Write-Debug "$file is a valid blank pbix file."
+      Write-Debug "$file is a valid blank PBIX file."
       return $true
     } else {
-      Write-Error "$file is NOT a valid pbix file and/or NOT blank."
+      Write-Error "$file is NOT a valid PBIX file and/or NOT blank."
       return $false
     }
   }
@@ -157,21 +157,21 @@ Function Export-PowerBIBareDatasetFromWorkspace {
 "@
     $headers.Add('Content-Type', 'application/json')
 
-    # Rebind the published report to the bare dataset
+    # Rebind the published Report to the bare Dataset
     Write-Debug "Rebinding published report $publishedReportId to dataset $DatasetId..."
     Invoke-RestMethod -Uri $updateReportContentEndpoint -Method POST -Headers $headers -Body $body
 
-    # If user did not specify an output file name, use the dataset's name and save it in the default temp folder
+    # If user did not specify an output file name, use the Dataset's name and save it in the default temp folder
     $OutFile = if (!!$OutFile) {$OutFile} else {
       Join-Path -Path $tempFolder -ChildPath "$((Get-PowerBIDataset -Id $DatasetId -WorkspaceId $WorkspaceId).Name).pbix"
       Invoke-Item -Path $tempFolder
     }
 
-    # Export the re-bound report and dataset (a.k.a. "thick report") to a PBIX file
+    # Export the re-bound Report and Dataset (a.k.a. "Thick Report") as a PBIX file
     Write-Debug "Exporting re-bound blank report and dataset (a.k.a. 'thick report') $publishedReportId to $OutFile..."
     Export-PowerBIReport -WorkspaceId $WorkspaceId -Id $publishedReportId -OutFile $OutFile
 
-    # Delete the published blank dataset and report from the workspace
+    # Delete the blank Report and its original Dataset from the workspace
     Write-Debug "Deleting temporary blank dataset $publishedDatasetId and report $publishedReportId from workspace $WorkspaceId..."
     Invoke-RestMethod "$datasetsEndpoint/$publishedDatasetId" -Method DELETE -Headers $headers
     Invoke-RestMethod "$reportsEndpoint/$publishedReportId" -Method DELETE -Headers $headers
