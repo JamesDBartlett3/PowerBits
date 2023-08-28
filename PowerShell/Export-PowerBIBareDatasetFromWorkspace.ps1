@@ -155,6 +155,7 @@ Function Export-PowerBIBareDatasetFromWorkspace {
         "datasetId": "$DatasetId"
       }
 "@
+    # Add the Content-Type header to the request
     $headers.Add('Content-Type', 'application/json')
 
     # Rebind the published Report to the bare Dataset
