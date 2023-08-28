@@ -135,11 +135,12 @@ Function Export-PowerBIBareDatasetsFromWorkspaces {
     $pbiApiBaseUri = "https://api.powerbi.com/v1.0/myorg"
     
 		# Publish the blank PBIX file to the target workspace
-		Write-Debug "Publishing $BlankPbix to target workspace..."
+		Write-Debug "Publishing $BlankPbix to workspace with temporary name $uniqueName"
 		$publishResponse = New-PowerBIReport -Path $BlankPbix -WorkspaceId $WorkspaceId -Name $uniqueName -ConflictAction CreateOrOverwrite
 		Write-Debug "Response: $publishResponse"
 		$publishedReportId = $publishResponse.Id
 		$publishedDatasetId = (Get-PowerBIDataset -WorkspaceId $WorkspaceId | Where-Object {$_.Name -eq $publishResponse.Name}).Id
+		Write-Debug "Published report ID: $publishedReportId; Published dataset ID: $publishedDatasetId"
 
 		# Assemble the Datasets API URI
 		$datasetsEndpoint = "$pbiApiBaseUri/groups/$WorkspaceId/datasets"
@@ -157,9 +158,11 @@ Function Export-PowerBIBareDatasetsFromWorkspaces {
 		# Rebind the published report to the bare dataset
     Invoke-RestMethod -Uri $updateReportContentEndpoint -Method POST -Headers $headers -Body $body
     
-    # If user did not specify an output file, use the dataset's name
-    $datasetName = (Get-PowerBIDataset -Id $DatasetId -WorkspaceId $WorkspaceId).Name
-    $OutFile = !!$OutFile ? $OutFile : "$($datasetName).pbix"
+    # If user did not specify an output file name, use the dataset's name and save it in the default temp folder
+    $OutFile = if(!!$OutFile) {$OutFile} else {
+			Join-Path -Path $env:TEMP -ChildPath "$((Get-PowerBIDataset -Id $DatasetId -WorkspaceId $WorkspaceId).Name).pbix"
+			Invoke-Item -Path $env:TEMP
+		}
     
     # Export the rebound report and dataset (a.k.a. "thick report") to a PBIX file
     Export-PowerBIReport -WorkspaceId $WorkspaceId -Id $publishedReportId -OutFile $OutFile
