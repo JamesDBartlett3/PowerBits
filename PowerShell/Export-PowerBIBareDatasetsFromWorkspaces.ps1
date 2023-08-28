@@ -4,7 +4,7 @@
     Author: @JamesDBartlett3@techhub.social (James D. Bartlett III)
 
   .DESCRIPTION
-    - Exports bare (no corresponding report) datasets to a local folder
+    - Exports bare datasets (having no corresponding report) from Power BI as PBIX files
 
   .PARAMETER DatasetId
     The ID of the report to copy to
@@ -33,12 +33,14 @@
         on the source and target workspace(s).
     
     TODO
+			- Add support for multiple datasets and workspaces
+			- Generate and use a random name for the published report to avoid collisions
       - Testing
       - Add usage, help, and examples.
       - Rename the function to something more accurate to its current capabilities.
   
     ACKNOWLEDGEMENTS
-
+			- Thanks to my wife (@likeawednesday@techhub.social) for her support and encouragement.
 #>
 
 Function Export-PowerBIBareDatasetsFromWorkspaces {
@@ -59,12 +61,12 @@ Function Export-PowerBIBareDatasetsFromWorkspaces {
   [string]$blankPbixTempFile = Join-Path -Path $env:TEMP -ChildPath "blank.pbix"
   [array]$validPbixContents = @("Layout", "Metadata")
 	[string]$urlRegex = "(http[s]?|[s]?ftp[s]?)(:\/\/)([^\s,]+)"
+	[string]$uniqueName = "temp_" + [guid]::NewGuid().ToString().Replace("-","")
   [bool]$blankPbixIsUrl = $BlankPbix -Match $urlRegex
   [bool]$localFileExists = Test-Path $BlankPbix
   [bool]$remoteFileIsValid = $false
   [bool]$localFileIsValid = $false
   [bool]$defaultFileIsValid = $false
-	$publishedReport = $null
   
   Function FileIsBlankPbix($file) {
     $zip = [System.IO.Compression.ZipFile]::OpenRead($file)
@@ -120,9 +122,6 @@ Function Export-PowerBIBareDatasetsFromWorkspaces {
 		Write-Error "No blank PBIX file found. Please specify a valid blank PBIX file using the -BlankPbix parameter."
 		return
 	}
-	
-	[bool]$pbixIsValid = ($localFileIsValid -or $remoteFileIsValid -or $defaultFileIsValid)
-    
   
   try {
     $headers = Get-PowerBIAccessToken
@@ -135,41 +134,39 @@ Function Export-PowerBIBareDatasetsFromWorkspaces {
     Write-Host "🔑 Power BI Access Token acquired."
     $pbiApiBaseUri = "https://api.powerbi.com/v1.0/myorg"
     
-    # If a valid blank PBIX was found, publish it to the target workspace
-    if ($pbixIsValid) {
-      Write-Debug "Publishing $BlankPbix to target workspace..."
-      $publishResponse = New-PowerBIReport -Path $BlankPbix -WorkspaceId $WorkspaceId -ConflictAction CreateOrOverwrite
-      Write-Debug "Response: $publishResponse"
-      $publishedReport = $publishResponse
-    }
-    
+		# Publish the blank PBIX file to the target workspace
+		Write-Debug "Publishing $BlankPbix to target workspace..."
+		$publishResponse = New-PowerBIReport -Path $BlankPbix -WorkspaceId $WorkspaceId -Name $uniqueName -ConflictAction CreateOrOverwrite
+		Write-Debug "Response: $publishResponse"
+		$publishedReportId = $publishResponse.Id
+		$publishedDatasetId = (Get-PowerBIDataset -WorkspaceId $WorkspaceId | Where-Object {$_.Name -eq $publishResponse.Name}).Id
+
+		# Assemble the Datasets API URI
+		$datasetsEndpoint = "$pbiApiBaseUri/groups/$WorkspaceId/datasets"
+		# Assemble the Reports API URI
+		$reportsEndpoint = "$pbiApiBaseUri/groups/$WorkspaceId/reports"
     # Assemble the Rebind API URI and request body
-    $updateReportContentEndpoint = "$pbiApiBaseUri/groups/$WorkspaceId/reports/$($publishedReport.Id)/Rebind"
+    $updateReportContentEndpoint = "$pbiApiBaseUri/groups/$WorkspaceId/reports/$publishedReportId/Rebind"
     $body = @"
       {
         "datasetId": "$DatasetId"
       }
 "@
-    # Update the target report with the source report's content
     $headers.Add("Content-Type", "application/json")
+
+		# Rebind the published report to the bare dataset
     Invoke-RestMethod -Uri $updateReportContentEndpoint -Method POST -Headers $headers -Body $body
     
-    # If user did not specify an output file, use the source report's name
+    # If user did not specify an output file, use the dataset's name
     $datasetName = (Get-PowerBIDataset -Id $DatasetId -WorkspaceId $WorkspaceId).Name
     $OutFile = !!$OutFile ? $OutFile : "$($datasetName).pbix"
     
-    # Export the rebound report and dataset to a PBIX file
-    Export-PowerBIReport -WorkspaceId $WorkspaceId -Id $publishedReport.Id -OutFile $OutFile
-    
-    # Assemble the Datasets API URI
-    $datasetsEndpoint = "$pbiApiBaseUri/groups/$WorkspaceId/datasets"
-		
-		# Assemble the Reports API URI
-		$reportsEndpoint = "$pbiApiBaseUri/groups/$WorkspaceId/reports"
-    
-    # Delete the target dataset and report from the target workspace
-    Invoke-RestMethod "$datasetsEndpoint/$($publishedReport.datasetId)" -Method DELETE -Headers $headers
-		Invoke-RestMethod "$reportsEndpoint/$($publishedReport.Id)" -Method DELETE -Headers $headers
+    # Export the rebound report and dataset (a.k.a. "thick report") to a PBIX file
+    Export-PowerBIReport -WorkspaceId $WorkspaceId -Id $publishedReportId -OutFile $OutFile
+  
+    # Delete the published blank dataset and report from the workspace
+    Invoke-RestMethod "$datasetsEndpoint/$publishedDatasetId" -Method DELETE -Headers $headers
+		Invoke-RestMethod "$reportsEndpoint/$publishedReportId" -Method DELETE -Headers $headers
     
   }
   
