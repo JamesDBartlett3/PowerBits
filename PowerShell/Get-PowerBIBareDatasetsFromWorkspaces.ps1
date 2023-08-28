@@ -147,10 +147,8 @@ Function Get-PowerBIBareDatasetsFromWorkspaces {
 			
 		}
 		
-		$bareDatasets | Select-Object -Unique -Property Name, Id, WorkspaceName, WorkspaceId | Format-Table -AutoSize
-		
 	}
 
-}
+	return $bareDatasets | Select-Object -Unique -Property Name, Id, WorkspaceName, WorkspaceId
 
-Get-PowerBIBareDatasetsFromWorkspaces -ThrottleLimit 8
+}
