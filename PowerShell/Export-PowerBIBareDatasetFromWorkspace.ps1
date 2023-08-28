@@ -1,44 +1,44 @@
 <#
-  .SYNOPSIS
-    Function: Export-PowerBIBareDatasetFromWorkspace
-    Author: @JamesDBartlett3@techhub.social (James D. Bartlett III)
+.SYNOPSIS
+  Function: Export-PowerBIBareDatasetFromWorkspace
+  Author: @JamesDBartlett3@techhub.social (James D. Bartlett III)
 
-  .DESCRIPTION
-    - Exports Bare Dataset (Dataset with no corresponding Report) from Power BI as PBIX file
+.DESCRIPTION
+  - Exports Bare Dataset (Dataset with no corresponding Report) from Power BI as PBIX file
 
-  .PARAMETER DatasetId
-    The ID of the Dataset to export
+.PARAMETER DatasetId
+The ID of the Dataset to export
 
-  .PARAMETER WorkspaceId
-    The ID of the workspace containing the Dataset to export
+.PARAMETER WorkspaceId
+  The ID of the workspace containing the Dataset to export
 
-  .PARAMETER BlankPbix
-    Path (local or URL) to a blank PBIX file to upload and rebind to the Dataset to be exported
+.PARAMETER BlankPbix
+  Path (local or URL) to a blank PBIX file to upload and rebind to the Dataset to be exported
 
-  .PARAMETER OutFile
-    Local path to save the Dataset PBIX file to
+.PARAMETER OutFile
+  Local path to save the Dataset PBIX file to
 
-  .EXAMPLE
-    Export-PowerBIBareDatasetFromWorkspace -DatasetId "00000000-0000-0000-0000-000000000000" -WorkspaceId "00000000-0000-0000-0000-000000000000" -BlankPbix "C:\blank.pbix" -OutFile "C:\new.pbix"
+.EXAMPLE
+  Export-PowerBIBareDatasetFromWorkspace -DatasetId "00000000-0000-0000-0000-000000000000" -WorkspaceId "00000000-0000-0000-0000-000000000000" -BlankPbix "C:\blank.pbix" -OutFile "C:\new.pbix"
 
-  .NOTES
-    This function does NOT require Azure AD app registration, 
-    service principal creation, or any other special setup.
-    The only requirements are:
-      - The user must be able to run PowerShell (and install the
-        MicrosoftPowerBIMgmt module, if it's not already installed).
-      - The user must be allowed to download report PBIX files
-        (see: "Download reports" setting in the Power BI Admin Portal).
-      - The user must have "Contributor" or higher permissions 
-        on the source and target workspace(s).
-    
-    TODO
-			- Add support for multiple datasets and workspaces
-			- Refactor to use the Power BI REST API directly instead of the MicrosoftPowerBIMgmt cmdlets
-      - Testing
-  
-    ACKNOWLEDGEMENTS
-			- Thanks to my wife (@likeawednesday@techhub.social) for her support and encouragement.
+.NOTES
+  This function does NOT require Azure AD app registration, 
+  service principal creation, or any other special setup.
+  The only requirements are:
+    - The user must be able to run PowerShell (and install the
+      MicrosoftPowerBIMgmt module, if it's not already installed).
+    - The user must be allowed to download report PBIX files
+      (see: "Download reports" setting in the Power BI Admin Portal).
+    - The user must have "Contributor" or higher permissions 
+      on the source and target workspace(s).
+
+  TODO
+  - Add support for multiple datasets and workspaces
+  - Refactor to use the Power BI REST API directly instead of the MicrosoftPowerBIMgmt cmdlets
+  - Testing
+
+  ACKNOWLEDGEMENTS
+  - Thanks to my wife (@likeawednesday@techhub.social) for her support and encouragement.
 #>
 
 Function Export-PowerBIBareDatasetFromWorkspace {
