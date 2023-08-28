@@ -1,10 +1,10 @@
 <#
   .SYNOPSIS
-    Function: Export-PowerBIBareDatasetsFromWorkspaces
+    Function: Export-PowerBIBareDatasetFromWorkspace
     Author: @JamesDBartlett3@techhub.social (James D. Bartlett III)
 
   .DESCRIPTION
-    - Exports Bare Datasets (Datasets with no corresponding Reports) from Power BI as PBIX files
+    - Exports Bare Dataset (Dataset with no corresponding Report) from Power BI as PBIX file
 
   .PARAMETER DatasetId
     The ID of the Dataset to export
@@ -13,13 +13,13 @@
     The ID of the workspace containing the Dataset to export
 
   .PARAMETER BlankPbix
-    Path (local or URL) to a blank PBIX file to upload and copy the source report's contents into
+    Path (local or URL) to a blank PBIX file to upload and rebind to the Dataset to be exported
 
   .PARAMETER OutFile
-    Local path to save the dataset PBIX file to
+    Local path to save the Dataset PBIX file to
 
   .EXAMPLE
-    Export-PowerBIBareDatasetsFromWorkspaces -DatasetId "00000000-0000-0000-0000-000000000000" -WorkspaceId "00000000-0000-0000-0000-000000000000" -BlankPbix "C:\blank.pbix" -OutFile "C:\new.pbix"
+    Export-PowerBIBareDatasetFromWorkspace -DatasetId "00000000-0000-0000-0000-000000000000" -WorkspaceId "00000000-0000-0000-0000-000000000000" -BlankPbix "C:\blank.pbix" -OutFile "C:\new.pbix"
 
   .NOTES
     This function does NOT require Azure AD app registration, 
@@ -41,7 +41,7 @@
 			- Thanks to my wife (@likeawednesday@techhub.social) for her support and encouragement.
 #>
 
-Function Export-PowerBIBareDatasetsFromWorkspaces {
+Function Export-PowerBIBareDatasetFromWorkspace {
   
   #Requires -PSEdition Core
   #Requires -Modules MicrosoftPowerBIMgmt
