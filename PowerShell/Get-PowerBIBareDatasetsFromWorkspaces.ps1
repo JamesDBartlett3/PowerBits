@@ -95,7 +95,7 @@ Function Get-PowerBIBareDatasetsFromWorkspaces {
 		$workspaces = $Interactive ? ($workspaces | Out-ConsoleGridView -Title 'Select Workspaces to Scan') : $workspaces
 		
 		# Declare $bareDatasets array as a concurrent (thread-safe) PSObject
-		$bareDatasets = [System.Collections.Concurrent.ConcurrentBag[psobject]]::new()
+		$bareDatasets = [System.Collections.Concurrent.ConcurrentBag[PSObject]]::New()
 		
 		# For each workspace, find datasets with no corresponding report and add them to the $bareDatasets array
 		$workspaces | ForEach-Object -ThrottleLimit $ThrottleLimit -Parallel {
