@@ -53,6 +53,8 @@ Function Export-PowerBIBareDatasetFromWorkspace {
 	Param(
 		[Parameter(Mandatory = $true)][string]$DatasetId,
 		[Parameter(Mandatory = $true)][string]$WorkspaceId,
+		[Parameter(Mandatory = $false)][string]$DatasetName,
+		[Parameter(Mandatory = $false)][string]$WorkspaceName,
 		[Parameter(Mandatory = $false)][string]$BlankPbix,
 		[Parameter(Mandatory = $false)][string]$OutFile
 	)
