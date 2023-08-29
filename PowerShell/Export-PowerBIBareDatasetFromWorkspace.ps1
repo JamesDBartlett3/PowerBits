@@ -51,10 +51,10 @@ Function Export-PowerBIBareDatasetFromWorkspace {
   
 	[CmdletBinding()]
 	Param(
-		[Parameter(Mandatory = $true)][string]$DatasetId,
-		[Parameter(Mandatory = $true)][string]$WorkspaceId,
-		[Parameter(Mandatory = $false)][string]$DatasetName,
-		[Parameter(Mandatory = $false)][string]$WorkspaceName,
+		[Parameter(Mandatory = $true, ValueFromPipeline = $true)][string]$DatasetId,
+		[Parameter(Mandatory = $true, ValueFromPipeline = $true)][string]$WorkspaceId,
+		[Parameter(Mandatory = $false, ValueFromPipeline = $true)][string]$DatasetName,
+		[Parameter(Mandatory = $false, ValueFromPipeline = $true)][string]$WorkspaceName,
 		[Parameter(Mandatory = $false)][string]$BlankPbix,
 		[Parameter(Mandatory = $false)][string]$OutFile
 	)
