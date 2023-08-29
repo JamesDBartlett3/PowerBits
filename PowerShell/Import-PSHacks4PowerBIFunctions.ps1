@@ -14,7 +14,7 @@
 #>
 
 # Pre-emptively import problematic modules
-Import-Module Az.Resources
+Import-Module Az.Resources -ErrorAction SilentlyContinue | Out-Null
 
 # List of functions to import
 $functions = @(
