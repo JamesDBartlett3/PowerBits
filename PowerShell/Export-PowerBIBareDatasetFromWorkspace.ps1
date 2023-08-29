@@ -10,7 +10,13 @@
     The ID of the Dataset to export
 
   .PARAMETER WorkspaceId
-    The ID of the workspace containing the Dataset to export
+    The ID of the Workspace containing the Dataset to export
+
+	.PARAMETER DatasetName
+		The name of the Dataset to export
+
+	.PARAMETER WorkspaceName
+		The name of the Workspace containing the Dataset to export
 
   .PARAMETER BlankPbix
     Path (local or URL) to a blank PBIX file to upload and rebind to the Dataset to be exported
@@ -48,13 +54,19 @@ Function Export-PowerBIBareDatasetFromWorkspace {
 	
 	[CmdletBinding()]
 	Param(
-		[Parameter(Mandatory = $true, ValueFromPipeline = $true)][string]$DatasetId,
-		[Parameter(Mandatory = $true, ValueFromPipeline = $true)][string]$WorkspaceId,
-		[Parameter(Mandatory = $false, ValueFromPipeline = $true)][string]$DatasetName,
-		[Parameter(Mandatory = $false, ValueFromPipeline = $true)][string]$WorkspaceName,
-		[Parameter(Mandatory = $false)][string]$BlankPbix,
-		[Parameter(Mandatory = $false)][string]$OutFile
-		)
+		[Parameter(Mandatory = $true, ValueFromPipelineByPropertyName = $true)]
+		[Alias('Id')][string]$DatasetId,
+		[Parameter(Mandatory = $true, ValueFromPipelineByPropertyName = $true)]
+		[string]$WorkspaceId,
+		[Parameter(Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
+		[Alias('Name')][string]$DatasetName,
+		[Parameter(Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
+		[string]$WorkspaceName,
+		[Parameter(Mandatory = $false)]
+		[string]$BlankPbix,
+		[Parameter(Mandatory = $false)]
+		[string]$OutFile
+	)
 		
 	#Requires -PSEdition Core -Modules MicrosoftPowerBIMgmt
 	
