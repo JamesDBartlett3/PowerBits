@@ -36,7 +36,7 @@
 
 Function Get-PowerBIBareDatasetsFromWorkspaces {
 	[CmdletBinding()]
-	param (
+	Param (
 		[Parameter(Mandatory = $false)][int]$ThrottleLimit = 1,
 		[Parameter(Mandatory = $false)][switch]$Interactive
 	)
