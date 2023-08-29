@@ -104,7 +104,7 @@ Function Get-PowerBIBareDatasetsFromWorkspaces {
 			$workspaceName = $_.Name
 			$workspaceId = $_.Id
 			$localDatasets = $using:bareDatasets
-			$datasetProperties = "" | Select-Object Name, Id, WebUrl, IsRefreshable, WorkspaceName, WorkspaceId
+			$datasetProperties = "" | Select-Object DatasetName, DatasetId, WebUrl, IsRefreshable, WorkspaceName, WorkspaceId
 			
 			# Get datasets from the workspace
 			$workspaceDatasets = Get-PowerBIDataset -Scope Organization -WorkspaceId $workspaceId -ErrorAction SilentlyContinue |
@@ -140,8 +140,8 @@ Function Get-PowerBIBareDatasetsFromWorkspaces {
 				
 				# If no corresponding report is found, add the current dataset to the $bareDatasets array
 				if (!$report) {
-					$datasetProperties.Name = $datasetName
-					$datasetProperties.Id = $datasetId
+					$datasetProperties.DatasetName = $datasetName
+					$datasetProperties.DatasetId = $datasetId
 					$datasetProperties.WebUrl = $datasetWebUrl
 					$datasetProperties.IsRefreshable = $datasetIsRefreshable
 					$datasetProperties.WorkspaceName = $datasetWorkspaceName
@@ -155,6 +155,6 @@ Function Get-PowerBIBareDatasetsFromWorkspaces {
 		
 	}
 
-	return $bareDatasets | Select-Object -Unique -Property Name, Id, WorkspaceName, WorkspaceId
+	return $bareDatasets | Select-Object -Unique -Property DatasetName, DatasetId, WorkspaceName, WorkspaceId
 
 }
