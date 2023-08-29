@@ -33,7 +33,8 @@
       on the source and target workspace(s).
 
   TODO
-  - Add support for multiple datasets and workspaces
+  - Add support for multiple Datasets and Workspaces
+  - Add error handling and logging
   - Refactor to use the Power BI REST API directly instead of the MicrosoftPowerBIMgmt cmdlets
   - Testing
 
@@ -164,13 +165,16 @@ Function Export-PowerBIBareDatasetFromWorkspace {
 
     # If user did not specify an output file name, use the Dataset's name and save it in the default temp folder
     $OutFile = if (!!$OutFile) {$OutFile} else {
-      Join-Path -Path $tempFolder -ChildPath "$((Get-PowerBIDataset -Id $DatasetId -WorkspaceId $WorkspaceId).Name).pbix"
+      $datasetName = (Get-PowerBIDataset -Id $DatasetId -WorkspaceId $WorkspaceId).Name
+      Join-Path -Path $tempFolder -ChildPath "$($datasetName).pbix"
       Invoke-Item -Path $tempFolder
     }
 
     # Export the re-bound Report and Dataset (a.k.a. "Thick Report") as a PBIX file
     Write-Debug "Exporting re-bound blank report and dataset (a.k.a. 'thick report') $publishedReportId to $OutFile..."
-    Export-PowerBIReport -WorkspaceId $WorkspaceId -Id $publishedReportId -OutFile $OutFile
+    # Save the PBIX file to a temp file first, then rename it to the correct name (workaround for Datasets with special characters in their names)
+    Export-PowerBIReport -WorkspaceId $WorkspaceId -Id $publishedReportId -OutFile (Join-Path -Path $tempFolder -ChildPath "$uniqueName.pbix")
+    Rename-Item -Path (Join-Path -Path $tempFolder -ChildPath "$uniqueName.pbix") -NewName $OutFile
 
     # Delete the blank Report and its original Dataset from the workspace
     Write-Debug "Deleting temporary blank dataset $publishedDatasetId and report $publishedReportId from workspace $WorkspaceId..."
