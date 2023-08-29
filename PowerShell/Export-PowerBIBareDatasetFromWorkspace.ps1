@@ -186,11 +186,9 @@ Function Export-PowerBIBareDatasetFromWorkspace {
 		$reportsEndpoint = "$pbiApiBaseUri/groups/$WorkspaceId/reports"
 		# Assemble the Rebind API URI and request body
 		$updateReportContentEndpoint = "$pbiApiBaseUri/groups/$WorkspaceId/reports/$publishedReportId/Rebind"
-		$body = @"
-			{
-				"datasetId": "$DatasetId"
-			}
-"@
+		# Assemble the request body
+		$body = "{`"datasetId`": `"$DatasetId`"}"
+
 		# Add the Content-Type header to the request
 		$headers.Add('Content-Type', 'application/json')
 
