@@ -133,13 +133,17 @@ Function Export-PowerBIBareDatasetFromWorkspace {
   
 	try {
 		$headers = Get-PowerBIAccessToken
-	} catch {
+	} 
+	catch {
 		Write-Host '🔒 Power BI Access Token required. Launching Azure Active Directory authentication dialog...'
 		Start-Sleep -s 1
 		Connect-PowerBIServiceAccount -WarningAction SilentlyContinue | Out-Null
 		$headers = Get-PowerBIAccessToken
 		Write-Host '🔑 Power BI Access Token acquired.'
-	} finally {
+
+	} 
+	finally {
+
 		# Publish the blank PBIX file to the target workspace
 		Write-Debug "Publishing $BlankPbix to workspace with temporary name $uniqueName"
 		$publishResponse = New-PowerBIReport -Path $BlankPbix -WorkspaceId $WorkspaceId -Name $uniqueName -ConflictAction CreateOrOverwrite
@@ -175,6 +179,7 @@ Function Export-PowerBIBareDatasetFromWorkspace {
 
 		# Export the re-bound Report and Dataset (a.k.a. "Thick Report") as a PBIX file
 		Write-Debug "Exporting re-bound blank report and dataset (a.k.a. 'thick report') $publishedReportId to $OutFile..."
+
 		# Save the PBIX file to a temp file first, then rename it to the correct name (workaround for Datasets with special characters in their names)
 		Export-PowerBIReport -WorkspaceId $WorkspaceId -Id $publishedReportId -OutFile (Join-Path -Path $tempFolder -ChildPath "$uniqueName.pbix")
 		Rename-Item -Path (Join-Path -Path $tempFolder -ChildPath "$uniqueName.pbix") -NewName $OutFile
