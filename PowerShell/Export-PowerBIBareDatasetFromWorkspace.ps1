@@ -33,15 +33,15 @@
         on the source and target workspace(s).
 
     TODO
-    - Add support for multiple Datasets and Workspaces
-    - Add pipeline streaming support
-    - Add parallelism
-    - Add error handling and logging
-    - Refactor to use the Power BI REST API directly instead of the MicrosoftPowerBIMgmt cmdlets
-    - Testing
+			- Add support for multiple Datasets and Workspaces
+			- Add pipeline streaming support
+			- Add parallelism
+			- Add error handling and logging
+			- Refactor to use the Power BI REST API directly instead of the MicrosoftPowerBIMgmt cmdlets
+			- Testing
 
     ACKNOWLEDGEMENTS
-    - Thanks to my wife (@likeawednesday@techhub.social) for her support and encouragement.
+    	- Thanks to my wife (@likeawednesday@techhub.social) for her support and encouragement.
 #>
 
 Function Export-PowerBIBareDatasetFromWorkspace {
