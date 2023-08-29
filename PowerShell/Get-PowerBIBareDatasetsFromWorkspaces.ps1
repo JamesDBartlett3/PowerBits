@@ -48,13 +48,15 @@ Function Get-PowerBIBareDatasetsFromWorkspaces {
 	
 	try {
 		$headers = Get-PowerBIAccessToken
-	} catch {
+	} 
+	catch {
 		Write-Host '🔒 Power BI Access Token required. Launching Azure Active Directory authentication dialog...'
 		Start-Sleep -s 1
 		Connect-PowerBIServiceAccount -WarningAction SilentlyContinue | Out-Null
 		$headers = Get-PowerBIAccessToken
 		Write-Host '🔑 Power BI Access Token acquired. Proceeding...'
-	} finally {
+	} 
+	finally {
 		
 		# If debugging, display the access token
 		Write-Debug "Headers: `n $($headers.Keys)`n $($headers.Values)"
