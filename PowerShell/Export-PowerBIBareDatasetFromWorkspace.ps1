@@ -54,20 +54,34 @@ Function Export-PowerBIBareDatasetFromWorkspace {
 	
 	[CmdletBinding()]
 	Param(
-		[Parameter(Mandatory = $true, ValueFromPipelineByPropertyName = $true)]
-		[Alias('Id')][string]$DatasetId,
-		[Parameter(Mandatory = $true, ValueFromPipelineByPropertyName = $true)]
-		[string]$WorkspaceId,
-		[Parameter(Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
-		[Alias('Name')][string]$DatasetName,
-		[Parameter(Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
-		[string]$WorkspaceName,
-		[Parameter(Mandatory = $false)]
-		[string]$BlankPbix,
-		[Parameter(Mandatory = $false)]
-		[string]$OutFile
+		[Parameter(
+			Mandatory = $true,
+			ValueFromPipelineByPropertyName = $true
+			)][Alias('Id')][guid]$DatasetId,
+		[Parameter(
+			Mandatory = $true,
+			ValueFromPipelineByPropertyName = $true
+			)][guid]$WorkspaceId,
+		[Parameter(
+			Mandatory = $false
+			, ValueFromPipelineByPropertyName = $true
+			)][Alias('Name')][string]$DatasetName,
+		[Parameter(
+			Mandatory = $false
+			, ValueFromPipelineByPropertyName = $true
+			)][string]$WorkspaceName,
+		[Parameter(
+			Mandatory = $false
+			, ValueFromPipeline = $false
+			)][string]$BlankPbix,
+		[Parameter(
+			Mandatory = $false
+			, ValueFromPipeline = $false
+			)][string]$OutFile
 	)
-		
+
+	Write-Debug "DatasetId: $DatasetId, WorkspaceId: $WorkspaceId, DatasetName: $DatasetName, WorkspaceName: $WorkspaceName"
+
 	#Requires -PSEdition Core -Modules MicrosoftPowerBIMgmt
 	
 	$headers = New-Object 'System.Collections.Generic.Dictionary[[String],[String]]'
@@ -124,7 +138,7 @@ Function Export-PowerBIBareDatasetFromWorkspace {
 	}
 	
 	# If user did not specify a blank PBIX file, and a valid blank PBIX is not in the temp location,
-	# download one from GitHub and check if it's valid and blank
+	# download one from GitHub, and then check if it's valid and blank
 	else {
 		Write-Debug "Downloading a blank pbix file from GitHub to $blankPbixTempFile..."
 		$BlankPbixUri = 'https://github.com/JamesDBartlett3/PowerBits/raw/main/Misc/blank.pbix'
