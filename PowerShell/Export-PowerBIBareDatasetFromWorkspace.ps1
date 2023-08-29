@@ -1,16 +1,16 @@
 <#
-  .SYNOPSIS
-    Function: Export-PowerBIBareDatasetFromWorkspace
-    Author: @JamesDBartlett3@techhub.social (James D. Bartlett III)
+	.SYNOPSIS
+		Function: Export-PowerBIBareDatasetFromWorkspace
+		Author: @JamesDBartlett3@techhub.social (James D. Bartlett III)
 
-  .DESCRIPTION
-    Exports Bare Dataset (Dataset with no corresponding Report) from Power BI as PBIX file
+	.DESCRIPTION
+		Exports Bare Dataset (Dataset with no corresponding Report) from Power BI as PBIX file
 
-  .PARAMETER DatasetId
-    The ID of the Dataset to export
+	.PARAMETER DatasetId
+		The ID of the Dataset to export
 
-  .PARAMETER WorkspaceId
-    The ID of the Workspace containing the Dataset to export
+	.PARAMETER WorkspaceId
+		The ID of the Workspace containing the Dataset to export
 
 	.PARAMETER DatasetName
 		The name of the Dataset to export
@@ -18,36 +18,38 @@
 	.PARAMETER WorkspaceName
 		The name of the Workspace containing the Dataset to export
 
-  .PARAMETER BlankPbix
-    Path (local or URL) to a blank PBIX file to upload and rebind to the Dataset to be exported
+	.PARAMETER BlankPbix
+		Path (local or URL) to a blank PBIX file to upload and rebind to the Dataset to be exported
 
-  .PARAMETER OutFile
-    Local path to save the Dataset PBIX file to
+	.PARAMETER OutFile
+		Local path to save the Dataset PBIX file to
 
-  .EXAMPLE
-    Export-PowerBIBareDatasetFromWorkspace -DatasetId "00000000-0000-0000-0000-000000000000" -WorkspaceId "00000000-0000-0000-0000-000000000000" -BlankPbix "C:\blank.pbix" -OutFile "C:\new.pbix"
+	.EXAMPLE
+		Export-PowerBIBareDatasetFromWorkspace -DatasetId "00000000-0000-0000-0000-000000000000" -WorkspaceId "00000000-0000-0000-0000-000000000000" -BlankPbix "C:\blank.pbix" -OutFile "C:\new.pbix"
 
-  .NOTES
-    This function does NOT require Azure AD app registration, 
-    service principal creation, or any other special setup.
-    The only requirements are:
-      - The user must be able to run PowerShell (and install the
-        MicrosoftPowerBIMgmt module, if it's not already installed).
-      - The user must be allowed to download report PBIX files
-        (see: "Download reports" setting in the Power BI Admin Portal).
-      - The user must have "Contributor" or higher permissions 
-        on the source and target workspace(s).
+	.NOTES
+		This function does NOT require Azure AD app registration, 
+		service principal creation, or any other special setup.
+		The only requirements are:
+			- The user must be able to run PowerShell (and install the
+				MicrosoftPowerBIMgmt module, if it's not already installed).
+			- The user must be allowed to download report PBIX files
+				(see: "Download reports" setting in the Power BI Admin Portal).
+			- The user must have "Contributor" or higher permissions 
+				on the source and target workspace(s).
 
-    TODO
-			- Add support for multiple Datasets and Workspaces
-			- Add pipeline streaming support
-			- Add parallelism
-			- Add error handling and logging
-			- Refactor to use the Power BI REST API directly instead of the MicrosoftPowerBIMgmt cmdlets
+		TODO
+			- Workspace folders
+			- 429 throttling
+			- Multiple Datasets and Workspaces
+			- Pipeline streaming
+			- Parallelism
+			- Error handling and logging
+			- Call Power BI REST API endpoints directly instead of MicrosoftPowerBIMgmt cmdlets
 			- Testing
 
-    ACKNOWLEDGEMENTS
-    	- Thanks to my wife (@likeawednesday@techhub.social) for her support and encouragement.
+		ACKNOWLEDGEMENTS
+			- Thanks to my wife (@likeawednesday@techhub.social) for her support and encouragement.
 #>
 
 Function Export-PowerBIBareDatasetFromWorkspace {
@@ -85,7 +87,7 @@ Function Export-PowerBIBareDatasetFromWorkspace {
 	#Requires -PSEdition Core -Modules MicrosoftPowerBIMgmt
 	
 	$headers = New-Object 'System.Collections.Generic.Dictionary[[String],[String]]'
-  
+	
 	[string]$tempFolder = Join-Path -Path $env:TEMP -ChildPath 'PowerBIBareDatasets'
 	[string]$blankPbixTempFile = Join-Path -Path $env:TEMP -ChildPath 'blank.pbix'
 	[string]$urlRegex = '(http[s]?|[s]?ftp[s]?)(:\/\/)([^\s,]+)'
@@ -97,7 +99,7 @@ Function Export-PowerBIBareDatasetFromWorkspace {
 	[bool]$remoteFileIsValid = $false
 	[bool]$localFileIsValid = $false
 	[bool]$defaultFileIsValid = $false
-  
+	
 	Function FileIsBlankPbix($file) {
 		$zip = [System.IO.Compression.ZipFile]::OpenRead($file)
 		$fileIsPbix = @($validPbixContents | Where-Object {$zip.Entries.Name -Contains $_}).Count -gt 0
@@ -116,7 +118,7 @@ Function Export-PowerBIBareDatasetFromWorkspace {
 	if (!(Test-Path -LiteralPath $tempFolder) -and !$OutFile) {
 		New-Item -Path $tempFolder -ItemType Directory | Out-Null
 	}
-  
+	
 	# If user specified a URL to a file, download and validate it as a blank PBIX file
 	if ($blankPbixIsUrl) {
 		Write-Debug "Downloading file: $BlankPbix..."
@@ -156,7 +158,7 @@ Function Export-PowerBIBareDatasetFromWorkspace {
 		Write-Error 'No blank PBIX file found. Please specify a valid blank PBIX file using the -BlankPbix parameter.'
 		return
 	}
-  
+	
 	try {
 		$headers = Get-PowerBIAccessToken
 	} 
@@ -185,9 +187,9 @@ Function Export-PowerBIBareDatasetFromWorkspace {
 		# Assemble the Rebind API URI and request body
 		$updateReportContentEndpoint = "$pbiApiBaseUri/groups/$WorkspaceId/reports/$publishedReportId/Rebind"
 		$body = @"
-      {
-        "datasetId": "$DatasetId"
-      }
+			{
+				"datasetId": "$DatasetId"
+			}
 "@
 		# Add the Content-Type header to the request
 		$headers.Add('Content-Type', 'application/json')
@@ -214,7 +216,7 @@ Function Export-PowerBIBareDatasetFromWorkspace {
 		Write-Debug "Deleting temporary blank dataset $publishedDatasetId and report $publishedReportId from workspace $WorkspaceId..."
 		Invoke-RestMethod "$datasetsEndpoint/$publishedDatasetId" -Method DELETE -Headers $headers
 		Invoke-RestMethod "$reportsEndpoint/$publishedReportId" -Method DELETE -Headers $headers
-    
+		
 	}
-  
+	
 }
