@@ -51,10 +51,9 @@ Function Get-PowerBIBareDatasetsFromWorkspaces {
 		Start-Sleep -s 1
 		Connect-PowerBIServiceAccount -WarningAction SilentlyContinue | Out-Null
 		$headers = Get-PowerBIAccessToken
+		Write-Host "🔑 Power BI Access Token acquired."
 	} 
 	finally {
-		
-		Write-Host "🔑 Power BI Access Token acquired."
 		
 		# If debugging, display the access token
 		Write-Debug "Headers: `n $($headers.Keys)`n $($headers.Values)"
