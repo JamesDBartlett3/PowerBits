@@ -46,6 +46,7 @@
 			- Parallelism
 			- Error handling and logging
 			- Call Power BI REST API endpoints directly instead of MicrosoftPowerBIMgmt cmdlets
+			- Service Principal authentication
 			- Testing
 
 		ACKNOWLEDGEMENTS
