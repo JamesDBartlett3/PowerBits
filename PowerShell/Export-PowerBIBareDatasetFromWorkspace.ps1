@@ -34,6 +34,8 @@
 
   TODO
   - Add support for multiple Datasets and Workspaces
+  - Add pipeline streaming support
+  - Add parallelism
   - Add error handling and logging
   - Refactor to use the Power BI REST API directly instead of the MicrosoftPowerBIMgmt cmdlets
   - Testing
