@@ -45,10 +45,7 @@
 #>
 
 Function Export-PowerBIBareDatasetFromWorkspace {
-  
-	#Requires -PSEdition Core
-	#Requires -Modules MicrosoftPowerBIMgmt
-  
+	
 	[CmdletBinding()]
 	Param(
 		[Parameter(Mandatory = $true, ValueFromPipeline = $true)][string]$DatasetId,
@@ -57,8 +54,10 @@ Function Export-PowerBIBareDatasetFromWorkspace {
 		[Parameter(Mandatory = $false, ValueFromPipeline = $true)][string]$WorkspaceName,
 		[Parameter(Mandatory = $false)][string]$BlankPbix,
 		[Parameter(Mandatory = $false)][string]$OutFile
-	)
-  
+		)
+		
+	#Requires -PSEdition Core -Modules MicrosoftPowerBIMgmt
+	
 	$headers = New-Object 'System.Collections.Generic.Dictionary[[String],[String]]'
   
 	[string]$tempFolder = Join-Path -Path $env:TEMP -ChildPath 'PowerBIBareDatasets'
