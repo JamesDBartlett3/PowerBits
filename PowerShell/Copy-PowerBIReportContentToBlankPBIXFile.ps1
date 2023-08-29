@@ -63,10 +63,10 @@ Function Copy-PowerBIReportContentToBlankPBIXFile {
   
 	[CmdletBinding()]
 	Param(
-		[parameter(Mandatory = $true)][string]$SourceReportId,
-		[parameter(Mandatory = $true)][string]$SourceWorkspaceId,
-		[parameter(Mandatory = $false)][string]$TargetReportId,
-		[parameter(Mandatory = $false)][string]$TargetWorkspaceId = $SourceWorkspaceId,
+		[Parameter(Mandatory = $true)][string]$SourceReportId,
+		[Parameter(Mandatory = $true)][string]$SourceWorkspaceId,
+		[Parameter(Mandatory = $false)][string]$TargetReportId,
+		[Parameter(Mandatory = $false)][string]$TargetWorkspaceId = $SourceWorkspaceId,
 		[Parameter(Mandatory = $false)][string]$BlankPbix,
 		[Parameter(Mandatory = $false)][string]$OutFile
 	)
