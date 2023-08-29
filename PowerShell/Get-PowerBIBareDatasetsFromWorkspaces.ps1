@@ -136,10 +136,9 @@ Function Get-PowerBIBareDatasetsFromWorkspaces {
 				$datasetIsRefreshable = $_.IsRefreshable
 				$datasetWorkspaceName = $_.WorkspaceName
 				$datasetWorkspaceId = $_.WorkspaceId
-				$report = $workspaceReports | Where-Object { $_.Name -eq $datasetName }
 				
 				# If no corresponding report is found, add the current dataset to the $bareDatasets array
-				if (!$report) {
+				if (!($workspaceReports | Where-Object { $_.Name -eq $datasetName -and $_.WorkspaceId -eq $datasetWorkspaceId })) {
 					$datasetProperties.DatasetName = $datasetName
 					$datasetProperties.DatasetId = $datasetId
 					$datasetProperties.WebUrl = $datasetWebUrl
