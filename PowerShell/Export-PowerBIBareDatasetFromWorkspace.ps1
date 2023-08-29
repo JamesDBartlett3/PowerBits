@@ -167,7 +167,7 @@ Function Export-PowerBIBareDatasetFromWorkspace {
 		Start-Sleep -s 1
 		Connect-PowerBIServiceAccount -WarningAction SilentlyContinue | Out-Null
 		$headers = Get-PowerBIAccessToken
-		Write-Host '🔑 Power BI Access Token acquired.'
+		Write-Host '🔑 Power BI Access Token acquired. Proceeding...'
 
 	} 
 	finally {
