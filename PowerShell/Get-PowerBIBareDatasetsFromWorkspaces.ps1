@@ -1,31 +1,31 @@
 <#
 	
-	.SYNOPSIS
-		Function: Get-PowerBIBareDatasetsFromWorkspaces
-		Author: @JamesDBartlett3@techhub.social (James D. Bartlett III)
-	
-	.DESCRIPTION
-		Get all "bare" Power BI datasets (datasets without a corresponding report) from selected workspaces in parallel
-	
-	.EXAMPLE
-		Get-PowerBIBareDatasetsFromWorkspaces -ThrottleLimit 10
-	
-	.PARAMETER ThrottleLimit
-		The maximum number of parallel processes to run.
-		Defaults to 1.
-	
-	.PARAMETER Interactive
-		If specified, displays a grid view of workspaces and allows the user to select which ones to scan for bare datasets.
-	
-	.NOTES
-		This function does NOT require Azure AD app registration, 
-		service principal creation, or any other special setup.
-		The only requirements are:
-			- The user must be able to run PowerShell (and install the
-				MicrosoftPowerBIMgmt module, if it's not already installed).
-		
-		TODO
-	
+.SYNOPSIS
+	Function: Get-PowerBIBareDatasetsFromWorkspaces
+	Author: @JamesDBartlett3@techhub.social (James D. Bartlett III)
+
+.DESCRIPTION
+	Get all "bare" Power BI datasets (datasets without a corresponding report) from selected workspaces in parallel
+
+.EXAMPLE
+	Get-PowerBIBareDatasetsFromWorkspaces -ThrottleLimit 10
+
+.PARAMETER ThrottleLimit
+	The maximum number of parallel processes to run.
+	Defaults to 1.
+
+.PARAMETER Interactive
+	If specified, displays a grid view of workspaces and allows the user to select which ones to scan for bare datasets.
+
+.NOTES
+	This function does NOT require Azure AD app registration, 
+	service principal creation, or any other special setup.
+	The only requirements are:
+		- The user must be able to run PowerShell (and install the
+			MicrosoftPowerBIMgmt module, if it's not already installed).
+
+	TODO
+
 #>
 
 Function Get-PowerBIBareDatasetsFromWorkspaces {
