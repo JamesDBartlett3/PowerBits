@@ -40,6 +40,9 @@
 
 		TODO
 			- Workspace folders
+			- ParameterSetName on mutually-exclusive parameters (https://youtu.be/OO2yu5RgOVo)
+			- HelpMessage on all parameters (https://youtu.be/UnjKVanzIOk)
+			- [ValidateScript({Test-Path $_})][string]$path on all file paths
 			- 429 throttling
 			- Multiple Datasets and Workspaces
 			- Pipeline streaming
@@ -47,6 +50,7 @@
 			- Error handling and logging
 			- Call Power BI REST API endpoints directly instead of MicrosoftPowerBIMgmt cmdlets
 			- Service Principal authentication
+			- [gc]::Collect() to free up memory
 			- Testing
 
 		ACKNOWLEDGEMENTS

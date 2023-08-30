@@ -25,12 +25,15 @@
 			MicrosoftPowerBIMgmt module, if it's not already installed).
 
 	TODO
+		- HelpMessage on all parameters (https://youtu.be/UnjKVanzIOk)
+		- [ValidateScript({Test-Path $_})][string]$path on all file paths
 		- 429 throttling
 		- Individual datasets within a workspace
 		- Pipeline streaming
 		- Error handling and logging
 		- Call Power BI REST API endpoints directly instead of MicrosoftPowerBIMgmt cmdlets
 		- Service Principal authentication
+		- [gc]::Collect() to free up memory
 		- Testing
 
 	ACKNOWLEDGEMENTS

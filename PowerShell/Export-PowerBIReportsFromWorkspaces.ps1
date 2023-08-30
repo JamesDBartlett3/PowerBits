@@ -37,6 +37,7 @@
         (see: "Download reports" setting in the Power BI Admin Portal).
     
     TODO
+      - [ValidateScript({Test-Path $_})][string]$path on all file paths
       - Add ability to find and export report-less datasets
       - Fix bug where reports with illegal characters in name cannot be extracted
       - Add $workspacesToExport parameter to allow user to specify
@@ -50,6 +51,7 @@
       - Experiment with using classes (https://bit.ly/3glYGZf)
         to improve parallelism performance
       - Add usage, help, and examples
+      - [gc]::Collect() to free up memory
 
 #>
 

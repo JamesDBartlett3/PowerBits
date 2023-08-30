@@ -43,9 +43,11 @@
         on the source and target workspace(s).
     
     TODO
+			- [ValidateScript({Test-Path $_})][string]$path on all file paths
       - Testing
       - Add usage, help, and examples.
       - Rename the function to something more accurate to its current capabilities.
+			- [gc]::Collect() to free up memory
   
     ACKNOWLEDGEMENTS
       - This PS function was inspired by a blog article written by 
