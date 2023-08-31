@@ -35,8 +35,8 @@
 				MicrosoftPowerBIMgmt module, if it's not already installed).
 			- The user must be allowed to download report PBIX files
 				(see: "Download reports" setting in the Power BI Admin Portal).
-			- The user must have "Contributor" or higher permissions 
-				on the source and target workspace(s).
+			- The user must have "Contributor" or higher permissions on the 
+				Workspace(s) where the Bare Dataset(s) to be exported are published.
 
 		TODO
 			- Workspace folders
