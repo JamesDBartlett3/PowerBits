@@ -39,6 +39,8 @@
 				Workspace(s) where the Bare Dataset(s) to be exported are published.
 
 		TODO
+			- Begin/Process/End blocks
+			- Array parameters(?)
 			- Workspace folders
 			- ParameterSetName on mutually-exclusive parameters (https://youtu.be/OO2yu5RgOVo)
 			- HelpMessage on all parameters (https://youtu.be/UnjKVanzIOk)
