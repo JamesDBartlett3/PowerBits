@@ -45,7 +45,7 @@
 			- ParameterSetName on mutually-exclusive parameters (https://youtu.be/OO2yu5RgOVo)
 			- HelpMessage on all parameters (https://youtu.be/UnjKVanzIOk)
 			- [ValidateScript({Test-Path $_})][string]$path on all file paths
-			- 429 throttling
+			- 429 throttling (see Rui's repo and this article: https://powerbi.microsoft.com/en-us/blog/best-practices-to-prevent-getgroupsasadmin-api-timeout/)
 			- Multiple Datasets and Workspaces
 			- Pipeline streaming
 			- Parallelism
