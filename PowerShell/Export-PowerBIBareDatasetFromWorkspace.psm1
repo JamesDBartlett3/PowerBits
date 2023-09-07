@@ -66,27 +66,27 @@ Function Export-PowerBIBareDatasetFromWorkspace {
 		[Parameter(
 			Mandatory = $true,
 			ValueFromPipelineByPropertyName = $true
-			)][Alias('Id')][guid]$DatasetId,
+		)][Alias('Id')][guid[]]$DatasetId,
 		[Parameter(
 			Mandatory = $true,
 			ValueFromPipelineByPropertyName = $true
-			)][guid]$WorkspaceId,
+		)][guid[]]$WorkspaceId,
 		[Parameter(
 			Mandatory = $false
 			, ValueFromPipelineByPropertyName = $true
-			)][Alias('Name')][string]$DatasetName,
+		)][Alias('Name')][string[]]$DatasetName,
 		[Parameter(
 			Mandatory = $false
 			, ValueFromPipelineByPropertyName = $true
-			)][string]$WorkspaceName,
+		)][string[]]$WorkspaceName,
 		[Parameter(
 			Mandatory = $false
 			, ValueFromPipeline = $false
-			)][string]$BlankPbix,
+		)][string]$BlankPbix,
 		[Parameter(
 			Mandatory = $false
 			, ValueFromPipeline = $false
-			)][string]$OutFile
+		)][string]$OutFile
 	)
 
 	Write-Debug "DatasetId: $DatasetId, WorkspaceId: $WorkspaceId, DatasetName: $DatasetName, WorkspaceName: $WorkspaceName"
@@ -109,13 +109,14 @@ Function Export-PowerBIBareDatasetFromWorkspace {
 	
 	Function FileIsBlankPbix($file) {
 		$zip = [System.IO.Compression.ZipFile]::OpenRead($file)
-		$fileIsPbix = @($validPbixContents | Where-Object {$zip.Entries.Name -Contains $_}).Count -gt 0
+		$fileIsPbix = @($validPbixContents | Where-Object { $zip.Entries.Name -Contains $_ }).Count -gt 0
 		$fileIsBlank = (Get-Item $file).length / 1KB -lt 20
 		$zip.Dispose()
 		if ($fileIsPbix -and $fileIsBlank) {
 			Write-Debug "$file is a valid blank PBIX file."
 			return $true
-		} else {
+		}
+		else {
 			Write-Error "$file is NOT a valid PBIX file and/or NOT blank."
 			return $false
 		}
@@ -184,7 +185,7 @@ Function Export-PowerBIBareDatasetFromWorkspace {
 		$publishResponse = New-PowerBIReport -Path $BlankPbix -WorkspaceId $WorkspaceId -Name $uniqueName -ConflictAction CreateOrOverwrite
 		Write-Debug "Response: $publishResponse"
 		$publishedReportId = $publishResponse.Id
-		$publishedDatasetId = (Get-PowerBIDataset -WorkspaceId $WorkspaceId | Where-Object {$_.Name -eq $uniqueName}).Id
+		$publishedDatasetId = (Get-PowerBIDataset -WorkspaceId $WorkspaceId | Where-Object { $_.Name -eq $uniqueName }).Id
 		Write-Debug "Published report ID: $publishedReportId; Published dataset ID: $publishedDatasetId"
 
 		# Assemble the Datasets API URI
@@ -204,7 +205,7 @@ Function Export-PowerBIBareDatasetFromWorkspace {
 		Invoke-RestMethod -Uri $updateReportContentEndpoint -Method POST -Headers $headers -Body $body
 
 		# If user did not specify an output file name, use the Dataset's name and save it in the default temp folder
-		$OutFile = if (!!$OutFile) {$OutFile} else {
+		$OutFile = if (!!$OutFile) { $OutFile } else {
 			$datasetName = (Get-PowerBIDataset -Id $DatasetId -WorkspaceId $WorkspaceId).Name
 			Join-Path -Path $tempFolder -ChildPath "$($datasetName).pbix"
 			Invoke-Item -Path $tempFolder
