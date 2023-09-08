@@ -62,20 +62,20 @@ Function Export-PowerBIBareDatasetFromWorkspace {
 	[CmdletBinding()]
 	Param(
 		[Parameter(
-			Mandatory = $true,
-			ValueFromPipelineByPropertyName = $true
+			Mandatory,
+			ValueFromPipelineByPropertyName
 		)][Alias('Id')][guid]$DatasetId,
 		[Parameter(
-			Mandatory = $true,
-			ValueFromPipelineByPropertyName = $true
+			Mandatory,
+			ValueFromPipelineByPropertyName
 		)][guid]$WorkspaceId,
 		[Parameter(
 			Mandatory = $false
-			, ValueFromPipelineByPropertyName = $true
+			, ValueFromPipelineByPropertyName
 		)][Alias('Name')][string]$DatasetName,
 		[Parameter(
 			Mandatory = $false
-			, ValueFromPipelineByPropertyName = $true
+			, ValueFromPipelineByPropertyName
 		)][string]$WorkspaceName,
 		[Parameter(
 			Mandatory = $false
