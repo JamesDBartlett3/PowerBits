@@ -204,10 +204,20 @@ Function Export-PowerBIBareDatasetFromWorkspace {
 			Write-Debug "Rebinding published report $publishedReportId to dataset $DatasetId..."
 			Invoke-RestMethod -Uri $updateReportContentEndpoint -Method POST -Headers $headers -Body $body
 
+			# If user did not specify a Dataset name, get it from the API
+			$DatasetName = if (!!$DatasetName) { $DatasetName } else { (Get-PowerBIDataset -Id $DatasetId -WorkspaceId $WorkspaceId).Name }
+			
+			# If user did not specify a Workspace name, get it from the API
+			$WorkspaceName = if (!!$WorkspaceName) { $WorkspaceName } else { (Get-PowerBIWorkspace -Id $WorkspaceId).Name }
+
+			# If the Workspace folder doesn't exist, create it
+			if (!(Test-Path (Join-Path -Path $tempFolder -ChildPath $WorkspaceName))) {
+				New-Item -Path (Join-Path -Path $tempFolder -ChildPath $WorkspaceName) -ItemType Directory | Out-Null
+			}
+
 			# If user did not specify an output file name, use the Dataset's name and save it in the default temp folder
 			$OutFile = if (!!$OutFile) { $OutFile } else {
-				$datasetName = (Get-PowerBIDataset -Id $DatasetId -WorkspaceId $WorkspaceId).Name
-				Join-Path -Path $tempFolder -ChildPath "$($datasetName).pbix"
+				Join-Path -Path $tempFolder -ChildPath (Join-Path -Path $WorkspaceName -ChildPath "$($DatasetName).pbix")
 				Invoke-Item -Path $tempFolder
 			}
 
@@ -217,7 +227,7 @@ Function Export-PowerBIBareDatasetFromWorkspace {
 			# Save the PBIX file to a temp file first, then rename it to the correct name (workaround for Datasets with special characters in their names)
 			$tempFileName = Join-Path -Path $tempFolder -ChildPath "$uniqueName.pbix"
 			Export-PowerBIReport -WorkspaceId $WorkspaceId -Id $publishedReportId -OutFile $tempFileName
-			Rename-Item -Path $tempFileName -NewName $OutFile
+			Move-Item -Path $tempFileName -Destination $OutFile
 			$OutFile = $null
 
 			# Delete the blank Report and its original Dataset from the workspace
