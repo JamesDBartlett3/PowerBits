@@ -222,10 +222,10 @@ Function Export-PowerBIReportsFromWorkspaces {
           #TODO: rate limiting
           $message = switch ($true) {
             { $message -like "*BadRequest*" } { "Incremental Refresh" }
-            { $message -like "*NotFound*" -or $message -like "*Forbidden*" } { "Downloads Disabled" }
+            { $message -like "*NotFound*" -or $message -like "*Forbidden*" -or $message -like "*Disabled*" } { "Downloads Disabled" }
             { $message -like "*TooManyRequests*" } { "Reached Power BI API Rate Limit; Try Again Later." }
             { $message -like "*Unauthorized*" } { "Unauthorized" }
-            { $true } { "Done" }
+            default { "Done" }
           }
 
           $fullPathMessage = "$targetFilePath`: $message"
