@@ -11,7 +11,7 @@ try {
   $session = New-Object Microsoft.PowerShell.Commands.WebRequestSession
   $session.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36 Edg/110.0.1587.63"
   $myRegionUrl = "wabi-us-north-central-h-primary-redirect.analysis.windows.net" # Replace with your own region's URL
-  $myBearerToken = (Get-PowerBIAccessToken).Values # Add your own bearer token here
+  $myBearerToken = (Get-PowerBIAccessToken)["Authorization"] # Add your own bearer token here
   (Invoke-WebRequest -UseBasicParsing -Uri "https://$myRegionUrl/metadata/gallery/SharedDatasets" `
   -WebSession $session -Headers @{
   "authority"="$myRegionUrl"
@@ -21,7 +21,7 @@ try {
     "accept"="application/json, text/plain, */*"
     "accept-encoding"="gzip, deflate, br"
     "accept-language"="en-US,en;q=0.9"
-    "authorization"="$myBearerToken"
+    "Authorization"="$myBearerToken"
     "cache-control"="no-cache"
     "dnt"="1"
     "origin"="https://app.powerbi.com"
