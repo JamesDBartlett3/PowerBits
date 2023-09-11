@@ -219,15 +219,22 @@ Function Export-PowerBIBareDatasetFromWorkspace {
 		}
 
 		# Export the re-bound Report and Dataset (a.k.a. "Thick Report") PBIX file to a temp file first, then rename it to the correct name (workaround for Datasets with special characters in their names)
-		Write-Verbose "Exporting re-bound blank report and dataset (a.k.a. 'thick report') $publishedReportId to temporary file $($uniqueName).pbix..."
+		Write-Verbose "Exporting re-bound blank Report and Dataset (a.k.a. 'Thick Report') $publishedReportId to temporary file $($uniqueName).pbix..."
 		$tempFileName = Join-Path -Path $tempFolder -ChildPath "$uniqueName.pbix"
-		Export-PowerBIReport -WorkspaceId $WorkspaceId -Id $publishedReportId -OutFile $tempFileName
+		try {
+			Export-PowerBIReport -WorkspaceId $WorkspaceId -Id $publishedReportId -OutFile $tempFileName
+		}
+		catch {
+			Write-Error "Error exporting bare Dataset $DatasetName from $WorkspaceName"
+			Write-Error $_
+			return
+		}
 		Write-Verbose "Moving and renaming temp file $($uniqueName).pbix to $OutFile..."
 		Move-Item -Path $tempFileName -Destination $OutFile
 		$OutFile = $null
 
 		# Delete the blank Report and its original Dataset from the workspace
-		Write-Verbose "Deleting temporary blank dataset $publishedDatasetId and report $publishedReportId from workspace $WorkspaceId..."
+		Write-Verbose "Deleting temporary blank Dataset $publishedDatasetId and Report $publishedReportId from Workspace $WorkspaceId..."
 		Invoke-RestMethod "$datasetsEndpoint/$publishedDatasetId" -Method DELETE -Headers $headers
 		Invoke-RestMethod "$reportsEndpoint/$publishedReportId" -Method DELETE -Headers $headers
 			
