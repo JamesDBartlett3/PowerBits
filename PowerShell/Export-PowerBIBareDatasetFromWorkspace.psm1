@@ -78,11 +78,13 @@ Function Export-PowerBIBareDatasetFromWorkspace {
 		[Parameter()][string]$OutFile
 	)
 
+	begin {
+		#Requires -PSEdition Core -Modules MicrosoftPowerBIMgmt
+	}
+
 	process {
 
 		Write-Debug "DatasetId: $DatasetId, WorkspaceId: $WorkspaceId, DatasetName: $DatasetName, WorkspaceName: $WorkspaceName"
-
-		#Requires -PSEdition Core -Modules MicrosoftPowerBIMgmt
 		
 		$headers = New-Object 'System.Collections.Generic.Dictionary[[String],[String]]'
 		
@@ -233,6 +235,10 @@ Function Export-PowerBIBareDatasetFromWorkspace {
 			
 		}
 		
+	}
+
+	end {
+		Write-Verbose "Finished exporting Bare Datasets."
 	}
 
 }
