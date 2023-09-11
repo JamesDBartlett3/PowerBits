@@ -80,6 +80,8 @@ Function Export-PowerBIBareDatasetFromWorkspace {
 
 	begin {
 		#Requires -PSEdition Core -Modules MicrosoftPowerBIMgmt
+		[int]$bareDatasetCount = 0
+		[int]$errorCount = 0
 	}
 
 	process {
@@ -232,13 +234,16 @@ Function Export-PowerBIBareDatasetFromWorkspace {
 			{ $message -like "*NotFound*" -or $message -like "*Forbidden*" -or $message -like "*Disabled*" } { "Downloads Disabled." }
 			{ $message -like "*TooManyRequests*" } { "Reached Power BI API Rate Limit; Try Again Later." }
 			{ $message -like "*Unauthorized*" } { "Unauthorized." }
-			default { "Done" }
+			default { $null }
 		}
-		if($message -ne "Done") {
+		if($message) {
+			$errorCount++
 			Write-Error "Error exporting bare Dataset `"$DatasetName`" from `"$WorkspaceName`"`: $message"
 			return
+		} else {
+			$bareDatasetCount++
+			Write-Verbose "Exported bare Dataset `"$DatasetName`" from `"$WorkspaceName`" to $tempFileName"
 		}
-
 		Write-Verbose "Moving and renaming temp file $($uniqueName).pbix to $OutFile..."
 		Move-Item -Path $tempFileName -Destination $OutFile
 		$OutFile = $null
@@ -247,11 +252,11 @@ Function Export-PowerBIBareDatasetFromWorkspace {
 		Write-Verbose "Deleting temporary blank Dataset $publishedDatasetId and Report $publishedReportId from Workspace $WorkspaceId..."
 		Invoke-RestMethod "$datasetsEndpoint/$publishedDatasetId" -Method DELETE -Headers $headers
 		Invoke-RestMethod "$reportsEndpoint/$publishedReportId" -Method DELETE -Headers $headers
-			
+		
 	}
 
 	end {
-		Write-Verbose "Finished exporting Bare Datasets."
+		Write-Verbose "Bare Datasets successfully exported: $bareDatasetCount.$(if($errorCount -gt 0){" Errors encountered: $errorCount"})"
 	}
 
 }
