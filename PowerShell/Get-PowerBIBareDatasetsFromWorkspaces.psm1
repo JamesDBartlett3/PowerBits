@@ -27,10 +27,8 @@
 	TODO
 		- Separate verbose and debug outputs
 		- HelpMessage on all parameters (https://youtu.be/UnjKVanzIOk)
-		- [ValidateScript({Test-Path $_})][string]$path on all file paths
 		- 429 throttling (see Rui's repo and this article: https://powerbi.microsoft.com/en-us/blog/best-practices-to-prevent-getgroupsasadmin-api-timeout/)
 		- Individual Datasets within a Workspace
-		- Pipeline streaming
 		- Error handling and logging
 		- Call Power BI REST API endpoints directly instead of MicrosoftPowerBIMgmt cmdlets
 		- Service Principal authentication
@@ -61,7 +59,12 @@ Function Get-PowerBIBareDatasetsFromWorkspaces {
 		Start-Sleep -s 1
 		Connect-PowerBIServiceAccount -WarningAction SilentlyContinue | Out-Null
 		$headers = Get-PowerBIAccessToken
-		Write-Host '🔑 Power BI Access Token acquired. Proceeding...'
+		if($headers) {
+			Write-Host '🔑 Power BI Access Token acquired. Proceeding...'
+		} else {
+			Write-Host '❌ Power BI Access Token not acquired. Exiting...'
+			Exit
+		}
 	} 
 	finally {
 		
