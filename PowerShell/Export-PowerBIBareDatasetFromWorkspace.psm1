@@ -201,10 +201,10 @@ Function Export-PowerBIBareDatasetFromWorkspace {
 			Invoke-RestMethod -Uri $updateReportContentEndpoint -Method POST -Headers $headers -Body $body
 
 			# If user did not specify a Dataset name, get it from the API
-			$DatasetName = if (!!$DatasetName) { $DatasetName } else { (Get-PowerBIDataset -Id $DatasetId -WorkspaceId $WorkspaceId).Name }
+			$DatasetName = $DatasetName ?? (Get-PowerBIDataset -Id $DatasetId -WorkspaceId $WorkspaceId).Name
 			
 			# If user did not specify a Workspace name, get it from the API
-			$WorkspaceName = if (!!$WorkspaceName) { $WorkspaceName } else { (Get-PowerBIWorkspace -Id $WorkspaceId).Name }
+			$WorkspaceName = $WorkspaceName ?? (Get-PowerBIWorkspace -Id $WorkspaceId).Name
 
 			# If the Workspace folder doesn't exist, create it
 			if (!(Test-Path (Join-Path -Path $tempFolder -ChildPath $WorkspaceName))) {
