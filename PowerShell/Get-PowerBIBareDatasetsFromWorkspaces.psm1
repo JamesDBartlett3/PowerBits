@@ -5,7 +5,7 @@
 	Author: @JamesDBartlett3@techhub.social (James D. Bartlett III)
 
 .DESCRIPTION
-	Get all "bare" Power BI Datasets (datasets without a corresponding report) from selected Workspaces in parallel
+	Get all "bare" Power BI Datasets (Datasets without a corresponding report) from selected Workspaces in parallel
 
 .EXAMPLE
 	Get-PowerBIBareDatasetsFromWorkspaces -Interactive -ThrottleLimit 4

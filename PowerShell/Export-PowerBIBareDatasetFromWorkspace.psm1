@@ -54,6 +54,8 @@
 
 		ACKNOWLEDGEMENTS
 			- Thanks to my wife (@likeawednesday@techhub.social) for her support and encouragement.
+			- Thanks to @santisq & @seeminglyscience on PowerShell Discord for their guidance on using 
+				a process block to enable streaming inputs from the pipeline.
 #>
 
 Function Export-PowerBIBareDatasetFromWorkspace {
