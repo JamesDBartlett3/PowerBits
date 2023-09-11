@@ -25,6 +25,7 @@
 			MicrosoftPowerBIMgmt module, if it's not already installed).
 
 	TODO
+		- Separate verbose and debug outputs
 		- HelpMessage on all parameters (https://youtu.be/UnjKVanzIOk)
 		- [ValidateScript({Test-Path $_})][string]$path on all file paths
 		- 429 throttling (see Rui's repo and this article: https://powerbi.microsoft.com/en-us/blog/best-practices-to-prevent-getgroupsasadmin-api-timeout/)

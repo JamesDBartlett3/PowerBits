@@ -39,6 +39,7 @@
 				Workspace(s) where the Bare Dataset(s) to be exported are published.
 
 		TODO
+			- Separate verbose and debug outputs
 			- Workspace folders
 			- ParameterSetName on mutually-exclusive parameters (https://youtu.be/OO2yu5RgOVo)
 			- HelpMessage on all parameters (https://youtu.be/UnjKVanzIOk)
