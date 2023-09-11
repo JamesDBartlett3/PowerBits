@@ -39,8 +39,6 @@
 				Workspace(s) where the Bare Dataset(s) to be exported are published.
 
 		TODO
-			- Separate verbose and debug outputs
-			- Workspace folders
 			- Parallelism
 			- ParameterSetName on mutually-exclusive parameters (https://youtu.be/OO2yu5RgOVo)
 			- HelpMessage on all parameters (https://youtu.be/UnjKVanzIOk)
@@ -220,9 +218,7 @@ Function Export-PowerBIBareDatasetFromWorkspace {
 				Invoke-Item -Path $tempFolder
 			}
 
-			
-			# Export the re-bound Report and Dataset (a.k.a. "Thick Report") as a PBIX file
-			# Save the PBIX file to a temp file first, then rename it to the correct name (workaround for Datasets with special characters in their names)
+			# Export the re-bound Report and Dataset (a.k.a. "Thick Report") PBIX file to a temp file first, then rename it to the correct name (workaround for Datasets with special characters in their names)
 			Write-Verbose "Exporting re-bound blank report and dataset (a.k.a. 'thick report') $publishedReportId to temporary file $($uniqueName).pbix..."
 			$tempFileName = Join-Path -Path $tempFolder -ChildPath "$uniqueName.pbix"
 			Export-PowerBIReport -WorkspaceId $WorkspaceId -Id $publishedReportId -OutFile $tempFileName
