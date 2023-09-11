@@ -108,7 +108,7 @@ Function Export-PowerBIBareDatasetFromWorkspace {
 			$fileIsBlank = (Get-Item $file).length / 1KB -lt 20
 			$zip.Dispose()
 			if ($fileIsPbix -and $fileIsBlank) {
-				Write-Debug "$file is a valid blank PBIX file."
+				Write-Verbose "$file is a valid blank PBIX file."
 				return $true
 			}
 			else {
@@ -124,28 +124,28 @@ Function Export-PowerBIBareDatasetFromWorkspace {
 		
 		# If user specified a URL to a file, download and validate it as a blank PBIX file
 		if ($blankPbixIsUrl) {
-			Write-Debug "Downloading file: $BlankPbix..."
+			Write-Verbose "Downloading file: $BlankPbix..."
 			Invoke-WebRequest -Uri $BlankPbix -OutFile $blankPbixTempFile
-			Write-Debug 'Validating downloaded file...'
+			Write-Verbose 'Validating downloaded file...'
 			$remoteFileIsValid = FileIsBlankPbix($blankPbixTempFile)
 		}
 		
 		# If user specified a local path to a file, validate it as a blank PBIX file
 		elseif ($localFileExists) {
-			Write-Debug "Validating user-supplied file: $BlankPbix..."
+			Write-Verbose "Validating user-supplied file: $BlankPbix..."
 			$localFileIsValid = FileIsBlankPbix($BlankPbix)
 		}
 		
 		# If user didn't specify a blank PBIX file, check for a valid blank PBIX in the temp location
 		elseif (Test-Path $blankPbixTempFile) {
-			Write-Debug "Validating pbix file found in temp location: $blankPbixTempFile..."
+			Write-Verbose "Validating pbix file found in temp location: $blankPbixTempFile..."
 			$defaultFileIsValid = FileIsBlankPbix($blankPbixTempFile)
 		}
 		
 		# If user did not specify a blank PBIX file, and a valid blank PBIX is not in the temp location,
 		# download one from GitHub, and then check if it's valid and blank
 		else {
-			Write-Debug "Downloading a blank pbix file from GitHub to $blankPbixTempFile..."
+			Write-Verbose "Downloading a blank pbix file from GitHub to $blankPbixTempFile..."
 			$BlankPbixUri = 'https://github.com/JamesDBartlett3/PowerBits/raw/main/Misc/blank.pbix'
 			Invoke-WebRequest -Uri $BlankPbixUri -OutFile $blankPbixTempFile
 			$defaultFileIsValid = FileIsBlankPbix($blankPbixTempFile)
@@ -180,7 +180,7 @@ Function Export-PowerBIBareDatasetFromWorkspace {
 		finally {
 
 			# Publish the blank PBIX file to the target workspace
-			Write-Debug "Publishing $BlankPbix to workspace with temporary name $uniqueName"
+			Write-Verbose "Publishing $BlankPbix to workspace with temporary name $uniqueName"
 			$publishResponse = New-PowerBIReport -Path $BlankPbix -WorkspaceId $WorkspaceId -Name $uniqueName -ConflictAction CreateOrOverwrite
 			Write-Debug "Response: $publishResponse"
 			$publishedReportId = $publishResponse.Id
@@ -200,7 +200,7 @@ Function Export-PowerBIBareDatasetFromWorkspace {
 			$headers.Add('Content-Type', 'application/json')
 
 			# Rebind the published Report to the bare Dataset
-			Write-Debug "Rebinding published report $publishedReportId to dataset $DatasetId..."
+			Write-Verbose "Rebinding published report $publishedReportId to dataset $DatasetId..."
 			Invoke-RestMethod -Uri $updateReportContentEndpoint -Method POST -Headers $headers -Body $body
 
 			# If user did not specify a Dataset name, get it from the API
@@ -220,17 +220,18 @@ Function Export-PowerBIBareDatasetFromWorkspace {
 				Invoke-Item -Path $tempFolder
 			}
 
+			
 			# Export the re-bound Report and Dataset (a.k.a. "Thick Report") as a PBIX file
-			Write-Debug "Exporting re-bound blank report and dataset (a.k.a. 'thick report') $publishedReportId to $OutFile..."
-
 			# Save the PBIX file to a temp file first, then rename it to the correct name (workaround for Datasets with special characters in their names)
+			Write-Verbose "Exporting re-bound blank report and dataset (a.k.a. 'thick report') $publishedReportId to temporary file $($uniqueName).pbix..."
 			$tempFileName = Join-Path -Path $tempFolder -ChildPath "$uniqueName.pbix"
 			Export-PowerBIReport -WorkspaceId $WorkspaceId -Id $publishedReportId -OutFile $tempFileName
+			Write-Verbose "Moving and renaming temp file $($uniqueName).pbix to $OutFile..."
 			Move-Item -Path $tempFileName -Destination $OutFile
 			$OutFile = $null
 
 			# Delete the blank Report and its original Dataset from the workspace
-			Write-Debug "Deleting temporary blank dataset $publishedDatasetId and report $publishedReportId from workspace $WorkspaceId..."
+			Write-Verbose "Deleting temporary blank dataset $publishedDatasetId and report $publishedReportId from workspace $WorkspaceId..."
 			Invoke-RestMethod "$datasetsEndpoint/$publishedDatasetId" -Method DELETE -Headers $headers
 			Invoke-RestMethod "$reportsEndpoint/$publishedReportId" -Method DELETE -Headers $headers
 			
