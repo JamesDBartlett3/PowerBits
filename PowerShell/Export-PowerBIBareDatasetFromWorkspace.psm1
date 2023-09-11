@@ -221,14 +221,24 @@ Function Export-PowerBIBareDatasetFromWorkspace {
 		# Export the re-bound Report and Dataset (a.k.a. "Thick Report") PBIX file to a temp file first, then rename it to the correct name (workaround for Datasets with special characters in their names)
 		Write-Verbose "Exporting re-bound blank Report and Dataset (a.k.a. 'Thick Report') $publishedReportId to temporary file $($uniqueName).pbix..."
 		$tempFileName = Join-Path -Path $tempFolder -ChildPath "$uniqueName.pbix"
-		try {
-			Export-PowerBIReport -WorkspaceId $WorkspaceId -Id $publishedReportId -OutFile $tempFileName
+		$message = Invoke-RestMethod -Uri "https://api.powerbi.com/v1.0/myorg/groups/$WorkspaceId/reports/$publishedReportId/Export" `
+			-Method GET -Headers $headers `
+			-ContentType "application/octet-stream" `
+			-Body '{"preferClientRouting":true}' `
+			-ErrorVariable message -ErrorAction SilentlyContinue `
+			-OutFile $tempFileName 2>&1 | Out-String
+		$message = switch ($true) {
+			{ $message -like "*BadRequest*" } { "Incremental Refresh." }
+			{ $message -like "*NotFound*" -or $message -like "*Forbidden*" -or $message -like "*Disabled*" } { "Downloads Disabled." }
+			{ $message -like "*TooManyRequests*" } { "Reached Power BI API Rate Limit; Try Again Later." }
+			{ $message -like "*Unauthorized*" } { "Unauthorized." }
+			default { "Done" }
 		}
-		catch {
-			Write-Error "Error exporting bare Dataset $DatasetName from $WorkspaceName"
-			Write-Error $_
+		if($message -ne "Done") {
+			Write-Error "Error exporting bare Dataset `"$DatasetName`" from `"$WorkspaceName`"`: $message"
 			return
 		}
+
 		Write-Verbose "Moving and renaming temp file $($uniqueName).pbix to $OutFile..."
 		Move-Item -Path $tempFileName -Destination $OutFile
 		$OutFile = $null
