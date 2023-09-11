@@ -39,12 +39,12 @@
 				Workspace(s) where the Bare Dataset(s) to be exported are published.
 
 		TODO
+			- Error handling and logging
 			- Parallelism
 			- ParameterSetName on mutually-exclusive parameters (https://youtu.be/OO2yu5RgOVo)
 			- HelpMessage on all parameters (https://youtu.be/UnjKVanzIOk)
 			- [ValidateScript({Test-Path $_})][string]$path on all file paths
 			- 429 throttling (see Rui's repo and this article: https://powerbi.microsoft.com/en-us/blog/best-practices-to-prevent-getgroupsasadmin-api-timeout/)
-			- Error handling and logging
 			- Call Power BI REST API endpoints directly instead of MicrosoftPowerBIMgmt cmdlets
 			- Service Principal authentication
 			- [gc]::Collect() to free up memory
@@ -163,6 +163,7 @@ Function Export-PowerBIBareDatasetFromWorkspace {
 		try {
 			$headers = Get-PowerBIAccessToken
 		}
+
 		catch {
 			Write-Host '🔒 Power BI Access Token required. Launching Azure Active Directory authentication dialog...'
 			Start-Sleep -s 1
@@ -174,65 +175,62 @@ Function Export-PowerBIBareDatasetFromWorkspace {
 				Write-Host '❌ Power BI Access Token not acquired. Exiting...'
 				Exit
 			}
-		} 
-		finally {
-
-			# Publish the blank PBIX file to the target workspace
-			Write-Verbose "Publishing $BlankPbix to workspace with temporary name $uniqueName"
-			$publishResponse = New-PowerBIReport -Path $BlankPbix -WorkspaceId $WorkspaceId -Name $uniqueName -ConflictAction CreateOrOverwrite
-			Write-Debug "Response: $publishResponse"
-			$publishedReportId = $publishResponse.Id
-			$publishedDatasetId = (Get-PowerBIDataset -WorkspaceId $WorkspaceId | Where-Object { $_.Name -eq $uniqueName }).Id
-			Write-Debug "Published report ID: $publishedReportId; Published dataset ID: $publishedDatasetId"
-
-			# Assemble the Datasets API URI
-			$datasetsEndpoint = "$pbiApiBaseUri/groups/$WorkspaceId/datasets"
-			# Assemble the Reports API URI
-			$reportsEndpoint = "$pbiApiBaseUri/groups/$WorkspaceId/reports"
-			# Assemble the Rebind API URI and request body
-			$updateReportContentEndpoint = "$pbiApiBaseUri/groups/$WorkspaceId/reports/$publishedReportId/Rebind"
-			# Assemble the request body
-			$body = "{`"datasetId`": `"$DatasetId`"}"
-
-			# Add the Content-Type header to the request
-			$headers.Add('Content-Type', 'application/json')
-
-			# Rebind the published Report to the bare Dataset
-			Write-Verbose "Rebinding published report $publishedReportId to dataset $DatasetId..."
-			Invoke-RestMethod -Uri $updateReportContentEndpoint -Method POST -Headers $headers -Body $body
-
-			# If user did not specify a Dataset name, get it from the API
-			$DatasetName = $DatasetName ?? (Get-PowerBIDataset -Id $DatasetId -WorkspaceId $WorkspaceId).Name
-			
-			# If user did not specify a Workspace name, get it from the API
-			$WorkspaceName = $WorkspaceName ?? (Get-PowerBIWorkspace -Id $WorkspaceId).Name
-
-			# If the Workspace folder doesn't exist, create it
-			if (!(Test-Path (Join-Path -Path $tempFolder -ChildPath $WorkspaceName))) {
-				New-Item -Path (Join-Path -Path $tempFolder -ChildPath $WorkspaceName) -ItemType Directory | Out-Null
-			}
-
-			# If user did not specify an output file name, use the Dataset's name and save it in the default temp folder
-			$OutFile = if (!!$OutFile) { $OutFile } else {
-				Join-Path -Path $tempFolder -ChildPath (Join-Path -Path $WorkspaceName -ChildPath "$($DatasetName).pbix")
-				Invoke-Item -Path $tempFolder
-			}
-
-			# Export the re-bound Report and Dataset (a.k.a. "Thick Report") PBIX file to a temp file first, then rename it to the correct name (workaround for Datasets with special characters in their names)
-			Write-Verbose "Exporting re-bound blank report and dataset (a.k.a. 'thick report') $publishedReportId to temporary file $($uniqueName).pbix..."
-			$tempFileName = Join-Path -Path $tempFolder -ChildPath "$uniqueName.pbix"
-			Export-PowerBIReport -WorkspaceId $WorkspaceId -Id $publishedReportId -OutFile $tempFileName
-			Write-Verbose "Moving and renaming temp file $($uniqueName).pbix to $OutFile..."
-			Move-Item -Path $tempFileName -Destination $OutFile
-			$OutFile = $null
-
-			# Delete the blank Report and its original Dataset from the workspace
-			Write-Verbose "Deleting temporary blank dataset $publishedDatasetId and report $publishedReportId from workspace $WorkspaceId..."
-			Invoke-RestMethod "$datasetsEndpoint/$publishedDatasetId" -Method DELETE -Headers $headers
-			Invoke-RestMethod "$reportsEndpoint/$publishedReportId" -Method DELETE -Headers $headers
-			
 		}
+
+		# Publish the blank PBIX file to the target workspace
+		Write-Verbose "Publishing $BlankPbix to workspace with temporary name $uniqueName"
+		$publishResponse = New-PowerBIReport -Path $BlankPbix -WorkspaceId $WorkspaceId -Name $uniqueName -ConflictAction CreateOrOverwrite
+		Write-Debug "Response: $publishResponse"
+		$publishedReportId = $publishResponse.Id
+		$publishedDatasetId = (Get-PowerBIDataset -WorkspaceId $WorkspaceId | Where-Object { $_.Name -eq $uniqueName }).Id
+		Write-Debug "Published report ID: $publishedReportId; Published dataset ID: $publishedDatasetId"
+
+		# Assemble the Datasets API URI
+		$datasetsEndpoint = "$pbiApiBaseUri/groups/$WorkspaceId/datasets"
+		# Assemble the Reports API URI
+		$reportsEndpoint = "$pbiApiBaseUri/groups/$WorkspaceId/reports"
+		# Assemble the Rebind API URI and request body
+		$updateReportContentEndpoint = "$pbiApiBaseUri/groups/$WorkspaceId/reports/$publishedReportId/Rebind"
+		# Assemble the request body
+		$body = "{`"datasetId`": `"$DatasetId`"}"
+
+		# Add the Content-Type header to the request
+		$headers.Add('Content-Type', 'application/json')
+
+		# Rebind the published Report to the bare Dataset
+		Write-Verbose "Rebinding published report $publishedReportId to dataset $DatasetId..."
+		Invoke-RestMethod -Uri $updateReportContentEndpoint -Method POST -Headers $headers -Body $body
+
+		# If user did not specify a Dataset name, get it from the API
+		$DatasetName = $DatasetName ?? (Get-PowerBIDataset -Id $DatasetId -WorkspaceId $WorkspaceId).Name
 		
+		# If user did not specify a Workspace name, get it from the API
+		$WorkspaceName = $WorkspaceName ?? (Get-PowerBIWorkspace -Id $WorkspaceId).Name
+
+		# If the Workspace folder doesn't exist, create it
+		if (!(Test-Path (Join-Path -Path $tempFolder -ChildPath $WorkspaceName))) {
+			New-Item -Path (Join-Path -Path $tempFolder -ChildPath $WorkspaceName) -ItemType Directory | Out-Null
+		}
+
+		# If user did not specify an output file name, use the Dataset's name and save it in the default temp folder
+		$OutFile = if (!!$OutFile) { $OutFile } else {
+			Join-Path -Path $tempFolder -ChildPath (Join-Path -Path $WorkspaceName -ChildPath "$($DatasetName).pbix")
+			Invoke-Item -Path $tempFolder
+		}
+
+		# Export the re-bound Report and Dataset (a.k.a. "Thick Report") PBIX file to a temp file first, then rename it to the correct name (workaround for Datasets with special characters in their names)
+		Write-Verbose "Exporting re-bound blank report and dataset (a.k.a. 'thick report') $publishedReportId to temporary file $($uniqueName).pbix..."
+		$tempFileName = Join-Path -Path $tempFolder -ChildPath "$uniqueName.pbix"
+		Export-PowerBIReport -WorkspaceId $WorkspaceId -Id $publishedReportId -OutFile $tempFileName
+		Write-Verbose "Moving and renaming temp file $($uniqueName).pbix to $OutFile..."
+		Move-Item -Path $tempFileName -Destination $OutFile
+		$OutFile = $null
+
+		# Delete the blank Report and its original Dataset from the workspace
+		Write-Verbose "Deleting temporary blank dataset $publishedDatasetId and report $publishedReportId from workspace $WorkspaceId..."
+		Invoke-RestMethod "$datasetsEndpoint/$publishedDatasetId" -Method DELETE -Headers $headers
+		Invoke-RestMethod "$reportsEndpoint/$publishedReportId" -Method DELETE -Headers $headers
+			
 	}
 
 	end {
