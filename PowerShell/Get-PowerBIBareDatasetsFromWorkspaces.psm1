@@ -176,6 +176,7 @@ Function Get-PowerBIBareDatasetsFromWorkspaces {
 
 	end {
 		Write-Verbose "Total number of Bare Datasets: $($hash.Count)"
+		[gc]::Collect()
 	}
 
 }
