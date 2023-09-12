@@ -256,6 +256,7 @@ Function Export-PowerBIBareDatasetFromWorkspace {
 
 	end {
 		Write-Verbose "Bare Datasets successfully exported: $bareDatasetCount.$(if($errorCount -gt 0){" Errors encountered: $errorCount"})"
+		[gc]::Collect()
 	}
 
 }
