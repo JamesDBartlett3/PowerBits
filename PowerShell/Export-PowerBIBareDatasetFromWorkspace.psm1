@@ -158,7 +158,7 @@ Function Export-PowerBIBareDatasetFromWorkspace {
 		
 		# If a valid blank PBIX file could not be obtained by any of the above methods, throw an error.
 		if (!$localFileIsValid -and !$remoteFileIsValid -and !$defaultFileIsValid) {
-			Write-Error 'No blank PBIX file found. Please specify a valid blank PBIX file using the -BlankPbix parameter.'
+			Write-Error 'No valid blank PBIX file found. Please specify a valid blank PBIX file using the -BlankPbix parameter.'
 			return
 		}
 		
@@ -193,14 +193,18 @@ Function Export-PowerBIBareDatasetFromWorkspace {
 		$publishedDatasetId = (Get-PowerBIDataset -WorkspaceId $WorkspaceId | Where-Object { $_.Name -eq $uniqueName }).Id
 		Write-Debug "Published Report ID: $publishedReportId; Published Dataset ID: $publishedDatasetId"
 
+		# Assemble the Workspace base URI
+		$workspaceBaseUri = "$pbiApiBaseUri/groups/$WorkspaceId"
 		# Assemble the Datasets API URI
-		$datasetsEndpoint = "$pbiApiBaseUri/groups/$WorkspaceId/datasets"
+		$datasetsEndpoint = "$workspaceBaseUri/datasets"
 		# Assemble the Reports API URI
-		$reportsEndpoint = "$pbiApiBaseUri/groups/$WorkspaceId/reports"
-		# Assemble the Rebind API URI and request body
-		$updateReportContentEndpoint = "$pbiApiBaseUri/groups/$WorkspaceId/reports/$publishedReportId/Rebind"
-		# Assemble the request body
+		$reportsEndpoint = "$workspaceBaseUri/reports"
+		# Assemble the Rebind API URI
+		$updateReportContentEndpoint = "$reportsEndpoint/$publishedReportId/Rebind"
+		# Assemble the Rebind API request body
 		$body = "{`"datasetId`": `"$DatasetId`"}"
+		# Assemble the Export API URI
+		$exportEndpoint = "$reportsEndpoint/$publishedReportId/Export"
 
 		# Add the Content-Type header to the request
 		$headers.Add('Content-Type', 'application/json')
@@ -223,11 +227,12 @@ Function Export-PowerBIBareDatasetFromWorkspace {
 		# Export the re-bound Report and Dataset (a.k.a. "Thick Report") PBIX file to a temp file first, then rename it to the correct name (workaround for Datasets with special characters in their names)
 		Write-Verbose "Exporting re-bound blank Report and Dataset (a.k.a. 'Thick Report') $publishedReportId to temporary file $($uniqueName).pbix..."
 		$tempFileName = Join-Path -Path $tempFolder -ChildPath "$uniqueName.pbix"
-		$message = Invoke-RestMethod -Uri "https://api.powerbi.com/v1.0/myorg/groups/$WorkspaceId/reports/$publishedReportId/Export" `
+		$message = Invoke-RestMethod -Uri "$exportEndpoint" `
 			-Method GET -Headers $headers `
 			-ContentType "application/octet-stream" `
 			-Body '{"preferClientRouting":true}' `
-			-ErrorVariable message -ErrorAction SilentlyContinue `
+			-ErrorVariable message `
+			-ErrorAction SilentlyContinue `
 			-OutFile $tempFileName 2>&1 | Out-String
 		$message = switch ($true) {
 			{ $message -like "*BadRequest*" } { "Incremental Refresh." }
@@ -247,7 +252,7 @@ Function Export-PowerBIBareDatasetFromWorkspace {
 		}
 		$OutFile = $null
 
-		# Delete the blank Report and its original Dataset from the workspace
+		# Delete the blank Report and its original Dataset from the Workspace
 		Write-Verbose "Deleting temporary blank Dataset $publishedDatasetId and Report $publishedReportId from Workspace $WorkspaceId..."
 		Invoke-RestMethod "$datasetsEndpoint/$publishedDatasetId" -Method DELETE -Headers $headers | Out-Null
 		Invoke-RestMethod "$reportsEndpoint/$publishedReportId" -Method DELETE -Headers $headers | Out-Null
