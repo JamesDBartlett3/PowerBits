@@ -29,12 +29,21 @@
 .EXAMPLE
 	Get-PowerBIBareDatasetsFromWorkspaces -Interactive -ThrottleLimit 4
 
+.LINK
+	https://github.com/JamesDBartlett3/PowerBits
+
+.LINK
+	https://techhub.social/@JamesDBartlett3
+
+.LINK
+	https://datavolume.xyz
+
 .NOTES
 	This function does NOT require Azure AD app registration, 
 	service principal creation, or any other special setup.
 	The only requirements are:
 		- The user must be able to run PowerShell (and install the
-			MicrosoftPowerBIMgmt module, if it's not already installed).
+		  MicrosoftPowerBIMgmt module, if it's not already installed).
 
 	TODO
 		- Separate verbose and debug outputs
@@ -50,7 +59,7 @@
 	ACKNOWLEDGEMENTS
 		- Thanks to my wife (@likeawednesday@techhub.social) for her support and encouragement.
 		- Thanks to @santisq & @seeminglyscience on PowerShell Discord for their guidance on using 
-			Hashset<T>.Add() to filter out duplicates in the output.
+		  Hashset<T>.Add() to filter out duplicates in the output.
 #>
 
 Function Get-PowerBIBareDatasetsFromWorkspaces {

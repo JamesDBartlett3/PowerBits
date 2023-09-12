@@ -44,16 +44,25 @@
 		# Then export them all as PBIX files
 		$bareDatasets | Export-PowerBIBareDatasetFromWorkspace
 
+	.LINK
+		https://github.com/JamesDBartlett3/PowerBits
+
+	.LINK
+		https://techhub.social/@JamesDBartlett3
+
+	.LINK
+		https://datavolume.xyz
+
 	.NOTES
 		This function does NOT require Azure AD app registration, 
 		service principal creation, or any other special setup.
 		The only requirements are:
 			- The user must be able to run PowerShell (and install the
-				MicrosoftPowerBIMgmt module, if it's not already installed).
+			  MicrosoftPowerBIMgmt module, if it's not already installed).
 			- The user must be allowed to download report PBIX files
-				(see: "Download reports" setting in the Power BI Admin Portal).
+			  (see: "Download reports" setting in the Power BI Admin Portal).
 			- The user must have "Contributor" or higher permissions on the 
-				Workspace(s) where the Bare Dataset(s) to be exported are published.
+			  Workspace(s) where the Bare Dataset(s) to be exported are published.
 
 		TODO
 			- Error handling and logging
@@ -70,7 +79,7 @@
 		ACKNOWLEDGEMENTS
 			- Thanks to my wife (@likeawednesday@techhub.social) for her support and encouragement.
 			- Thanks to @santisq & @seeminglyscience on PowerShell Discord for their guidance on using 
-				a process block to enable streaming inputs from the pipeline.
+			  a process block to enable streaming inputs from the pipeline.
 #>
 
 Function Export-PowerBIBareDatasetFromWorkspace {
