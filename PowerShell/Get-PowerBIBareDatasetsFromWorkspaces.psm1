@@ -7,15 +7,27 @@
 .DESCRIPTION
 	Get all "bare" Power BI Datasets (Datasets without a corresponding report) from selected Workspaces in parallel
 
-.EXAMPLE
-	Get-PowerBIBareDatasetsFromWorkspaces -Interactive -ThrottleLimit 4
-
 .PARAMETER ThrottleLimit
 	The maximum number of parallel processes to run.
 	Defaults to 1.
 
 .PARAMETER Interactive
 	If specified, displays a grid view of Workspaces and allows the user to select which ones to scan for bare Datasets.
+
+.INPUTS
+	This function does not accept pipeline input.
+
+.OUTPUTS
+	Selected.System.String (one or more objects with the following properties):
+		- DatasetName
+		- DatasetId
+		- WebUrl
+		- IsRefreshable
+		- WorkspaceName
+		- WorkspaceId
+
+.EXAMPLE
+	Get-PowerBIBareDatasetsFromWorkspaces -Interactive -ThrottleLimit 4
 
 .NOTES
 	This function does NOT require Azure AD app registration, 
@@ -45,8 +57,8 @@ Function Get-PowerBIBareDatasetsFromWorkspaces {
 	
 	[CmdletBinding()]
 	Param (
-		[Parameter(Mandatory = $false)][int]$ThrottleLimit = 1,
-		[Parameter(Mandatory = $false)][switch]$Interactive
+		[Parameter()][int]$ThrottleLimit = 1,
+		[Parameter()][switch]$Interactive
 	)
 	
 	begin {

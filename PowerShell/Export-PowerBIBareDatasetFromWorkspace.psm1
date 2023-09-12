@@ -24,8 +24,25 @@
 	.PARAMETER OutFile
 		Local path to save the Dataset PBIX file to
 
+	.INPUTS
+		Selected.System.String (one or more objects with the following property names):
+			- "DatasetId" or "Id" (required)
+			- "WorkspaceId" (required)
+			- "DatasetName" or "Name" (optional)
+			- "WorkspaceName" (optional)
+
+	.OUTPUTS
+		This function does not output anything to the pipeline
+	
 	.EXAMPLE
+		# Export a single Bare Dataset as a PBIX file by specifying the DatasetId, WorkspaceId, BlankPbix, and OutFile parameters
 		Export-PowerBIBareDatasetFromWorkspace -DatasetId "00000000-0000-0000-0000-000000000000" -WorkspaceId "00000000-0000-0000-0000-000000000000" -BlankPbix "C:\blank.pbix" -OutFile "C:\new.pbix"
+	
+	.EXAMPLE 
+		# Get a list of Bare Datasets from the Get-PowerBIBareDatasetsFromWorkspaces function
+		$bareDatasets = Get-PowerBIBareDatasetsFromWorkspaces -Interactive
+		# Then export them all as PBIX files
+		$bareDatasets | Export-PowerBIBareDatasetFromWorkspace
 
 	.NOTES
 		This function does NOT require Azure AD app registration, 
