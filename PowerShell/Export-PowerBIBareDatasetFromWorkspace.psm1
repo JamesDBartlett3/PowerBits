@@ -57,7 +57,7 @@
 #>
 
 Function Export-PowerBIBareDatasetFromWorkspace {
-	
+
 	[CmdletBinding()]
 	Param(
 		[Parameter(
@@ -179,13 +179,19 @@ Function Export-PowerBIBareDatasetFromWorkspace {
 			}
 		}
 
+		# If user did not specify a Dataset name, get it from the API
+		$DatasetName = $DatasetName ?? (Get-PowerBIDataset -Id $DatasetId -WorkspaceId $WorkspaceId).Name
+		
+		# If user did not specify a Workspace name, get it from the API
+		$WorkspaceName = $WorkspaceName ?? (Get-PowerBIWorkspace -Id $WorkspaceId).Name
+
 		# Publish the blank PBIX file to the target workspace
-		Write-Verbose "Publishing $BlankPbix to workspace with temporary name $uniqueName"
+		Write-Verbose "Publishing $BlankPbix to `"$WorkspaceName`" Workspace with temporary name $uniqueName"
 		$publishResponse = New-PowerBIReport -Path $BlankPbix -WorkspaceId $WorkspaceId -Name $uniqueName -ConflictAction CreateOrOverwrite
 		Write-Debug "Response: $publishResponse"
 		$publishedReportId = $publishResponse.Id
 		$publishedDatasetId = (Get-PowerBIDataset -WorkspaceId $WorkspaceId | Where-Object { $_.Name -eq $uniqueName }).Id
-		Write-Debug "Published report ID: $publishedReportId; Published dataset ID: $publishedDatasetId"
+		Write-Debug "Published Report ID: $publishedReportId; Published Dataset ID: $publishedDatasetId"
 
 		# Assemble the Datasets API URI
 		$datasetsEndpoint = "$pbiApiBaseUri/groups/$WorkspaceId/datasets"
@@ -200,14 +206,8 @@ Function Export-PowerBIBareDatasetFromWorkspace {
 		$headers.Add('Content-Type', 'application/json')
 
 		# Rebind the published Report to the bare Dataset
-		Write-Verbose "Rebinding published report $publishedReportId to dataset $DatasetId..."
-		Invoke-RestMethod -Uri $updateReportContentEndpoint -Method POST -Headers $headers -Body $body
-
-		# If user did not specify a Dataset name, get it from the API
-		$DatasetName = $DatasetName ?? (Get-PowerBIDataset -Id $DatasetId -WorkspaceId $WorkspaceId).Name
-		
-		# If user did not specify a Workspace name, get it from the API
-		$WorkspaceName = $WorkspaceName ?? (Get-PowerBIWorkspace -Id $WorkspaceId).Name
+		Write-Verbose "Rebinding published Report $publishedReportId to Dataset $DatasetId..."
+		Invoke-RestMethod -Uri $updateReportContentEndpoint -Method POST -Headers $headers -Body $body | Out-Null
 
 		# If the Workspace folder doesn't exist, create it
 		if (!(Test-Path (Join-Path -Path $tempFolder -ChildPath $WorkspaceName))) {
@@ -239,19 +239,18 @@ Function Export-PowerBIBareDatasetFromWorkspace {
 		if($message) {
 			$errorCount++
 			Write-Error "Error exporting bare Dataset `"$DatasetName`" from `"$WorkspaceName`"`: $message"
-			return
 		} else {
 			$bareDatasetCount++
 			Write-Verbose "Exported bare Dataset `"$DatasetName`" from `"$WorkspaceName`" to $tempFileName"
+			Write-Verbose "Moving and renaming temp file $($uniqueName).pbix to $OutFile..."
+			Move-Item -Path $tempFileName -Destination $OutFile -Force
 		}
-		Write-Verbose "Moving and renaming temp file $($uniqueName).pbix to $OutFile..."
-		Move-Item -Path $tempFileName -Destination $OutFile
 		$OutFile = $null
 
 		# Delete the blank Report and its original Dataset from the workspace
 		Write-Verbose "Deleting temporary blank Dataset $publishedDatasetId and Report $publishedReportId from Workspace $WorkspaceId..."
-		Invoke-RestMethod "$datasetsEndpoint/$publishedDatasetId" -Method DELETE -Headers $headers
-		Invoke-RestMethod "$reportsEndpoint/$publishedReportId" -Method DELETE -Headers $headers
+		Invoke-RestMethod "$datasetsEndpoint/$publishedDatasetId" -Method DELETE -Headers $headers | Out-Null
+		Invoke-RestMethod "$reportsEndpoint/$publishedReportId" -Method DELETE -Headers $headers | Out-Null
 		
 	}
 
