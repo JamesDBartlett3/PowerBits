@@ -110,8 +110,7 @@ Function Export-PowerBIBareDatasetFromWorkspace {
 			if ($fileIsPbix -and $fileIsBlank) {
 				Write-Verbose "$file is a valid blank PBIX file."
 				return $true
-			}
-			else {
+			} else {
 				Write-Error "$file is NOT a valid PBIX file and/or NOT blank."
 				return $false
 			}
@@ -171,7 +170,7 @@ Function Export-PowerBIBareDatasetFromWorkspace {
 			Start-Sleep -s 1
 			Connect-PowerBIServiceAccount -WarningAction SilentlyContinue | Out-Null
 			$headers = Get-PowerBIAccessToken
-			if($headers) {
+			if ($headers) {
 				Write-Host '🔑 Power BI Access Token acquired. Proceeding...'
 			} else {
 				Write-Host '❌ Power BI Access Token not acquired. Exiting...'
@@ -229,19 +228,19 @@ Function Export-PowerBIBareDatasetFromWorkspace {
 		$tempFileName = Join-Path -Path $tempFolder -ChildPath "$uniqueName.pbix"
 		$message = Invoke-RestMethod -Uri "$exportEndpoint" `
 			-Method GET -Headers $headers `
-			-ContentType "application/octet-stream" `
+			-ContentType 'application/octet-stream' `
 			-Body '{"preferClientRouting":true}' `
 			-ErrorVariable message `
 			-ErrorAction SilentlyContinue `
 			-OutFile $tempFileName 2>&1 | Out-String
 		$message = switch ($true) {
-			{ $message -like "*BadRequest*" } { "Incremental Refresh." }
-			{ $message -like "*NotFound*" -or $message -like "*Forbidden*" -or $message -like "*Disabled*" } { "Downloads Disabled." }
-			{ $message -like "*TooManyRequests*" } { "Reached Power BI API Rate Limit; Try Again Later." }
-			{ $message -like "*Unauthorized*" } { "Unauthorized." }
+			{ $message -like '*BadRequest*' } { 'Incremental Refresh.' }
+			{ $message -like '*NotFound*' -or $message -like '*Forbidden*' -or $message -like '*Disabled*' } { 'Downloads Disabled.' }
+			{ $message -like '*TooManyRequests*' } { 'Reached Power BI API Rate Limit; Try Again Later.' }
+			{ $message -like '*Unauthorized*' } { 'Unauthorized.' }
 			default { $null }
 		}
-		if($message) {
+		if ($message) {
 			$errorCount++
 			Write-Error "Error exporting bare Dataset `"$DatasetName`" from `"$WorkspaceName`"`: $message"
 		} else {
