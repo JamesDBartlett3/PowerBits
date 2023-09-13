@@ -60,6 +60,8 @@
 		- Thanks to my wife (@likeawednesday@techhub.social) for her support and encouragement.
 		- Thanks to @santisq & @seeminglyscience on PowerShell Discord for their guidance on using 
 		  Hashset<T>.Add() to filter out duplicates in the output.
+		- Thanks to @ruiromano on GitHub for his pbiscripts repo (https://github.com/RuiRomano/pbiscripts), 
+		  which inspired me, and taught me a lot about making Power BI REST API calls from PowerShell.
 #>
 
 Function Get-PowerBIBareDatasetsFromWorkspaces {
