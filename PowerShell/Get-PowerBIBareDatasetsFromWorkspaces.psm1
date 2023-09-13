@@ -223,6 +223,8 @@ Function Get-PowerBIBareDatasetsFromWorkspaces {
 
 	end {
 		Write-Verbose "Total number of Bare Datasets: $($hash.Count)"
+		
+		# Clear the PowerShell session's memory
 		[gc]::Collect()
 	}
 
