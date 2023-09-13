@@ -104,10 +104,23 @@ Function Export-PowerBIBareDatasetFromWorkspace {
 		[Parameter()][string]$OutFile
 	)
 
+	#Requires -PSEdition Core -Modules MicrosoftPowerBIMgmt
+
 	begin {
-		#Requires -PSEdition Core -Modules MicrosoftPowerBIMgmt
+		[string]$blankPbixUri = 'https://github.com/JamesDBartlett3/PowerBits/raw/main/Misc/blank.pbix'
+		[string]$tempFolder = Join-Path -Path $env:TEMP -ChildPath 'PowerBIBareDatasets'
+		[string]$blankPbixTempFile = Join-Path -Path $env:TEMP -ChildPath 'blank.pbix'
+		[string]$pbiApiBaseUri = 'https://api.powerbi.com/v1.0/myorg'
+		[string]$urlRegex = '(http[s]?|[s]?ftp[s]?)(:\/\/)([^\s,]+)'
+		[array]$validPbixContents = @('Layout', 'Metadata')
+		[bool]$blankPbixIsUrl = $BlankPbix -Match $urlRegex
+		[bool]$localFileExists = Test-Path $BlankPbix
+		[bool]$defaultFileIsValid = $false
+		[bool]$remoteFileIsValid = $false
+		[bool]$localFileIsValid = $false
 		[int]$bareDatasetCount = 0
 		[int]$errorCount = 0
+		Invoke-Item -Path $tempFolder
 	}
 
 	process {
@@ -116,20 +129,8 @@ Function Export-PowerBIBareDatasetFromWorkspace {
 		
 		$headers = [System.Collections.Generic.Dictionary[[String],[String]]]::New()
 		
-		[string]$tempFolder = Join-Path -Path $env:TEMP -ChildPath 'PowerBIBareDatasets'
-		[string]$blankPbixTempFile = Join-Path -Path $env:TEMP -ChildPath 'blank.pbix'
-		[string]$urlRegex = '(http[s]?|[s]?ftp[s]?)(:\/\/)([^\s,]+)'
 		[string]$uniqueName = 'temp_' + [guid]::NewGuid().ToString().Replace('-', '')
-		[string]$pbiApiBaseUri = 'https://api.powerbi.com/v1.0/myorg'
-		[array]$validPbixContents = @('Layout', 'Metadata')
-		[bool]$blankPbixIsUrl = $BlankPbix -Match $urlRegex
-		[bool]$localFileExists = Test-Path $BlankPbix
-		[bool]$remoteFileIsValid = $false
-		[bool]$localFileIsValid = $false
-		[bool]$defaultFileIsValid = $false
 		
-		# Open the temp folder in Windows Explorer
-		Invoke-Item -Path $tempFolder
 		Function FileIsBlankPbix($file) {
 			$zip = [System.IO.Compression.ZipFile]::OpenRead($file)
 			$fileIsPbix = @($validPbixContents | Where-Object { $zip.Entries.Name -Contains $_ }).Count -gt 0
@@ -173,8 +174,7 @@ Function Export-PowerBIBareDatasetFromWorkspace {
 		# download one from GitHub, and then check if it's valid and blank
 		else {
 			Write-Verbose "Downloading a blank pbix file from GitHub to $blankPbixTempFile..."
-			$BlankPbixUri = 'https://github.com/JamesDBartlett3/PowerBits/raw/main/Misc/blank.pbix'
-			Invoke-WebRequest -Uri $BlankPbixUri -OutFile $blankPbixTempFile
+			Invoke-WebRequest -Uri $blankPbixUri -OutFile $blankPbixTempFile
 			$defaultFileIsValid = FileIsBlankPbix($blankPbixTempFile)
 		}
 		
