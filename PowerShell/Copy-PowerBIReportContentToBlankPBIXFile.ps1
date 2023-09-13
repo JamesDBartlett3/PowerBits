@@ -73,7 +73,7 @@ Function Copy-PowerBIReportContentToBlankPBIXFile {
 		[Parameter(Mandatory = $false)][string]$OutFile
 	)
   
-	$headers = New-Object 'System.Collections.Generic.Dictionary[[String],[String]]'
+	$headers = [System.Collections.Generic.Dictionary[[String],[String]]]::New()
   
 	[string]$blankPbixTempFile = Join-Path -Path $env:TEMP -ChildPath 'blank.pbix'
 	[array]$validPbixContents = @('Layout', 'Metadata')

@@ -71,7 +71,7 @@ Function Export-PowerBIReportsFromWorkspaces {
   [string]$currentDateTime = Get-Date -UFormat "%Y%m%d_%H%M%S"
   [string]$fallbackDir = Join-Path -Path $env:TEMP -ChildPath "PowerBIWorkspaces"
   
-  $headers = New-Object "System.Collections.Generic.Dictionary[[String],[String]]"
+  $headers = [System.Collections.Generic.Dictionary[[String],[String]]]::New()
 
   Function Convert-PbixToProj {
     Param(
