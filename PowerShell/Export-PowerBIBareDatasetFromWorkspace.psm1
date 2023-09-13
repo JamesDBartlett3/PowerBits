@@ -236,7 +236,7 @@ Function Export-PowerBIBareDatasetFromWorkspace {
 		# Add the Content-Type header to the request
 		$headers.Add('Content-Type', 'application/json')
 
-		# Rebind the published Report to the bare Dataset
+		# Rebind the published Report to the Bare Dataset
 		Write-Verbose "Rebinding published Report $publishedReportId to Dataset $DatasetId..."
 		Invoke-RestMethod -Uri $updateReportContentEndpoint -Method POST -Headers $headers -Body $body | Out-Null
 
@@ -253,26 +253,20 @@ Function Export-PowerBIBareDatasetFromWorkspace {
 		# Export the re-bound Report and Dataset (a.k.a. "Thick Report") PBIX file to a temp file first, then rename it to the correct name (workaround for Datasets with special characters in their names)
 		Write-Verbose "Exporting re-bound blank Report and Dataset (a.k.a. 'Thick Report') $publishedReportId to temporary file $($uniqueName).pbix..."
 		$tempFileName = Join-Path -Path $tempFolder -ChildPath "$uniqueName.pbix"
-		$message = Invoke-RestMethod -Uri "$exportEndpoint" `
+		Invoke-RestMethod -Uri "$exportEndpoint" `
 			-Method GET -Headers $headers `
 			-ContentType 'application/octet-stream' `
 			-Body '{"preferClientRouting":true}' `
 			-ErrorVariable message `
 			-ErrorAction SilentlyContinue `
-			-OutFile $tempFileName 2>&1 | Out-String
-		$message = switch ($true) {
-			{ $message -like '*BadRequest*' } { 'Incremental Refresh.' }
-			{ $message -like '*NotFound*' -or $message -like '*Forbidden*' -or $message -like '*Disabled*' } { 'Downloads Disabled.' }
-			{ $message -like '*TooManyRequests*' } { 'Reached Power BI API Rate Limit; Try Again Later.' }
-			{ $message -like '*Unauthorized*' } { 'Unauthorized.' }
-			default { $null }
-		}
+			-OutFile $tempFileName 2>&1 | Out-Null
 		if ($message) {
 			$errorCount++
-			Write-Error "Error exporting bare Dataset `"$DatasetName`" from `"$WorkspaceName`"`: $message"
+			$errorCode = ($message.ErrorRecord.ErrorDetails.Message | ConvertFrom-Json).error.code
+			Write-Error "Error exporting Bare Dataset `"$DatasetName`" from `"$WorkspaceName`"`: $errorCode"
 		} else {
 			$bareDatasetCount++
-			Write-Verbose "Exported bare Dataset `"$DatasetName`" from `"$WorkspaceName`" to $tempFileName"
+			Write-Verbose "Exported Bare Dataset `"$DatasetName`" from `"$WorkspaceName`" to $tempFileName"
 			Write-Verbose "Moving and renaming temp file $($uniqueName).pbix to $OutFile..."
 			Move-Item -Path $tempFileName -Destination $OutFile -Force
 		}
