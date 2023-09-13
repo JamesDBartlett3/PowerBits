@@ -128,6 +128,8 @@ Function Export-PowerBIBareDatasetFromWorkspace {
 		[bool]$localFileIsValid = $false
 		[bool]$defaultFileIsValid = $false
 		
+		# Open the temp folder in Windows Explorer
+		Invoke-Item -Path $tempFolder
 		Function FileIsBlankPbix($file) {
 			$zip = [System.IO.Compression.ZipFile]::OpenRead($file)
 			$fileIsPbix = @($validPbixContents | Where-Object { $zip.Entries.Name -Contains $_ }).Count -gt 0
@@ -246,7 +248,6 @@ Function Export-PowerBIBareDatasetFromWorkspace {
 		# If user did not specify an output file name, use the Dataset's name and save it in the default temp folder
 		$OutFile = if (!!$OutFile) { $OutFile } else {
 			Join-Path -Path $tempFolder -ChildPath (Join-Path -Path $WorkspaceName -ChildPath "$($DatasetName).pbix")
-			Invoke-Item -Path $tempFolder
 		}
 
 		# Export the re-bound Report and Dataset (a.k.a. "Thick Report") PBIX file to a temp file first, then rename it to the correct name (workaround for Datasets with special characters in their names)
