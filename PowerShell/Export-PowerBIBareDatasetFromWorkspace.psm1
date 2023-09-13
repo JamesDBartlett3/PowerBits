@@ -114,7 +114,7 @@ Function Export-PowerBIBareDatasetFromWorkspace {
 
 		Write-Debug "DatasetId: $DatasetId, WorkspaceId: $WorkspaceId, DatasetName: $DatasetName, WorkspaceName: $WorkspaceName"
 		
-		$headers = New-Object 'System.Collections.Generic.Dictionary[[String],[String]]'
+		$headers = [System.Collections.Generic.Dictionary[[String],[String]]]::New()
 		
 		[string]$tempFolder = Join-Path -Path $env:TEMP -ChildPath 'PowerBIBareDatasets'
 		[string]$blankPbixTempFile = Join-Path -Path $env:TEMP -ChildPath 'blank.pbix'
