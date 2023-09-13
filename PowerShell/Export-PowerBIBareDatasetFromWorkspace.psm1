@@ -287,6 +287,11 @@ Function Export-PowerBIBareDatasetFromWorkspace {
 
 	end {
 		Write-Verbose "Bare Datasets successfully exported: $bareDatasetCount.$(if($errorCount -gt 0){" Errors encountered: $errorCount"})"
+		
+		# Remove any empty directories
+    Get-ChildItem $tempFolder -Recurse -Attributes Directory | Where-Object { $_.GetFileSystemInfos().Count -eq 0 } | Remove-Item
+		
+		# Clear the PowerShell session's memory
 		[gc]::Collect()
 	}
 
