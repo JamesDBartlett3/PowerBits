@@ -18,21 +18,21 @@ Import-Module Az.Resources -ErrorAction SilentlyContinue | Out-Null
 
 # List of functions to import
 $functions = @(
-	"Get-UserDatasets.ps1"
-	, "Join-DatasetsWithWorkspaces.ps1"
-	, "Update-UserDatasetOwner.ps1"
-	, "Copy-PowerBIReportContentToBlankPBIXFile.ps1"
-	, "Get-DataGatewayNodesStatus.ps1"
-	, "Export-PowerBIReportsFromWorkspaces.ps1"
-  , "Export-PowerBIWorkspaceSecurity.ps1"
-	, "Get-PowerBIBareDatasetsFromWorkspaces.ps1"
-	, "Export-PowerBIBareDatasetFromWorkspace.ps1"
+	"Get-UserDatasets.psm1"
+	, "Join-DatasetsWithWorkspaces.psm1"
+	, "Update-UserDatasetOwner.psm1"
+	, "Copy-PowerBIReportContentToBlankPBIXFile.psm1"
+	, "Get-DataGatewayNodesStatus.psm1"
+	, "Export-PowerBIReportsFromWorkspaces.psm1"
+  , "Export-PowerBIWorkspaceSecurity.psm1"
+	, "Get-PowerBIBareDatasetsFromWorkspaces.psm1"
+	, "Export-PowerBIBareDatasetFromWorkspace.psm1"
 )
 
 # Dotsource all functions in current directory whose names match those in $functions array
-Get-ChildItem -LiteralPath $PSScriptRoot -Filter *.ps1 |
+Get-ChildItem -LiteralPath $PSScriptRoot -Filter *.psm1 |
 	Where-Object { $_.Name -in $functions -and $_.FullName -ne $PSCommandPath } |
 	ForEach-Object {
 		Write-Output "Importing `e[38;2;0;255;0m$($_.BaseName)`e[0m..."
-		. $_.FullName
+		Import-Module $_.FullName -Force
 	}
