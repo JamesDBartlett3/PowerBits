@@ -2,7 +2,7 @@
 	{
 		"name": "PwrBits-BareDatasets",
 		"functions": [
-			"Get-PowerBIBareDatasetsFromWorspaces"
+			"Get-PowerBIBareDatasetsFromWorkspaces"
 			, "Export-PowerBIBareDatasetsFromWorkspaces"
 		]
 	},
