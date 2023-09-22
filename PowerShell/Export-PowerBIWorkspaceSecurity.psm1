@@ -37,7 +37,7 @@ Function Export-PowerBIWorkspaceSecurity {
       $workspaceName = $w.Name
       $workspaceId = $w.Id
       "Getting results for workspace: `e[38;2;255;0;0m$workspaceName`e[0m (Id: `e[38;2;0;255;0m$workspaceId`e[0m)" |
-        Write-Output
+        Write-Host
       $pbiURL = "https://api.powerbi.com/v1.0/myorg/groups/$workspaceId/users"
       $resultJson = Invoke-PowerBIRestMethod -Url $pbiURL -Method GET -ErrorAction SilentlyContinue
       $resultObject = ConvertFrom-Json -InputObject $resultJson 

@@ -223,7 +223,7 @@ Function Export-PowerBIReportsFromWorkspaces {
 
           if ($message -ne "Done") {
             Add-Content -LiteralPath $errorLog $fullPathMessage
-            Write-Output "❌ `e[38;2;255;0;0m$shortPathMessage (see $errorLog for details)`e[0m" # Red
+            Write-Host "❌ `e[38;2;255;0;0m$shortPathMessage (see $errorLog for details)`e[0m" # Red
           } 
           else { Write-Host "✅ $shortPathMessage" }
           Write-Verbose "_______________________________________________________"
