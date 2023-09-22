@@ -1,0 +1,23 @@
+{
+  "IgnoreWorkspaces": [
+    "Apps Catalog on Microsoft AppSource",
+    "Azure DevOps Dashboard",
+    "COVID-19 Global Report",
+    "COVID-19 US Tracking Report",
+    "Custom Visuals Exploration Tool",
+    "Dataflow Snapshots",
+    "Gen2 Utilization Metrics",
+    "Microsoft 365 Usage Analytics",
+    "Microsoft Fabric Capacity Metrics",
+    "Microsoft Project Web App",
+    "Office365 Usage Analytics",
+    "Power BI JSON Theme Guide",
+    "Power BI Premium Capacity Metrics",
+    "Power BI Release Plan",
+    "Template Apps Exploration Tool"
+  ],
+  "IgnoreReports": [
+    "Dashboard Usage Metrics Report",
+		"Report Usage Metrics Report"
+  ]
+}
