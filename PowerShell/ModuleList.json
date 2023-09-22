@@ -3,14 +3,14 @@
 		"name": "PwrBits-BareDatasets",
 		"functions": [
 			"Get-PowerBIBareDatasetsFromWorspaces"
-			, "Export-PowerBIBareDatasetsFromWorspaces"
+			, "Export-PowerBIBareDatasetsFromWorkspaces"
 		]
 	},
 	{
 		"name": "PwrBits-ExportReports",
 		"functions": [
 			"Copy-PowerBIReportContentToBlankPBIXFile"
-			, "Export-PowerBIReportsFromWorspaces"
+			, "Export-PowerBIReportsFromWorkspaces"
 		]
 	},
 	{
