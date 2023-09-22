@@ -18,11 +18,11 @@ $formatterSettings = @{
 
 foreach ($module in $ModuleList) {
 	$modulePath = Join-Path -Path $PSScriptRoot -ChildPath "Modules/$($module.name).psm1"
-	"Module Name: $($module.name) - Path: $modulePath"
+	Write-Verbose "Module Name: $($module.name) -- Path: $modulePath"
 	$moduleContent = '#Requires -PSEdition Core'
 	foreach ($function in $module.functions) {
 		$scriptPath = Join-Path -Path $PSScriptRoot -ChildPath "Scripts/$($function).ps1"
-		"Function: $function - Path: $scriptPath"
+		Write-Verbose "Function: $function -- Script Path: $scriptPath"
 		$moduleContent += "`nFunction $function {"
 		$moduleContent += (Get-Content -Raw -Path $scriptPath).Replace('#Requires -PSEdition Core', '')
 		$moduleContent += "`n}"
