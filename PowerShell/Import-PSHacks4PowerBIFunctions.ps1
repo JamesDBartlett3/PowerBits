@@ -33,6 +33,7 @@ $functions = @(
 Get-ChildItem -LiteralPath $PSScriptRoot -Filter *.psm1 |
 	Where-Object { $_.Name -in $functions -and $_.FullName -ne $PSCommandPath } |
 	ForEach-Object {
-		Write-Output "Importing `e[38;2;0;255;0m$($_.BaseName)`e[0m..."
+		Write-Output "Importing `e[38;2;0;255;0m$($_.BaseName)`e[0m module..."
 		Import-Module $_.FullName -Force
 	}
+Write-Output "Done."
