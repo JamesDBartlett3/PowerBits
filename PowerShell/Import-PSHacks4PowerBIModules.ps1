@@ -18,11 +18,11 @@ Import-Module Az.Resources -Force -ErrorAction SilentlyContinue | Out-Null
 
 # List of modules to import
 $modules = @(
-	, "BareDatasets.psm1"
-	, "ExportReports.psm1"
-	, "TenantAdmin.psm1"
-	, "UserDatasets.psm1"
-	, "Utilities.psm1"
+	, "PwrBits-BareDatasets.psm1"
+	, "PwrBits-ExportReports.psm1"
+	, "PwrBits-TenantAdmin.psm1"
+	, "PwrBits-UserDatasets.psm1"
+	, "PwrBits-Utilities.psm1"
 )
 
 # Import all modules in current directory whose names match those in $modules array
