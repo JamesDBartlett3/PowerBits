@@ -4,13 +4,13 @@
 
 $formatterSettings = @{
 	IncludeRules = @('PSPlaceOpenBrace', 'PSUseConsistentIndentation')
-	Rules = @{
-		PSPlaceOpenBrace = @{
+	Rules        = @{
+		PSPlaceOpenBrace           = @{
 			Enable     = $true
 			OnSameLine = $true
 		}
 		PSUseConsistentIndentation = @{
-			Enable = $true
+			Enable          = $true
 			IndentationSize = 2
 		}
 	}
