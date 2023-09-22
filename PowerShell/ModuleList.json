@@ -1,23 +1,38 @@
-{
-	"PwrBits-BareDatasets": [
-		"Get-PowerBIBareDatasetsFromWorspaces"
-		, "Export-PowerBIBareDatasetsFromWorspaces"
-	],
-	"PwrBits-ExportReports": [
-		"Copy-PowerBIReportContentToBlankPBIXFile"
-		, "Export-PowerBIReportsFromWorspaces"
-	],
-	"PwrBits-TenantAdmin": [
-		"Export-PowerBIWorkspacesSecurity"
-		, "Get-DataGatewayNodesStatus"
-	],
-	"PwrBits-UserDatasets": [
-		"Get-UserDatasets"
-		, "Join-UserDatasetsWithWorkspaces"
-		, "Update-UserDatasetsOwner"
-	],
-	"PwrBits-Utilities": [
-		"Get-ArrayInBatches"
-		, "Wait-On429Error"
-	]
-}
+[
+	{
+		"name": "PwrBits-BareDatasets",
+		"functions": [
+			"Get-PowerBIBareDatasetsFromWorspaces"
+			, "Export-PowerBIBareDatasetsFromWorspaces"
+		]
+	},
+	{
+		"name": "PwrBits-ExportReports",
+		"functions": [
+			"Copy-PowerBIReportContentToBlankPBIXFile"
+			, "Export-PowerBIReportsFromWorspaces"
+		]
+	},
+	{
+		"name": "PwrBits-TenantAdmin",
+		"functions": [
+			"Export-PowerBIWorkspacesSecurity"
+			, "Get-DataGatewayNodesStatus"
+		]
+	},
+	{
+		"name": "PwrBits-UserDatasets",
+		"functions": [
+			"Get-UserDatasets"
+			, "Join-UserDatasetsWithWorkspaces"
+			, "Update-UserDatasetsOwner"
+		]
+	},
+	{
+		"name": "PwrBits-Utilities",
+		"functions": [
+			"Get-ArrayInBatches"
+			, "Wait-On429Error"
+		]
+	}
+]
