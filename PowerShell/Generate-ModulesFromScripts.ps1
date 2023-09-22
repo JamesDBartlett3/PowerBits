@@ -17,7 +17,7 @@ $formatterSettings = @{
 }
 
 foreach ($module in $ModuleList) {
-	$modulePath = Join-Path -Path $PSScriptRoot -ChildPath "$($module.name).psm1"
+	$modulePath = Join-Path -Path $PSScriptRoot -ChildPath "Modules/$($module.name).psm1"
 	"Module Name: $($module.name) - Path: $modulePath"
 	$moduleContent = '#Requires -PSEdition Core'
 	foreach ($function in $module.functions) {

@@ -21,7 +21,7 @@ Import-Module Az.Resources -Force -ErrorAction SilentlyContinue | Out-Null
 
 # Import all modules in the list
 foreach ($module in $ModuleList) {
-	$modulePath = Join-Path -Path $PSScriptRoot -ChildPath "$($module.name).psm1"
+	$modulePath = Join-Path -Path $PSScriptRoot -ChildPath "Modules/$($module.name).psm1"
 	Write-Host "Importing `e[38;2;0;255;0m$($module.name)`e[0m module..."
 	Import-Module $modulePath -Force
 	}
