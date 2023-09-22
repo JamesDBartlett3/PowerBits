@@ -1,6 +1,6 @@
 <#
 	.SYNOPSIS
-		Function: Export-PowerBIBareDatasetFromWorkspace
+		Function: Export-PowerBIBareDatasetsFromWorkspaces
 		Author: @JamesDBartlett3@techhub.social (James D. Bartlett III)
 
 	.DESCRIPTION
@@ -36,13 +36,13 @@
 	
 	.EXAMPLE
 		# Export a single Bare Dataset as a PBIX file by specifying the DatasetId, WorkspaceId, BlankPbix, and OutFile parameters
-		Export-PowerBIBareDatasetFromWorkspace -DatasetId "00000000-0000-0000-0000-000000000000" -WorkspaceId "00000000-0000-0000-0000-000000000000" -BlankPbix "C:\blank.pbix" -OutFile "C:\new.pbix"
+		Export-PowerBIBareDatasetsFromWorkspaces -DatasetId "00000000-0000-0000-0000-000000000000" -WorkspaceId "00000000-0000-0000-0000-000000000000" -BlankPbix "C:\blank.pbix" -OutFile "C:\new.pbix"
 	
 	.EXAMPLE 
 		# Get a list of Bare Datasets from the Get-PowerBIBareDatasetsFromWorkspaces function
 		$bareDatasets = Get-PowerBIBareDatasetsFromWorkspaces -Interactive
 		# Then export them all as PBIX files
-		$bareDatasets | Export-PowerBIBareDatasetFromWorkspace
+		$bareDatasets | Export-PowerBIBareDatasetsFromWorkspaces
 
 	.LINK
 		https://github.com/JamesDBartlett3/PowerBits
@@ -82,7 +82,7 @@
 			  a process block to enable streaming inputs from the pipeline.
 #>
 
-Function Export-PowerBIBareDatasetFromWorkspace {
+Function Export-PowerBIBareDatasetsFromWorkspaces {
 
 	[CmdletBinding()]
 	Param(

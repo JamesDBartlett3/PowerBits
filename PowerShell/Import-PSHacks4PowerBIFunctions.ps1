@@ -24,9 +24,9 @@ $functions = @(
 	, "Copy-PowerBIReportContentToBlankPBIXFile.psm1"
 	, "Get-DataGatewayNodesStatus.psm1"
 	, "Export-PowerBIReportsFromWorkspaces.psm1"
-  , "Export-PowerBIWorkspaceSecurity.psm1"
+  , "Export-PowerBIWorkspacesSecurity.psm1"
 	, "Get-PowerBIBareDatasetsFromWorkspaces.psm1"
-	, "Export-PowerBIBareDatasetFromWorkspace.psm1"
+	, "Export-PowerBIBareDatasetsFromWorkspaces.psm1"
 	, "Utilities.psm1"
 )
 

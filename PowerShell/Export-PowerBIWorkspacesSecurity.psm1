@@ -1,4 +1,4 @@
-Function Export-PowerBIWorkspaceSecurity {
+Function Export-PowerBIWorkspacesSecurity {
 
   #Requires -PSEdition Core
   #Requires -Modules MicrosoftPowerBIMgmt, ImportExcel
