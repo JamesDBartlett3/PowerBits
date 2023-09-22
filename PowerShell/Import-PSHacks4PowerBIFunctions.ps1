@@ -27,7 +27,7 @@ $functions = @(
   , "Export-PowerBIWorkspaceSecurity.psm1"
 	, "Get-PowerBIBareDatasetsFromWorkspaces.psm1"
 	, "Export-PowerBIBareDatasetFromWorkspace.psm1"
-	, "Wait-On429Error.psm1"
+	, "Utilities.psm1"
 )
 
 # Dotsource all functions in current directory whose names match those in $functions array
