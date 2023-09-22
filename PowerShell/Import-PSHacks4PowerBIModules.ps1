@@ -19,14 +19,13 @@ Import-Module Az.Resources -Force -ErrorAction SilentlyContinue | Out-Null
 # List of modules to import
 $modules = @(
 	"Get-UserDatasets.psm1"
-	, "Join-DatasetsWithWorkspaces.psm1"
+	, "Join-UserDatasetsWithWorkspaces.psm1"
 	, "Update-UserDatasetsOwner.psm1"
 	, "Copy-PowerBIReportContentToBlankPBIXFile.psm1"
 	, "Get-DataGatewayNodesStatus.psm1"
 	, "Export-PowerBIReportsFromWorkspaces.psm1"
   , "Export-PowerBIWorkspacesSecurity.psm1"
-	, "Get-PowerBIBareDatasetsFromWorkspaces.psm1"
-	, "Export-PowerBIBareDatasetsFromWorkspaces.psm1"
+	, "BareDatasets.psm1"
 	, "Utilities.psm1"
 )
 

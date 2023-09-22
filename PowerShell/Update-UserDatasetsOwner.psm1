@@ -1,36 +1,35 @@
-<#
-  .SYNOPSIS
-    Function: Update-UserDatasetsOwner
-    Author: @JamesDBartlett3@techhub.social (James D. Bartlett III)
-
-  .DESCRIPTION
-    Take over a Power BI dataset that is currently configured by another user
-
-  .PARAMETER DatasetWorkspaceTable
-    Table with two columns: DatasetId and WorkspaceId -- set to output from Join-DatasetsWithWorkspaces
-
-  .EXAMPLE
-    Update-UserDatasetsOwner -DatasetWorkspaceTable $DatasetWorkspaceTable
-
-  .OUTPUTS
-    Nothing, if everything goes right ;-)
-
-  .NOTES
-    This function does NOT require Azure AD app registration, 
-    service principal creation, or any other special setup.
-    The only requirements are:
-      - The user must be able to run PowerShell (and install the
-        MicrosoftPowerBIMgmt module, if it's not already installed).
-      - The user must have permissions to access the workspace(s)
-        in the Power BI service.
-
-    TODO
-      - Write as function
-      - Re-implement token logic
-      - Testing
-#>
-
 Function Update-UserDatasetsOwner {
+  <#
+    .SYNOPSIS
+      Function: Update-UserDatasetsOwner
+      Author: @JamesDBartlett3@techhub.social (James D. Bartlett III)
+  
+    .DESCRIPTION
+      Take over a Power BI dataset that is currently configured by another user
+  
+    .PARAMETER DatasetWorkspaceTable
+      Table with two columns: DatasetId and WorkspaceId -- set to output from Join-UserDatasetsWithWorkspaces
+  
+    .EXAMPLE
+      Update-UserDatasetsOwner -DatasetWorkspaceTable $DatasetWorkspaceTable
+  
+    .OUTPUTS
+      Nothing, if everything goes right ;-)
+  
+    .NOTES
+      This function does NOT require Azure AD app registration, 
+      service principal creation, or any other special setup.
+      The only requirements are:
+        - The user must be able to run PowerShell (and install the
+          MicrosoftPowerBIMgmt module, if it's not already installed).
+        - The user must have permissions to access the workspace(s)
+          in the Power BI service.
+  
+      TODO
+        - Write as function
+        - Re-implement token logic
+        - Testing
+  #>
   #Requires -PSEdition Core
   #Requires -Modules MicrosoftPowerBIMgmt
   Param(
