@@ -1,5 +1,6 @@
 # PowerShell dependencies
-#Requires -PSEdition Core -Modules MicrosoftPowerBIMgmt, Microsoft.PowerShell.ConsoleGuiTools
+#Requires -PSEdition Core
+#Requires -Modules MicrosoftPowerBIMgmt, Microsoft.PowerShell.ConsoleGuiTools
 
 Function Get-PowerBIBareDatasetsFromWorkspaces {
 	<#

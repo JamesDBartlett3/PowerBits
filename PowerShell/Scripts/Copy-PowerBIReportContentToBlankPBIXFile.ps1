@@ -58,7 +58,8 @@
 			- Thanks to my wife (@likeawednesday@techhub.social) for her support and encouragement.
 #>
 
-#Requires -PSEdition Core -Modules MicrosoftPowerBIMgmt
+#Requires -PSEdition Core
+#Requires -Modules MicrosoftPowerBIMgmt
 
 [CmdletBinding()]
 Param(

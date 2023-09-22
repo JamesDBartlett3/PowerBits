@@ -1,4 +1,5 @@
-#Requires -PSEdition Core -Modules MicrosoftPowerBIMgmt
+#Requires -PSEdition Core
+#Requires -Modules MicrosoftPowerBIMgmt
 
 Function Get-UserDatasets {
   <#

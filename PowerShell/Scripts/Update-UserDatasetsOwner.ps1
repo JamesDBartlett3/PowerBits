@@ -30,7 +30,8 @@
       - Testing
 #>
 
-#Requires -PSEdition Core -Modules MicrosoftPowerBIMgmt
+#Requires -PSEdition Core
+#Requires -Modules MicrosoftPowerBIMgmt
 
 Param(
   [parameter(Mandatory = $true, ValueFromPipeline = $true)]$DatasetWorkspaceTable

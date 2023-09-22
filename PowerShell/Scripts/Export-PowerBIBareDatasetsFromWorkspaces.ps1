@@ -82,7 +82,8 @@
 				a process block to enable streaming inputs from the pipeline.
 #>
 
-#Requires -PSEdition Core -Modules MicrosoftPowerBIMgmt
+#Requires -PSEdition Core
+#Requires -Modules MicrosoftPowerBIMgmt
 
 [CmdletBinding()]
 Param(

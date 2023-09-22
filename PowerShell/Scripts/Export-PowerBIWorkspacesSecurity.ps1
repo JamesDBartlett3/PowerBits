@@ -1,4 +1,5 @@
-#Requires -PSEdition Core -Modules MicrosoftPowerBIMgmt, ImportExcel
+#Requires -PSEdition Core
+#Requires -Modules MicrosoftPowerBIMgmt, ImportExcel
 
 try {
   Get-PowerBIAccessToken | Out-Null
