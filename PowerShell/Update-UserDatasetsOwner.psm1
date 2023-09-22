@@ -1,6 +1,6 @@
 <#
   .SYNOPSIS
-    Function: Update-UserDatasetOwner
+    Function: Update-UserDatasetsOwner
     Author: @JamesDBartlett3@techhub.social (James D. Bartlett III)
 
   .DESCRIPTION
@@ -10,7 +10,7 @@
     Table with two columns: DatasetId and WorkspaceId -- set to output from Join-DatasetsWithWorkspaces
 
   .EXAMPLE
-    Update-UserDatasetOwner -DatasetWorkspaceTable $DatasetWorkspaceTable
+    Update-UserDatasetsOwner -DatasetWorkspaceTable $DatasetWorkspaceTable
 
   .OUTPUTS
     Nothing, if everything goes right ;-)
@@ -30,7 +30,7 @@
       - Testing
 #>
 
-Function Update-UserDatasetOwner {
+Function Update-UserDatasetsOwner {
   #Requires -PSEdition Core
   #Requires -Modules MicrosoftPowerBIMgmt
   Param(

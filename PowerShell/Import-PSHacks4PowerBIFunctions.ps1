@@ -20,7 +20,7 @@ Import-Module Az.Resources -Force -ErrorAction SilentlyContinue | Out-Null
 $functions = @(
 	"Get-UserDatasets.psm1"
 	, "Join-DatasetsWithWorkspaces.psm1"
-	, "Update-UserDatasetOwner.psm1"
+	, "Update-UserDatasetsOwner.psm1"
 	, "Copy-PowerBIReportContentToBlankPBIXFile.psm1"
 	, "Get-DataGatewayNodesStatus.psm1"
 	, "Export-PowerBIReportsFromWorkspaces.psm1"
