@@ -17,19 +17,12 @@
 Import-Module Az.Resources -Force -ErrorAction SilentlyContinue | Out-Null
 
 # List of modules to import
-$modules = @(
-	, "PwrBits-BareDatasets.psm1"
-	, "PwrBits-ExportReports.psm1"
-	, "PwrBits-TenantAdmin.psm1"
-	, "PwrBits-UserDatasets.psm1"
-	, "PwrBits-Utilities.psm1"
-)
+[PSCustomObject]$ModuleList = Get-Content -Path (Join-Path -Path $PSScriptRoot -ChildPath 'ModuleList.json') | ConvertFrom-Json
 
-# Import all modules in current directory whose names match those in $modules array
-Get-ChildItem -LiteralPath $PSScriptRoot -Filter *.psm1 |
-	Where-Object { $_.Name -in $modules -and $_.FullName -ne $PSCommandPath } |
-	ForEach-Object {
-		Write-Host "Importing `e[38;2;0;255;0m$($_.BaseName)`e[0m module..."
-		Import-Module $_.FullName -Force
+# Import all modules in the list
+foreach ($module in $ModuleList) {
+	$modulePath = Join-Path -Path $PSScriptRoot -ChildPath "$($module.name).psm1"
+	Write-Host "Importing `e[38;2;0;255;0m$($module.name)`e[0m module..."
+	Import-Module $modulePath -Force
 	}
 Write-Host "Done."
