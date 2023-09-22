@@ -25,7 +25,7 @@ $modules = @(
 	, "Utilities.psm1"
 )
 
-# Dotsource all modules in current directory whose names match those in $modules array
+# Import all modules in current directory whose names match those in $modules array
 Get-ChildItem -LiteralPath $PSScriptRoot -Filter *.psm1 |
 	Where-Object { $_.Name -in $modules -and $_.FullName -ne $PSCommandPath } |
 	ForEach-Object {
