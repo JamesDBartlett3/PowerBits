@@ -18,11 +18,10 @@ Import-Module Az.Resources -Force -ErrorAction SilentlyContinue | Out-Null
 
 # List of modules to import
 $modules = @(
-	"UserDatasets.psm1"
-	, "TenantAdmin.psm1"
-	, "Copy-PowerBIReportContentToBlankPBIXFile.psm1"
-	, "Export-PowerBIReportsFromWorkspaces.psm1"
 	, "BareDatasets.psm1"
+	, "ExportReports.psm1"
+	, "TenantAdmin.psm1"
+	, "UserDatasets.psm1"
 	, "Utilities.psm1"
 )
 

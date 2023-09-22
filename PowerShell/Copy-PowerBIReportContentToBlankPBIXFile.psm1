@@ -1,64 +1,63 @@
-<#
-  .SYNOPSIS
-    Function: Copy-PowerBIReportContentToBlankPBIXFile
-    Author: @JamesDBartlett3@techhub.social (James D. Bartlett III)
-
-  .DESCRIPTION
-    - This script will copy the contents of a published Power BI 
-      report into a new report published from a blank PBIX 
-    - This solves the problem where a Power BI report originally 
-      created in the web browser cannot be downloaded from the 
-      Power BI service as a PBIX file.
-
-  .PARAMETER SourceReportId 
-    The ID of the report to copy from
-
-  .PARAMETER SourceWorkspaceId
-    The ID of the workspace to copy from
-
-  .PARAMETER TargetReportId
-    The ID of the report to copy to
-
-  .PARAMETER TargetWorkspaceId
-    The ID of the workspace to copy to
-
-  .PARAMETER BlankPbix 
-    Local path (or URL) to a blank PBIX file to upload and copy the source report's contents into
-
-  .PARAMETER OutFile 
-    Local path to save the new PBIX file to
-
-  .EXAMPLE
-    Copy-PowerBIReportContentToBlankPBIXFile -SourceReportId "12345678-1234-1234-1234-123456789012" -SourceWorkspaceId "12345678-1234-1234-1234-123456789012" -TargetReportId "12345678-1234-1234-1234-123456789012" -TargetWorkspaceId "12345678-1234-1234-1234-123456789012"
-
-  .NOTES
-    This function does NOT require Azure AD app registration, 
-    service principal creation, or any other special setup.
-    The only requirements are:
-      - The user must be able to run PowerShell (and install the
-        MicrosoftPowerBIMgmt module, if it's not already installed).
-      - The user must be allowed to download report PBIX files
-        (see: "Download reports" setting in the Power BI Admin Portal).
-      - The user must have "Contributor" or higher permissions 
-        on the source and target workspace(s).
-    
-    TODO
-			- [ValidateScript({Test-Path $_})][string]$path on all file paths
-      - Testing
-      - Add usage, help, and examples.
-      - Rename the function to something more accurate to its current capabilities.
-			- [gc]::Collect() to free up memory
-  
-    ACKNOWLEDGEMENTS
-      - This PS function was inspired by a blog article written by 
-        one of the top minds in the Power BI space, Mathias Thierbach.
-        Check out his article here: https://bit.ly/37ofVou
-        And if you're not already using his pbi-tools for Power BI
-        version control, you should check it out: https://pbi.tools
-      - Thanks to my wife (@likeawednesday@techhub.social) for her support and encouragement.
-#>
-
 Function Copy-PowerBIReportContentToBlankPBIXFile {
+	<#
+		.SYNOPSIS
+			Function: Copy-PowerBIReportContentToBlankPBIXFile
+			Author: @JamesDBartlett3@techhub.social (James D. Bartlett III)
+	
+		.DESCRIPTION
+			- This script will copy the contents of a published Power BI 
+				report into a new report published from a blank PBIX 
+			- This solves the problem where a Power BI report originally 
+				created in the web browser cannot be downloaded from the 
+				Power BI service as a PBIX file.
+	
+		.PARAMETER SourceReportId 
+			The ID of the report to copy from
+	
+		.PARAMETER SourceWorkspaceId
+			The ID of the workspace to copy from
+	
+		.PARAMETER TargetReportId
+			The ID of the report to copy to
+	
+		.PARAMETER TargetWorkspaceId
+			The ID of the workspace to copy to
+	
+		.PARAMETER BlankPbix 
+			Local path (or URL) to a blank PBIX file to upload and copy the source report's contents into
+	
+		.PARAMETER OutFile 
+			Local path to save the new PBIX file to
+	
+		.EXAMPLE
+			Copy-PowerBIReportContentToBlankPBIXFile -SourceReportId "12345678-1234-1234-1234-123456789012" -SourceWorkspaceId "12345678-1234-1234-1234-123456789012" -TargetReportId "12345678-1234-1234-1234-123456789012" -TargetWorkspaceId "12345678-1234-1234-1234-123456789012"
+	
+		.NOTES
+			This function does NOT require Azure AD app registration, 
+			service principal creation, or any other special setup.
+			The only requirements are:
+				- The user must be able to run PowerShell (and install the
+					MicrosoftPowerBIMgmt module, if it's not already installed).
+				- The user must be allowed to download report PBIX files
+					(see: "Download reports" setting in the Power BI Admin Portal).
+				- The user must have "Contributor" or higher permissions 
+					on the source and target workspace(s).
+			
+			TODO
+				- [ValidateScript({Test-Path $_})][string]$path on all file paths
+				- Testing
+				- Add usage, help, and examples.
+				- Rename the function to something more accurate to its current capabilities.
+				- [gc]::Collect() to free up memory
+		
+			ACKNOWLEDGEMENTS
+				- This PS function was inspired by a blog article written by 
+					one of the top minds in the Power BI space, Mathias Thierbach.
+					Check out his article here: https://bit.ly/37ofVou
+					And if you're not already using his pbi-tools for Power BI
+					version control, you should check it out: https://pbi.tools
+				- Thanks to my wife (@likeawednesday@techhub.social) for her support and encouragement.
+	#>
   
 	#Requires -PSEdition Core
 	#Requires -Modules MicrosoftPowerBIMgmt
