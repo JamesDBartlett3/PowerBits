@@ -1,0 +1,23 @@
+{
+	"PwrBits-BareDatasets": [
+		"Get-PowerBIBareDatasetsFromWorspaces"
+		, "Export-PowerBIBareDatasetsFromWorspaces"
+	],
+	"PwrBits-ExportReports": [
+		"Copy-PowerBIReportContentToBlankPBIXFile"
+		, "Export-PowerBIReportsFromWorspaces"
+	],
+	"PwrBits-TenantAdmin": [
+		"Export-PowerBIWorkspacesSecurity"
+		, "Get-DataGatewayNodesStatus"
+	],
+	"PwrBits-UserDatasets": [
+		"Get-UserDatasets"
+		, "Join-UserDatasetsWithWorkspaces"
+		, "Update-UserDatasetsOwner"
+	],
+	"PwrBits-Utilities": [
+		"Get-ArrayInBatches"
+		, "Wait-On429Error"
+	]
+}
