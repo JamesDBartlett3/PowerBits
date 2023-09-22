@@ -1,23 +1,23 @@
 <# 
 	.SYNOPSIS
-		Title: Import-PSHacks4PowerBIFunctions
+		Title: Import-PSHacks4PowerBIModules
 		Author: @JamesDBartlett3@techhub.social (James D. Bartlett III)
 
 	.DESCRIPTION
-		- Imports functions for the "PowerShell Hacks for Power BI" demo session
+		- Imports modules for the "PowerShell Hacks for Power BI" demo session
 
 	.NOTES
 		- Version: 1.0
 
 	.EXAMPLE
-		. .\Import-PSHacks4PowerBIFunctions.ps1
+		. .\Import-PSHacks4PowerBIModules.ps1
 #>
 
 # Pre-emptively import problematic modules
 Import-Module Az.Resources -Force -ErrorAction SilentlyContinue | Out-Null
 
-# List of functions to import
-$functions = @(
+# List of modules to import
+$modules = @(
 	"Get-UserDatasets.psm1"
 	, "Join-DatasetsWithWorkspaces.psm1"
 	, "Update-UserDatasetsOwner.psm1"
@@ -30,9 +30,9 @@ $functions = @(
 	, "Utilities.psm1"
 )
 
-# Dotsource all functions in current directory whose names match those in $functions array
+# Dotsource all modules in current directory whose names match those in $modules array
 Get-ChildItem -LiteralPath $PSScriptRoot -Filter *.psm1 |
-	Where-Object { $_.Name -in $functions -and $_.FullName -ne $PSCommandPath } |
+	Where-Object { $_.Name -in $modules -and $_.FullName -ne $PSCommandPath } |
 	ForEach-Object {
 		Write-Host "Importing `e[38;2;0;255;0m$($_.BaseName)`e[0m module..."
 		Import-Module $_.FullName -Force
