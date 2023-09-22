@@ -36,4 +36,4 @@ Get-ChildItem -LiteralPath $PSScriptRoot -Filter *.psm1 |
 		Write-Output "Importing `e[38;2;0;255;0m$($_.BaseName)`e[0m module..."
 		Import-Module $_.FullName -Force
 	}
-Write-Output "Done."
+Write-Host "Done."
