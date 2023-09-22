@@ -25,6 +25,7 @@
         in the Power BI service.
 
     TODO
+      - Add process block to enable pipeline input
       - Re-implement token logic
   #>
 #Requires -PSEdition Core
