@@ -1,16 +1,32 @@
 #Requires -Modules PSScriptAnalyzer
 
-[PSCustomObject]$ModuleList = Get-Content -Path (Join-Path -Path $PSScriptRoot -ChildPath "ModuleList.json") | ConvertFrom-Json
+[PSCustomObject]$ModuleList = Get-Content -Path (Join-Path -Path $PSScriptRoot -ChildPath 'ModuleList.json') | ConvertFrom-Json
+
+$formatterSettings = @{
+	IncludeRules = @('PSPlaceOpenBrace', 'PSUseConsistentIndentation')
+	Rules = @{
+		PSPlaceOpenBrace = @{
+			Enable     = $true
+			OnSameLine = $true
+		}
+		PSUseConsistentIndentation = @{
+			Enable = $true
+			IndentationSize = 2
+		}
+	}
+}
 
 foreach ($module in $ModuleList) {
-	$script = @'
-	#Requires -PSEdition Core
-'@
+	$modulePath = Join-Path -Path $PSScriptRoot -ChildPath "$($module.name).psm1"
+	"Module Name: $($module.name) - Path: $modulePath"
+	$moduleContent = '#Requires -PSEdition Core'
 	foreach ($function in $module.functions) {
-		"Module: $($module.name) Function: $function"
-		$script += "`nFunction $function {"
-		$script += (Get-Content -Raw -Path (Join-Path -Path $PSScriptRoot -ChildPath "Scripts/$($function).ps1")).Replace("#Requires -PSEdition Core", "")
-		$script += "`n}"
+		$scriptPath = Join-Path -Path $PSScriptRoot -ChildPath "Scripts/$($function).ps1"
+		"Function: $function - Path: $scriptPath"
+		$moduleContent += "`nFunction $function {"
+		$moduleContent += (Get-Content -Raw -Path $scriptPath).Replace('#Requires -PSEdition Core', '')
+		$moduleContent += "`n}"
 	}
-	Invoke-Formatter -ScriptDefinition $script.Replace("`r`n","`n") | Set-Content -Path (Join-Path -Path $PSScriptRoot -ChildPath "$($module.name).psm1")
+	$moduleContent = $moduleContent.Replace("`r`n", "`n").Replace("`n`n", "`n")
+	Invoke-Formatter -ScriptDefinition $moduleContent -Settings $formatterSettings | Set-Content -Path $modulePath -Force
 }
