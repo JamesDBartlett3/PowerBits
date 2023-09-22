@@ -1,27 +1,27 @@
 [
 	{
-		"name": "PwrBits-BareDatasets",
+		"name": "PowerBits-BareDatasets",
 		"functions": [
 			"Get-PowerBIBareDatasetsFromWorkspaces"
 			, "Export-PowerBIBareDatasetsFromWorkspaces"
 		]
 	},
 	{
-		"name": "PwrBits-ExportReports",
+		"name": "PowerBits-ExportReports",
 		"functions": [
 			"Copy-PowerBIReportContentToBlankPBIXFile"
 			, "Export-PowerBIReportsFromWorkspaces"
 		]
 	},
 	{
-		"name": "PwrBits-TenantAdmin",
+		"name": "PowerBits-TenantAdmin",
 		"functions": [
 			"Export-PowerBIWorkspacesSecurity"
 			, "Get-DataGatewayNodesStatus"
 		]
 	},
 	{
-		"name": "PwrBits-UserDatasets",
+		"name": "PowerBits-UserDatasets",
 		"functions": [
 			"Get-UserDatasets"
 			, "Join-UserDatasetsWithWorkspaces"
@@ -29,7 +29,7 @@
 		]
 	},
 	{
-		"name": "PwrBits-Utilities",
+		"name": "PowerBits-Utilities",
 		"functions": [
 			"Get-ArrayInBatches"
 			, "Wait-On429Error"
