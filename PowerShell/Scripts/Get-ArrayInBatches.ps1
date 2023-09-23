@@ -1,6 +1,6 @@
-# Credit: @ruiromano on GitHub
+# Title: Get-ArrayInBatches.ps1
+# Author: @ruiromano on GitHub
 # Source: https://github.com/RuiRomano/pbimonitor
-
 [CmdletBinding()]
 Param(
   [Parameter(Mandatory)][array]$array,
