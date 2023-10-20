@@ -6,8 +6,9 @@
 #		    then output dataset to Excel or CSV file
 # TODO: The inheritance logic currently only checks if the GroupUserName matches. 
 #				Need to also check if the roles match.
-# TODO: Add parameter to specify root folder
 # TODO: Add item-level permissions to the output
+# TODO: Add activity check to see if the user/group has accessed the folder in the last X days
+# TODO: Add activity check for activity on items by all users
 # TODO: Check for redundant individual level permissions
 # 			(i.e. if a user has the same permissions as a group they are a member of)
 # TODO: Refactor with a recursive function to handle nested folders
@@ -22,6 +23,7 @@ param (
 	[Parameter()][string]$OutputFileNamePrefix = "ReportServer_SecurityAudit",
 	[Parameter()][ValidateSet("Excel","CSV")][string]$OutputFileFormat = "Excel",
 	[Parameter()][boolean]$InheritParent = $true,
+	[Parameter()][boolean]$IncludeADCheck = $true,
 	[Parameter()][string]$SSRSroot = "/"
 )
 
@@ -51,6 +53,21 @@ if ($Excel) {
 	}
 }
 
+if ($IncludeADCheck) {
+	try {
+		Import-Module -Name ActiveDirectory | Out-Null
+	} catch {
+		Write-Host -ForegroundColor Yellow "IncludeADCheck parameter set to 'True' but ActiveDirectory module not found. Install now? (Y/N)"
+		$choice = Read-Host
+		if($choice.ToUpper() -eq "Y") {
+			Install-Module -Name ActiveDirectory -Scope CurrentUser
+		} else {
+			Write-Host -ForegroundColor Red "Cannot check Active Directory without ActiveDirectory module. Exiting script..."
+			Exit
+		}
+	}
+}
+
 $currentDate = Get-Date -UFormat "%Y-%m-%d"
 $OutputFilePath = Join-Path -Path $OutputDirectory -ChildPath ($OutputFileNamePrefix + "__(" + $ReportServerName + "_" + $currentDate + ")")
 $ReportServerUri = "https://" + $ReportServerName + ":" + $ReportServerPort + "/ReportServer/ReportService2010.asmx?wsdl"
@@ -65,7 +82,7 @@ $rsProxy = New-WebServiceProxy -Uri $ReportServerUri -UseDefaultCredential
 $folderList = $rsProxy.ListChildren($SSRSroot, $InheritParent) | Where-Object {$_.TypeName -EQ "Folder"}
 
 # Iterate through every folder 
-foreach($folder in $folderList[0..5]) {
+foreach($folder in $folderList[0..4]) {
 
 	# Return all policies on this folder
 	$Policies = $rsProxy.GetPolicies($folder.Path, [ref]$InheritParent)
@@ -86,6 +103,7 @@ foreach($folder in $folderList[0..5]) {
 			Write-Host " Policies:"
 		}
 		foreach($rsPolicy in $Policies) {
+			# Remove the domain name from the GroupUserName value
 			$groupUserName = $rsPolicy.GroupUserName.Split("\")[-1];
 			$roles = $rsPolicy.Roles | Select-Object -Property Name
 			if ($IsVerbose) {
@@ -97,7 +115,6 @@ foreach($folder in $folderList[0..5]) {
 			[array]$rsResult = New-Object PSObject -Property @{
 				"ID" = $folder.ID;
 				"Path" = $folder.Path;
-				# Remove the domain name from the GroupUserName value
 				"GroupUserName" = $groupUserName;
 				"Roles" = $roleString;
 				"Inherited" = $rsPolicy.Inherited
@@ -118,6 +135,7 @@ if ($IsVerbose) {
 	Write-Host $Separator -ForegroundColor Green
 }
 
+# TODO: wrap in ad check logic
 if ($IsVerbose) {
 	Write-Host "Checking for disabled accounts in Active Directory..." -ForegroundColor Yellow
 }
