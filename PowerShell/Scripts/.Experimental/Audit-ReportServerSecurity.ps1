@@ -13,8 +13,8 @@
 
 [CmdletBinding()]
 param (
-	[Parameter()][string]$ReportServerName,
-	[Parameter()][string]$ReportServerPort,
+	[Parameter(Mandatory)][string]$ReportServerName,
+	[Parameter(Mandatory)][string]$ReportServerPort,
 	[Parameter()][string]$OutputDirectory = $PSScriptRoot,
 	[Parameter()][string]$OutputFileNamePrefix = "ReportServer_SecurityAudit",
 	[Parameter()][ValidateSet("Excel","CSV")][string]$OutputFileFormat = "Excel",
