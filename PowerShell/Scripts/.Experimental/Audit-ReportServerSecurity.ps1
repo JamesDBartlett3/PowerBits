@@ -9,6 +9,7 @@
 # TODO: Check for redundant individual level permissions
 # 			(i.e. if a user has the same permissions as a group they are a member of)
 # TODO: Refactor with a recursive function to handle nested folders
+# TODO: Add parameter to turn Active Directory feature on/off
 #---------------------------------------------
 
 [CmdletBinding()]
