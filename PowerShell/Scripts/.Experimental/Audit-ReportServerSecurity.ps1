@@ -83,15 +83,15 @@ foreach($folder in $folderList[0..5]) {
 			Write-Host $Separator -ForegroundColor Blue
 			Write-Host "Folder:" $folder.Path
 			Write-Host $Separator	-ForegroundColor Blue
-			Write-Host "↳ Policies:"
+			Write-Host " Policies:"
 		}
 		foreach($rsPolicy in $Policies) {
 			$groupUserName = $rsPolicy.GroupUserName.Split("\")[-1];
 			$roles = $rsPolicy.Roles | Select-Object -Property Name
 			if ($IsVerbose) {
-				Write-Host "  ↳" $rsPolicy.GroupUserName
+				Write-Host "  |-" $rsPolicy.GroupUserName
 				foreach($role in $roles) {
-					Write-Host "    ▸" $role.Name}
+					Write-Host "  |   |-" $role.Name}
 			}
 			$roleString = $roles.Name -join "|"
 			[array]$rsResult = New-Object PSObject -Property @{
