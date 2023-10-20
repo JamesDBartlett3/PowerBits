@@ -6,6 +6,8 @@
 #		    then output dataset to Excel or CSV file
 # TODO: The inheritance logic currently only checks if the GroupUserName matches. 
 #				Need to also check if the roles match.
+# TODO: Add parameter to specify root folder
+# TODO: Add item-level permissions to the output
 # TODO: Check for redundant individual level permissions
 # 			(i.e. if a user has the same permissions as a group they are a member of)
 # TODO: Refactor with a recursive function to handle nested folders
@@ -63,7 +65,7 @@ $rsProxy = New-WebServiceProxy -Uri $ReportServerUri -UseDefaultCredential
 $folderList = $rsProxy.ListChildren($SSRSroot, $InheritParent) | Where-Object {$_.TypeName -EQ "Folder"}
 
 # Iterate through every folder 
-foreach($folder in $folderList) {
+foreach($folder in $folderList[0..5]) {
 
 	# Return all policies on this folder
 	$Policies = $rsProxy.GetPolicies($folder.Path, [ref]$InheritParent)
