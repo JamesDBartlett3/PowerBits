@@ -9,10 +9,12 @@
 # TODO: Add item-level permissions to the output
 # TODO: Add activity check to see if the user/group has accessed the folder in the last X days
 # TODO: Add activity check for activity on items by all users
+# TODO: Add Domain column to output
 # TODO: Check for redundant individual level permissions
 # 			(i.e. if a user has the same permissions as a group they are a member of)
 # TODO: Refactor with a recursive function to handle nested folders
 # TODO: Add parameter to turn Active Directory feature on/off
+# TODO: Passthru param for routing output to another script or function
 #---------------------------------------------
 
 [CmdletBinding()]
@@ -68,8 +70,8 @@ if ($IncludeADCheck) {
 	}
 }
 
-$currentDate = Get-Date -UFormat "%Y-%m-%d"
-$OutputFilePath = Join-Path -Path $OutputDirectory -ChildPath ($OutputFileNamePrefix + "__(" + $ReportServerName + "_" + $currentDate + ")")
+$currentDate = Get-Date -UFormat "%Y%m%d_%H%M%S"
+$OutputFilePath = Join-Path -Path $OutputDirectory -ChildPath ($OutputFileNamePrefix + "_-_" + $ReportServerName + "_" + $currentDate)
 $ReportServerUri = "https://" + $ReportServerName + ":" + $ReportServerPort + "/ReportServer/ReportService2010.asmx?wsdl"
 $rsPerms = @()
 $rsResult = @()
@@ -102,9 +104,13 @@ foreach($folder in $folderList[0..4]) {
 			Write-Host $Separator	-ForegroundColor Blue
 			Write-Host " Policies:"
 		}
+
+		# For each policy, add details to an array
 		foreach($rsPolicy in $Policies) {
 			# Remove the domain name from the GroupUserName value
 			$groupUserName = $rsPolicy.GroupUserName.Split("\")[-1];
+			# Get the domain name from the GroupUserName value
+			$groupUserDomain = $rsPolicy.GroupUserName.Split("\")[0];
 			$roles = $rsPolicy.Roles | Select-Object -Property Name
 			if ($IsVerbose) {
 				Write-Host "  |-" $rsPolicy.GroupUserName
@@ -115,7 +121,9 @@ foreach($folder in $folderList[0..4]) {
 			[array]$rsResult = New-Object PSObject -Property @{
 				"ID" = $folder.ID;
 				"Path" = $folder.Path;
+				"GroupUserDomain" = $groupUserDomain;
 				"GroupUserName" = $groupUserName;
+				"Disabled" = $false;
 				"Roles" = $roleString;
 				"Inherited" = $rsPolicy.Inherited
 			}
@@ -124,6 +132,26 @@ foreach($folder in $folderList[0..4]) {
 		if ($IsVerbose) {Write-Host "$Separator`n`n" -ForegroundColor Blue}
 	}
 }
+
+# TODO: wrap in ad check logic
+if ($IsVerbose) {
+	Write-Host "Checking for disabled accounts in Active Directory..." -ForegroundColor Yellow
+}
+
+# Loop through all unique GroupUserName values in the $rsPerms array, and check if it is active in Active Directory
+foreach($rsPerm in $rsPerms | Where-Object GroupUserDomain -ne 'BUILTIN' | Select-Object -Property GroupUserName -Unique) {
+	$ADGroup = Get-ADGroup -Filter "$("GroupCategory -eq 'Security' -and Name -eq ' " + $rsPerm.GroupUserName + "'")"
+	if (-not $ADGroup) {
+		$ADUser = Get-ADUser -Filter "$("SamAccountName -eq ' " + $rsPerm.GroupUserName + "'")" -Properties Enabled
+		if (-not $ADUser.Enabled) {
+			# If the user is disabled, mark it as such in the GroupUserDisabled property in $rsPerms array
+			$rsPerms | Where-Object {$_.GroupUserName -eq $rsPerm.GroupUserName} | ForEach-Object {$_.Disabled = $true}
+		}
+	}
+}
+
+# Create a new array with the results
+$result = $rsPerms | Select-Object -Property ID, Path, GroupUserDomain, GroupUserName, Disabled, Roles, Inherited
 
 # Add file extension to output file path
 $OutputFilePath += if($Excel) {".xlsx"} else {".csv"}
@@ -135,30 +163,12 @@ if ($IsVerbose) {
 	Write-Host $Separator -ForegroundColor Green
 }
 
-# TODO: wrap in ad check logic
-if ($IsVerbose) {
-	Write-Host "Checking for disabled accounts in Active Directory..." -ForegroundColor Yellow
-}
-
-# Loop through all unique GroupUserName values in the $rsPerms array, and check if it is active in Active Directory
-foreach($rsPerm in $rsPerms | Select-Object -Property GroupUserName -Unique) {
-	$ADGroup = Get-ADGroup -Filter "$("GroupCategory -eq 'Security' -and Name -eq ' " + $rsPerm.GroupUserName + "'")"
-	if (-not $ADGroup) {
-		$ADUser = Get-ADUser -Filter "$("SamAccountName -eq ' " + $rsPerm.GroupUserName + "'")" -Properties Enabled
-		if (-not $ADUser.Enabled) {
-			# If the user is disabled, add a tag to the GroupUserName value in the $rsPerms array
-			$rsPerms | Where-Object {$_.GroupUserName -eq $rsPerm.GroupUserName} | ForEach-Object {$_.GroupUserName += " (Disabled)"}
-		}
-	}
-}
-
-# Create a new array with the results
-$result = $rsPerms | Select-Object -Property ID, Path, GroupUserName, Roles, Inherited
-
 # Output array to file
 if($Excel) {
-	$result | Export-Excel -TableStyle Medium1 -FreezeTopRow -AutoFilter -AutoSize -Show -Path $OutputFilePath
+	$result | Export-Excel -TableStyle Medium1 -FreezeTopRow -AutoFilter -AutoSize -Path $OutputFilePath
 } else {
 	$result | Export-Csv -Path $OutputFilePath -NoTypeInformation
-	Invoke-Item $OutputFilePath
 }
+
+# Open the file
+Invoke-Item $OutputFilePath
