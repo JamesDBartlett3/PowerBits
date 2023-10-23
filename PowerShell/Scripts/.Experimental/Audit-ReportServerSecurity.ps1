@@ -34,7 +34,7 @@ $MaxPSVersion = [Version]::new(5, 1)
 $IsVerbose = $PSCmdlet.MyInvocation.BoundParameters["Verbose"]
 
 if ($CurrentPSVersion -gt $MaxPSVersion) {
-	Write-Host -ForegroundColor Red "This script requires PowerShell version 5.1 or lower. Exiting script..."
+	Write-Host -ForegroundColor Red "This script requires PowerShell version $MaxPSVersion or lower. Exiting script..."
 	Exit
 }
 
@@ -84,7 +84,7 @@ $rsProxy = New-WebServiceProxy -Uri $ReportServerUri -UseDefaultCredential
 $folderList = $rsProxy.ListChildren($SSRSroot, $InheritParent) | Where-Object {$_.TypeName -EQ "Folder"}
 
 # Iterate through every folder 
-foreach($folder in $folderList[0..4]) {
+foreach($folder in $folderList[0..49]) {
 
 	# Return all policies on this folder
 	$Policies = $rsProxy.GetPolicies($folder.Path, [ref]$InheritParent)
