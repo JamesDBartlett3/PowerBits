@@ -92,8 +92,8 @@ foreach($folder in $folderList[0..4]) {
 	# Compare the policies to the parent folder and see if they are inherited or not
 	$parentFolderPath = (Split-Path -Path $folder.Path -Parent).Replace("\", "/")
 	$ParentPolicies = $rsProxy.GetPolicies($parentFolderPath, [ref]$InheritParent)
-	$Policies = $Policies | Select-Object *,@{Name="Inherited";Expression={"False"}}
-	$Policies | Where-Object {$ParentPolicies.GroupUserName -contains $_.GroupUserName} | ForEach-Object {$_.Inherited = "True"}
+	$Policies = $Policies | Select-Object *,@{Name="Inherited"; Expression={$false}}
+	$Policies | Where-Object {$ParentPolicies.GroupUserName -contains $_.GroupUserName} | ForEach-Object {$_.Inherited = $true}
 
 	# For each policy, add details to an array
 	if ($Policies.Count -gt 0) {
