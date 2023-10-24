@@ -1,21 +1,18 @@
-#---------------------------------------------
+#----------------------------------------------------------------------------------------------------------------------------------
 # Author: 	James Bartlett @jamesdbartlett3@techhub.social
 # Original author: 	Craig Porteous @cporteous
-# Synopsis: List out all SSRS (native mode)
-#		    folders and their security policies,
-#		    then output dataset to Excel or CSV file
-# TODO: The inheritance logic currently only checks if the GroupUserName matches. 
-#				Need to also check if the roles match.
+# Synopsis: List out all SSRS (native mode) folders and their security policies, then output dataset to Excel or CSV file
+#
+# TODO: The inheritance logic currently only checks if the GroupUserName matches. Need to also check if the roles match.
 # TODO: Add item-level permissions to the output
 # TODO: Add activity check to see if the user/group has accessed the folder in the last X days
 # TODO: Add activity check for activity on items by all users
-# TODO: Add Domain column to output
-# TODO: Check for redundant individual level permissions
-# 			(i.e. if a user has the same permissions as a group they are a member of)
+# TODO: Add GroupUserType column (i.e. User, ADGroup, etc.)
+# TODO: Check for redundant individual level permissions (i.e. if a user has the same permissions as a group they are a member of)
 # TODO: Refactor with a recursive function to handle nested folders
 # TODO: Add parameter to turn Active Directory feature on/off
 # TODO: Passthru param for routing output to another script or function
-#---------------------------------------------
+#----------------------------------------------------------------------------------------------------------------------------------
 
 [CmdletBinding()]
 param (
@@ -81,10 +78,10 @@ $Separator = ""
 $rsProxy = New-WebServiceProxy -Uri $ReportServerUri -UseDefaultCredential
 
 # List out all subfolders under the parent directory and Select their "Path"
-$folderList = $rsProxy.ListChildren($SSRSroot, $InheritParent) | Where-Object {$_.TypeName -EQ "Folder"}
+$folderList = $rsProxy.ListChildren($SSRSroot, $true) | Where-Object {$_.TypeName -EQ "Folder"}
 
 # Iterate through every folder 
-foreach($folder in $folderList[0..49]) {
+foreach($folder in $folderList) {
 
 	# Return all policies on this folder
 	$Policies = $rsProxy.GetPolicies($folder.Path, [ref]$InheritParent)
@@ -119,8 +116,8 @@ foreach($folder in $folderList[0..49]) {
 			}
 			$roleString = $roles.Name -join "|"
 			[array]$rsResult = New-Object PSObject -Property @{
-				"ID" = $folder.ID;
-				"Path" = $folder.Path;
+				"FolderID" = $folder.ID;
+				"FolderPath" = $folder.Path;
 				"GroupUserDomain" = $groupUserDomain;
 				"GroupUserName" = $groupUserName;
 				"Disabled" = $false;
@@ -140,7 +137,7 @@ if ($IsVerbose) {
 
 # Loop through all unique GroupUserName values in the $rsPerms array, and check if it is active in Active Directory
 foreach($rsPerm in $rsPerms | Where-Object GroupUserDomain -ne 'BUILTIN' | Select-Object -Property GroupUserName -Unique) {
-	$ADGroup = Get-ADGroup -Filter "$("GroupCategory -eq 'Security' -and Name -eq ' " + $rsPerm.GroupUserName + "'")"
+	$ADGroup = Get-ADGroup -Filter "$("GroupCategory -eq 'Security' -and SamAccountName -eq ' " + $rsPerm.GroupUserName + "'")"
 	if (-not $ADGroup) {
 		$ADUser = Get-ADUser -Filter "$("SamAccountName -eq ' " + $rsPerm.GroupUserName + "'")" -Properties Enabled
 		if (-not $ADUser.Enabled) {
@@ -151,7 +148,7 @@ foreach($rsPerm in $rsPerms | Where-Object GroupUserDomain -ne 'BUILTIN' | Selec
 }
 
 # Create a new array with the results
-$result = $rsPerms | Select-Object -Property ID, Path, GroupUserDomain, GroupUserName, Disabled, Roles, Inherited
+$result = $rsPerms | Select-Object -Property FolderID, FolderPath, GroupUserDomain, GroupUserName, Disabled, Roles, Inherited
 
 # Add file extension to output file path
 $OutputFilePath += if($Excel) {".xlsx"} else {".csv"}
