@@ -90,17 +90,15 @@ Param(
 	[Parameter(
 		Mandatory,
 		ValueFromPipelineByPropertyName
-	)][Alias('Id')][guid]$DatasetId,
+		)][Alias('Id')][guid]$DatasetId,
 	[Parameter(
 		Mandatory,
 		ValueFromPipelineByPropertyName
-	)][guid]$WorkspaceId,
-	[Parameter(
-		, ValueFromPipelineByPropertyName
-	)][Alias('Name')][string]$DatasetName,
-	[Parameter(
-		, ValueFromPipelineByPropertyName
-	)][string]$WorkspaceName,
+		)][guid]$WorkspaceId,
+	[Parameter(ValueFromPipelineByPropertyName)]
+		[Alias('Name')][string]$DatasetName,
+	[Parameter(ValueFromPipelineByPropertyName)]
+		[string]$WorkspaceName,
 	[Parameter()][string]$BlankPbix,
 	[Parameter()][string]$OutFile
 )

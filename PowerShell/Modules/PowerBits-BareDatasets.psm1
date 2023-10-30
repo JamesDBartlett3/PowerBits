@@ -281,12 +281,10 @@ Function Export-PowerBIBareDatasetsFromWorkspaces {
       Mandatory,
       ValueFromPipelineByPropertyName
     )][guid]$WorkspaceId,
-    [Parameter(
-      , ValueFromPipelineByPropertyName
-    )][Alias('Name')][string]$DatasetName,
-    [Parameter(
-      , ValueFromPipelineByPropertyName
-    )][string]$WorkspaceName,
+    [Parameter(ValueFromPipelineByPropertyName)]
+    [Alias('Name')][string]$DatasetName,
+    [Parameter(ValueFromPipelineByPropertyName)]
+    [string]$WorkspaceName,
     [Parameter()][string]$BlankPbix,
     [Parameter()][string]$OutFile
   )
