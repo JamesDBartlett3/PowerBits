@@ -109,7 +109,7 @@ Function Get-DataGatewayNodesStatus {
 Function Export-PowerBIScannerApiData {
   <#
   .SYNOPSIS
-    Get all available data from the Power BI Scanner API
+    Title: Export-PowerBIScannerApiData
     Author: @JamesDBartlett3@techhub.social (James D. Bartlett III)
   .DESCRIPTION
     This script will get all available data from the Power BI Scanner API and write it to a JSON file.

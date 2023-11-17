@@ -1,6 +1,6 @@
 <#
   .SYNOPSIS
-    Get all available data from the Power BI Scanner API
+    Title: Export-PowerBIScannerApiData
     Author: @JamesDBartlett3@techhub.social (James D. Bartlett III)
 
   .DESCRIPTION
@@ -26,7 +26,6 @@
     - Requires the Power BI Scanner API to be enabled: https://learn.microsoft.com/en-us/power-bi/enterprise/service-admin-metadata-scanning#enabling-enhanced-metadata-scanning
     - Currently only works with workspaces that have been modified in the last 30 days
     - Tenants with a lot of workspaces may not work properly due to API rate limits
-
 #> 
 
 Param(
