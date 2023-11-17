@@ -10,7 +10,7 @@
     The destination path for the JSON file. Defaults to the Downloads folder.
 
   .EXAMPLE
-    .\Get-PowerBIScannerApiData.ps1 -OutFile "~\Downloads\PowerBIScannerApiData.json"
+    .\Export-PowerBIScannerApiData.ps1 -OutFile "~\Downloads\PowerBIScannerApiData.json"
 
   .LINK
     https://github.com/JamesDBartlett3/PowerBits
