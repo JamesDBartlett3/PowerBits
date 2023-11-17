@@ -9,6 +9,9 @@
   .PARAMETER OutFile
     The destination path for the JSON file. Defaults to the Downloads folder.
 
+  .PARAMETER OpenFile
+    Specify to open the JSON file in the default application after it's created.
+
   .EXAMPLE
     .\Export-PowerBIScannerApiData.ps1 -OutFile "~\Downloads\PowerBIScannerApiData.json"
 
@@ -30,7 +33,9 @@
 
 Param(
   [Parameter(Mandatory = $false)]
-  [string]$OutFile = '~\Downloads\PowerBIScannerApiData.json'
+  [string]$OutFile = '~\Downloads\PowerBIScannerApiData.json',
+  [Parameter(Mandatory = $false)]
+  [switch]$OpenFile
 )
 
 $headers = [System.Collections.Generic.Dictionary[[String], [String]]]::New()
@@ -103,10 +108,7 @@ Write-Host "Writing data to file: $OutFile"
 # Write the data to a file
 $getDataResponse | ConvertTo-Json -Depth 100 | Out-File -FilePath $OutFile
 
-# Ask user if they want to open the file
-$openFile = Read-Host 'Open file? (y/n)'
-
-# Open the file in the default application
-if ($openFile) {
+# Open the file in the default application if user passed the -OpenFile switch
+if ($OpenFile) {
   Invoke-Item $OutFile
 }
