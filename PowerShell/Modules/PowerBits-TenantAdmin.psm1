@@ -137,6 +137,8 @@ Function Export-PowerBIScannerApiData {
     [Parameter(Mandatory = $false)]
     [switch]$OpenFile
   )
+  $currentDate = Get-Date -UFormat "%Y-%m-%d_%H%M"
+  $OutFile = $OutFile -replace 'PowerBIScannerApiData.json', "PowerBIScannerApiData_$currentDate.json"
   $headers = [System.Collections.Generic.Dictionary[[String], [String]]]::New()
   try {
     $headers = Get-PowerBIAccessToken
