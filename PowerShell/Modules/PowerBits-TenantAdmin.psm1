@@ -139,7 +139,8 @@ Function Export-PowerBIScannerApiData {
   )
   $currentDate = Get-Date -UFormat "%Y-%m-%d_%H%M"
   $OutFile = $OutFile -replace 'PowerBIScannerApiData.json', "PowerBIScannerApiData_$currentDate.json"
-  $headers = [System.Collections.Generic.Dictionary[[String], [String]]]::New()
+  $baseUrl = 'https://api.powerbi.com/v1.0/myorg/admin/workspaces'
+  $headers = [System.Collections.Generic.Dictionary[[String],[String]]]::New()
   try {
     $headers = Get-PowerBIAccessToken
   }
@@ -155,9 +156,9 @@ Function Export-PowerBIScannerApiData {
       Exit
     }
   }
-  $getWorkspacesUrl = 'https://api.powerbi.com/v1.0/myorg/admin/workspaces/modified?excludePersonalWorkspaces=True'
+  $modifiedWorkspacesUrl = "$baseUrl/modified?excludePersonalWorkspaces=True"
   # Send a GET request to the API endpoint
-  $workspaceList = Invoke-RestMethod -Uri $getWorkspacesUrl -Method Get -Headers $headers
+  $workspaceList = Invoke-RestMethod -Uri $modifiedWorkspacesUrl -Method Get -Headers $headers
   # Create an object to hold the workspace IDs
   $workspaceIdsObject = [PSCustomObject]@{
     workspaces = @()
@@ -168,24 +169,24 @@ Function Export-PowerBIScannerApiData {
   }
   # Convert the object to JSON
   $jsonBody = $workspaceIdsObject | ConvertTo-Json
-  $startScanUrl = 'https://api.powerbi.com/v1.0/myorg/admin/workspaces/getInfo?lineage=True&datasourceDetails=True&datasetSchema=True&datasetExpressions=True&getArtifactUsers=True'
+  $getInfoUrl = "$baseUrl/getInfo?lineage=True&datasourceDetails=True&datasetSchema=True&datasetExpressions=True&getArtifactUsers=True"
   # Send a POST request to the API endpoint
-  $startScanResponse = Invoke-RestMethod -Uri $startScanUrl -Method Post -Headers $headers -Body $jsonBody -ContentType 'application/json'
+  $startScanResponse = Invoke-RestMethod -Uri $getInfoUrl -Method Post -Headers $headers -Body $jsonBody -ContentType 'application/json'
   $scanId = $startScanResponse.id
-  $checkScanUrl = "https://api.powerbi.com/v1.0/myorg/admin/workspaces/scanStatus/$scanId"
-  $scanStatus = 'NotStarted'
+  $scanStatusUrl = "$baseUrl/scanStatus/$scanId"
+  $scanStatus = ''
   # Check the scan status every 5 seconds until it's complete
   while ($scanStatus -ne 'Succeeded') {
-    $checkScanResponse = Invoke-RestMethod -Uri $checkScanUrl -Method Get -Headers $headers
+    $checkScanResponse = Invoke-RestMethod -Uri $scanStatusUrl -Method Get -Headers $headers
     Start-Sleep -s 5
     $scanStatus = $checkScanResponse.status
     Write-Host "Scan status: $scanStatus"
   }
   Write-Host 'Scan complete. Getting data...'
   $completedScanId = $checkScanResponse.id
-  $getDataUrl = "https://api.powerbi.com/v1.0/myorg/admin/workspaces/scanResult/$completedScanId"
+  $scanResultUrl = "$baseUrl/scanResult/$completedScanId"
   # Send a GET request to the API endpoint
-  $getDataResponse = Invoke-RestMethod -Uri $getDataUrl -Method Get -Headers $headers
+  $getDataResponse = Invoke-RestMethod -Uri $scanResultUrl -Method Get -Headers $headers
   Write-Host "Writing data to file: $OutFile"
   # Write the data to a file
   $getDataResponse | ConvertTo-Json -Depth 100 | Out-File -FilePath $OutFile
