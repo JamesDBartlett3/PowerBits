@@ -1,9 +1,9 @@
 [
 	{
-		"name": "PowerBits-BareDatasets",
+		"name": "PowerBits-ThinModels",
 		"functions": [
-			"Get-PowerBIBareDatasetsFromWorkspaces"
-			, "Export-PowerBIBareDatasetsFromWorkspaces"
+			"Get-PowerBIThinModelsFromWorkspaces"
+			, "Export-PowerBIThinModelsFromWorkspaces"
 		]
 	},
 	{

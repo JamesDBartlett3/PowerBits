@@ -1,6 +1,6 @@
 <#
   .SYNOPSIS
-    Function: Get-PowerBIBareDatasetsFromWorkspaces
+    Function: Get-PowerBIThinModelsFromWorkspaces
     Author: @JamesDBartlett3@techhub.social (James D. Bartlett III)
   
   .DESCRIPTION
@@ -26,7 +26,7 @@
       - WorkspaceId
   
   .EXAMPLE
-    Get-PowerBIBareDatasetsFromWorkspaces -Interactive -ThrottleLimit 4
+    Get-PowerBIThinModelsFromWorkspaces -Interactive -ThrottleLimit 4
   
   .LINK
     https://github.com/JamesDBartlett3/PowerBits

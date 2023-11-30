@@ -1,6 +1,6 @@
 <#
 	.SYNOPSIS
-		Function: Export-PowerBIBareDatasetsFromWorkspaces
+		Function: Export-PowerBIThinModelsFromWorkspaces
 		Author: @JamesDBartlett3@techhub.social (James D. Bartlett III)
 
 	.DESCRIPTION
@@ -36,13 +36,13 @@
 	
 	.EXAMPLE
 		# Export a single Bare Dataset as a PBIX file by specifying the DatasetId, WorkspaceId, BlankPbix, and OutFile parameters
-		Export-PowerBIBareDatasetsFromWorkspaces -DatasetId "00000000-0000-0000-0000-000000000000" -WorkspaceId "00000000-0000-0000-0000-000000000000" -BlankPbix "C:\blank.pbix" -OutFile "C:\new.pbix"
+		Export-PowerBIThinModelsFromWorkspaces -DatasetId "00000000-0000-0000-0000-000000000000" -WorkspaceId "00000000-0000-0000-0000-000000000000" -BlankPbix "C:\blank.pbix" -OutFile "C:\new.pbix"
 	
 	.EXAMPLE 
-		# Get a list of Bare Datasets from the Get-PowerBIBareDatasetsFromWorkspaces function
-		$bareDatasets = Get-PowerBIBareDatasetsFromWorkspaces -Interactive
+		# Get a list of Bare Datasets from the Get-PowerBIThinModelsFromWorkspaces function
+		$bareDatasets = Get-PowerBIThinModelsFromWorkspaces -Interactive
 		# Then export them all as PBIX files
-		$bareDatasets | Export-PowerBIBareDatasetsFromWorkspaces
+		$bareDatasets | Export-PowerBIThinModelsFromWorkspaces
 
 	.LINK
 		https://github.com/JamesDBartlett3/PowerBits
@@ -105,7 +105,7 @@ Param(
 
 begin {
 	[string]$blankPbixUri = 'https://github.com/JamesDBartlett3/PowerBits/raw/main/Misc/blank.pbix'
-	[string]$tempFolder = Join-Path -Path $env:TEMP -ChildPath 'PowerBIBareDatasets'
+	[string]$tempFolder = Join-Path -Path $env:TEMP -ChildPath 'PowerBIThinModels'
 	[string]$blankPbixTempFile = Join-Path -Path $env:TEMP -ChildPath 'blank.pbix'
 	[string]$pbiApiBaseUri = 'https://api.powerbi.com/v1.0/myorg'
 	[string]$urlRegex = '(http[s]?|[s]?ftp[s]?)(:\/\/)([^\s,]+)'
