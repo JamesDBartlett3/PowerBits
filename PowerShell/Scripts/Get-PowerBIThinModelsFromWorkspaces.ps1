@@ -4,14 +4,14 @@
     Author: @JamesDBartlett3@techhub.social (James D. Bartlett III)
 
   .DESCRIPTION
-    Get all "bare" Power BI Datasets (Datasets without a corresponding report) from selected Workspaces in parallel
+    Get all "Thin" Models (Power BI Semantic Models without a corresponding report) from selected Workspaces in parallel
 
   .PARAMETER ThrottleLimit
     The maximum number of parallel processes to run.
     Defaults to 1.
 
   .PARAMETER Interactive
-    If specified, displays a grid view of Workspaces and allows the user to select which ones to scan for bare Datasets.
+    If specified, displays a grid view of Workspaces and allows the user to select which ones to scan for Thin Models.
 
   .INPUTS
     This function does not accept pipeline input.
@@ -133,13 +133,13 @@ process {
     $_.Name -notIn $ignoreWorkspaces
   } | Select-Object Name, Id | Sort-Object -Property Name
   
-  # If interactive, display a grid view of Workspaces and allow the user to select which ones to scan for bare Datasets
+  # If interactive, display a grid view of Workspaces and allow the user to select which ones to scan for Thin Models
   $workspaces = $Interactive ? ($workspaces | Out-ConsoleGridView -Title 'Select Workspaces to Scan') : $workspaces
   
-  # Declare $hash as a hashset to store unique Dataset IDs (prevents duplicates in the output)
+  # Declare $hash as a hashset to store unique Model IDs (prevents duplicates in the output)
   $hash = [System.Collections.Generic.Hashset[guid]]::New()
   
-  # For each Workspace, find Datasets with no corresponding report and add them to the $bareDatasets array
+  # For each Workspace, find Datasets with no corresponding report and add them to the $thinModels array
   $workspaces | ForEach-Object -ThrottleLimit $ThrottleLimit -Parallel {
   
     # Declare local variables
@@ -147,7 +147,7 @@ process {
     $workspaceId = $_.Id
     
     # Get Datasets from the Workspace
-    $workspaceDatasets = Get-PowerBIDataset -Scope Organization -WorkspaceId $workspaceId -ErrorAction SilentlyContinue |
+    $workspaceModels = Get-PowerBIDataset -Scope Organization -WorkspaceId $workspaceId -ErrorAction SilentlyContinue |
     Where-Object {
       $_.IsRefreshable -eq $true -and
       $_.Name -notIn $ignoreReports
@@ -169,7 +169,7 @@ process {
     } | Sort-Object -Property Name
     
     # For each Dataset, check for any corresponding reports with the same name
-    $workspaceDatasets | ForEach-Object {
+    $workspaceModels | ForEach-Object {
       $datasetProperties = '' | Select-Object DatasetName, DatasetId, WebUrl, IsRefreshable, WorkspaceName, WorkspaceId
       $datasetName, $datasetId, $datasetWebUrl, $datasetIsRefreshable, $datasetWorkspaceName, $datasetWorkspaceId = $null
       $datasetName = $_.Name

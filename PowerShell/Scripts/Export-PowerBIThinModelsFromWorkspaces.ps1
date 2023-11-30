@@ -4,25 +4,25 @@
     Author: @JamesDBartlett3@techhub.social (James D. Bartlett III)
 
   .DESCRIPTION
-    Exports Bare Dataset (Dataset with no corresponding Report) from Power BI as PBIX file
+    Exports "Thin" Model (Power BI Semantic Model with no corresponding Report) from Power BI as PBIX file
 
   .PARAMETER DatasetId
-    The ID of the Dataset to export
+    The ID of the Model to export
 
   .PARAMETER WorkspaceId
-    The ID of the Workspace containing the Dataset to export
+    The ID of the Workspace containing the Model to export
 
   .PARAMETER DatasetName
-    The name of the Dataset to export
+    The name of the Model to export
 
   .PARAMETER WorkspaceName
-    The name of the Workspace containing the Dataset to export
+    The name of the Workspace containing the Model to export
 
   .PARAMETER BlankPbix
-    Path (local or URL) to a blank PBIX file to upload and rebind to the Dataset to be exported
+    Path (local or URL) to a blank PBIX file to upload and rebind to the Model to be exported
 
   .PARAMETER OutFile
-    Local path to save the Dataset PBIX file to
+    Local path to save the Model PBIX file to
 
   .INPUTS
     Selected.System.String (one or more objects with the following property names):
@@ -35,14 +35,14 @@
     This function does not output anything to the pipeline
   
   .EXAMPLE
-    # Export a single Bare Dataset as a PBIX file by specifying the DatasetId, WorkspaceId, BlankPbix, and OutFile parameters
+    # Export a single Thin Model as a PBIX file by specifying the DatasetId, WorkspaceId, BlankPbix, and OutFile parameters
     Export-PowerBIThinModelsFromWorkspaces -DatasetId "00000000-0000-0000-0000-000000000000" -WorkspaceId "00000000-0000-0000-0000-000000000000" -BlankPbix "C:\blank.pbix" -OutFile "C:\new.pbix"
 
   .EXAMPLE 
     # Get a list of Thin Models from the Get-PowerBIThinModelsFromWorkspaces function
-    $bareDatasets = Get-PowerBIThinModelsFromWorkspaces -Interactive
+    $thinModels = Get-PowerBIThinModelsFromWorkspaces -Interactive
     # Then export them all as PBIX files
-    $bareDatasets | Export-PowerBIThinModelsFromWorkspaces
+    $thinModels | Export-PowerBIThinModelsFromWorkspaces
   
   .LINK
     https://github.com/JamesDBartlett3/PowerBits
@@ -62,7 +62,7 @@
       - The user must be allowed to download report PBIX files
         (see: "Download reports" setting in the Power BI Admin Portal).
       - The user must have "Contributor" or higher permissions on the 
-        Workspace(s) where the Bare Dataset(s) to be exported are published.
+        Workspace(s) where the Thin Model(s) to be exported are published.
 
     TODO
       - Error handling and logging
@@ -116,7 +116,7 @@ begin {
   [bool]$defaultFileIsValid = $false
   [bool]$remoteFileIsValid = $false
   [bool]$localFileIsValid = $false
-  [int]$bareDatasetCount = 0
+  [int]$thinModelCount = 0
   [int]$errorCount = 0
   Invoke-Item -Path $tempFolder
 }
@@ -204,7 +204,7 @@ process {
     }
   }
 
-  # If user did not specify a Dataset name, get it from the API
+  # If user did not specify a Model name, get it from the API
   $DatasetName = $DatasetName ?? (Get-PowerBIDataset -Id $DatasetId -WorkspaceId $WorkspaceId).Name
   
   # If user did not specify a Workspace name, get it from the API
@@ -216,7 +216,7 @@ process {
   Write-Debug "Response: $publishResponse"
   $publishedReportId = $publishResponse.Id
   $publishedDatasetId = (Get-PowerBIDataset -WorkspaceId $WorkspaceId | Where-Object { $_.Name -eq $uniqueName }).Id
-  Write-Debug "Published Report ID: $publishedReportId; Published Dataset ID: $publishedDatasetId"
+  Write-Debug "Published Report ID: $publishedReportId; Published Model ID: $publishedDatasetId"
 
   # Assemble the Workspace base URI
   $workspaceBaseUri = "$pbiApiBaseUri/groups/$WorkspaceId"
@@ -234,8 +234,8 @@ process {
   # Add the Content-Type header to the request
   $headers.Add('Content-Type', 'application/json')
 
-  # Rebind the published Report to the Bare Dataset
-  Write-Verbose "Rebinding published Report $publishedReportId to Dataset $DatasetId..."
+  # Rebind the published Report to the Thin Model
+  Write-Verbose "Rebinding published Report $publishedReportId to Model $DatasetId..."
   Invoke-RestMethod -Uri $updateReportContentEndpoint -Method POST -Headers $headers -Body $body | Out-Null
 
   # If the Workspace folder doesn't exist, create it
@@ -243,13 +243,13 @@ process {
     New-Item -Path (Join-Path -Path $tempFolder -ChildPath $WorkspaceName) -ItemType Directory | Out-Null
   }
 
-  # If user did not specify an output file name, use the Dataset's name and save it in the default temp folder
+  # If user did not specify an output file name, use the Model's name and save it in the default temp folder
   $OutFile = if (!!$OutFile) { $OutFile } else {
     Join-Path -Path $tempFolder -ChildPath (Join-Path -Path $WorkspaceName -ChildPath "$($DatasetName).pbix")
   }
 
-  # Export the re-bound Report and Dataset (a.k.a. "Thick Report") PBIX file to a temp file first, then rename it to the correct name (workaround for Datasets with special characters in their names)
-  Write-Verbose "Exporting re-bound blank Report and Dataset (a.k.a. 'Thick Report') $publishedReportId to temporary file $($uniqueName).pbix..."
+  # Export the re-bound Report and Model (a.k.a. "Thick Report") PBIX file to a temp file first, then rename it to the correct name (workaround for Models with special characters in their names)
+  Write-Verbose "Exporting re-bound blank Report and Model (a.k.a. 'Thick Report') $publishedReportId to temporary file $($uniqueName).pbix..."
   $tempFileName = Join-Path -Path $tempFolder -ChildPath "$uniqueName.pbix"
   Invoke-RestMethod -Uri "$exportEndpoint" `
     -Method GET -Headers $headers `
@@ -261,24 +261,24 @@ process {
   if ($message) {
     $errorCount++
     $errorCode = ($message.ErrorRecord.ErrorDetails.Message | ConvertFrom-Json).error.code
-    Write-Error "Error exporting Bare Dataset `"$DatasetName`" from `"$WorkspaceName`"`: $errorCode"
+    Write-Error "Error exporting Thin Model `"$DatasetName`" from `"$WorkspaceName`"`: $errorCode"
   } else {
-    $bareDatasetCount++
-    Write-Verbose "Exported Bare Dataset `"$DatasetName`" from `"$WorkspaceName`" to $tempFileName"
+    $thinModelCount++
+    Write-Verbose "Exported Thin Model `"$DatasetName`" from `"$WorkspaceName`" to $tempFileName"
     Write-Verbose "Moving and renaming temp file $($uniqueName).pbix to $OutFile..."
     Move-Item -Path $tempFileName -Destination $OutFile -Force
   }
   $OutFile = $null
 
-  # Delete the blank Report and its original Dataset from the Workspace
-  Write-Verbose "Deleting temporary blank Dataset $publishedDatasetId and Report $publishedReportId from Workspace $WorkspaceId..."
+  # Delete the blank Report and its original Model from the Workspace
+  Write-Verbose "Deleting temporary blank Model $publishedDatasetId and Report $publishedReportId from Workspace $WorkspaceId..."
   Invoke-RestMethod "$datasetsEndpoint/$publishedDatasetId" -Method DELETE -Headers $headers | Out-Null
   Invoke-RestMethod "$reportsEndpoint/$publishedReportId" -Method DELETE -Headers $headers | Out-Null
   
 }
 
 end {
-  Write-Verbose "Thin Models successfully exported: $bareDatasetCount.$(if($errorCount -gt 0){" Errors encountered: $errorCount"})"
+  Write-Verbose "Thin Models successfully exported: $thinModelCount.$(if($errorCount -gt 0){" Errors encountered: $errorCount"})"
   
   # Remove any empty directories
   Get-ChildItem $tempFolder -Recurse -Attributes Directory | Where-Object { $_.GetFileSystemInfos().Count -eq 0 } | Remove-Item
