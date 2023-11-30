@@ -6,11 +6,13 @@
   .DESCRIPTION
     - Imports modules for the "PowerShell Hacks for Power BI" demo session
 
-  .NOTES
-    - Version: 1.0
-
   .EXAMPLE
     . .\Import-PSHacks4PowerBIModules.ps1
+
+  .NOTES
+    ACKNOWLEDGEMENTS
+      - Thanks to my wife (@likeawednesday@techhub.social) for her support and encouragement.
+      - Thanks to the PowerShell and Power BI/Fabric communities for being so awesome.
 #>
 
 # Pre-emptively import problematic modules
