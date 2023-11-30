@@ -24,7 +24,7 @@ foreach ($module in $ModuleList) {
 		$scriptPath = Join-Path -Path $PSScriptRoot -ChildPath "Scripts/$($function).ps1"
 		Write-Verbose "Function: $function -- Script Path: $scriptPath"
 		$moduleContent += "`nFunction $function {"
-		$moduleContent += (Get-Content -Raw -Path $scriptPath).Replace('#Requires -PSEdition Core', '').Trim() -ne ''
+		$moduleContent += (Get-Content -Raw -Path $scriptPath).Replace('#Requires -PSEdition Core', '').Trim()
 		$moduleContent += "`n}"
 	}
 	# Replace multiple newlines and/or carriage returns with one newline
