@@ -78,6 +78,7 @@
 
     ACKNOWLEDGEMENTS
       - Thanks to my wife (@likeawednesday@techhub.social) for her support and encouragement.
+      - Thanks to the PowerShell and Power BI/Fabric communities for being so awesome.
       - Thanks to @santisq & @seeminglyscience on PowerShell Discord for their guidance on using 
         a process block to enable streaming inputs from the pipeline.
 #>

@@ -1,3 +1,46 @@
+<#
+  .SYNOPSIS
+    Generates PowerShell modules from scripts.
+
+  .DESCRIPTION
+    This script requires:
+      - a file named ModuleList.json in the same directory as itself.
+      - a folder named Scripts in the same directory as itself.
+      - a folder named Modules in the same directory as itself.
+      - one or more PowerShell script files in the Scripts folder, each with the same name as a function listed in the ModuleList.json file.
+
+    The ModuleList.json file should contain an array of objects with the following properties:
+      - name: The name of the module to create
+      - functions: An array of function names to include in the module
+
+    This script will use the ModuleList.json file as a guide to generate one or more modules, each containing one or more functions.
+    The generated modules and the functions they contain will be named according to the ModuleList.json file, and saved in the Modules folder.
+
+    After generating each module, this script will also follow the rules defined in the $formatterSettings variable to format the module's contents
+    using the PSScriptAnalyzer module's Invoke-Formatter cmdlet. This is done to ensure that the generated modules are formatted consistently.
+
+  .LINK
+    [Source code](https://github.com/JamesDBartlett3/PowerBits)
+
+  .LINK
+    [The author's blog](https://datavolume.xyz)
+
+  .LINK
+    [Follow the author on LinkedIn](https://www.linkedin.com/in/jamesdbartlett3/)
+
+  .LINK
+    [Follow the author on Mastodon](https://techhub.social/@JamesDBartlett3)
+
+  .LINK
+    [Follow the author on BlueSky](https://bsky.app/profile/jamesdbartlett3.bsky.social)
+
+  .NOTES
+    ACKNOWLEDGEMENTS
+      - Thanks to my wife (@likeawednesday@techhub.social) for her support and encouragement.
+      - Thanks to the PowerShell and Power BI/Fabric communities for being so awesome.
+#>
+
+
 #Requires -Modules PSScriptAnalyzer
 
 [PSCustomObject]$ModuleList = Get-Content -Path (Join-Path -Path $PSScriptRoot -ChildPath 'ModuleList.json') | ConvertFrom-Json

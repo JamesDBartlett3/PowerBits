@@ -52,6 +52,7 @@ Function Get-PowerBIThinModelsFromWorkspaces {
       - Thanks to @ruiromano on GitHub for his pbiscripts repo (https://github.com/RuiRomano/pbiscripts), 
         which inspired me, and taught me a lot about making Power BI REST API calls from PowerShell. 
         Much of the code in this repo is based on Rui's work.
+      - Thanks to the PowerShell and Power BI/Fabric communities for being so awesome.
 #>
   # PowerShell dependencies
   #Requires -Modules MicrosoftPowerBIMgmt, Microsoft.PowerShell.ConsoleGuiTools
@@ -239,6 +240,7 @@ Function Export-PowerBIThinModelsFromWorkspaces {
       - Testing
     ACKNOWLEDGEMENTS
       - Thanks to my wife (@likeawednesday@techhub.social) for her support and encouragement.
+      - Thanks to the PowerShell and Power BI/Fabric communities for being so awesome.
       - Thanks to @santisq & @seeminglyscience on PowerShell Discord for their guidance on using 
         a process block to enable streaming inputs from the pipeline.
 #>

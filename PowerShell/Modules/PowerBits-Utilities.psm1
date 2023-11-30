@@ -1,6 +1,6 @@
 #Requires -PSEdition Core
 Function Get-ArrayInBatches {
-  # Title: Get-ArrayInBatches.ps1
+  # Title: Get-ArrayInBatches.ps1 
   # Author: @ruiromano on GitHub
   # Source: https://github.com/RuiRomano/pbimonitor
   [CmdletBinding()]
@@ -24,7 +24,7 @@ Function Get-ArrayInBatches {
   while($batchItems.Count -ne 0 -and $batchItems.Count -ge $batchCount)
 }
 Function Wait-On429Error {
-  # Title: Wait-On429Error.ps1
+  # Title: Wait-On429Error.ps1 
   # Author: @ruiromano on GitHub
   # Source: https://github.com/RuiRomano/pbimonitor
   [CmdletBinding()]

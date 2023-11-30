@@ -34,7 +34,7 @@
         MicrosoftPowerBIMgmt module, if it's not already installed).
       - The user must be allowed to download report PBIX files
         (see: "Download reports" setting in the Power BI Admin Portal).
-    
+
     TODO
       - [ValidateScript({Test-Path $_})][string]$path on all file paths
       - Add ability to find and export report-less datasets
@@ -51,6 +51,10 @@
         to improve parallelism performance
       - Add usage, help, and examples
       - [gc]::Collect() to free up memory
+
+      ACKNOWLEDGEMENTS
+      - Thanks to my wife (@likeawednesday@techhub.social) for her support and encouragement.
+      - Thanks to the PowerShell and Power BI/Fabric communities for being so awesome.
 
 #>
 

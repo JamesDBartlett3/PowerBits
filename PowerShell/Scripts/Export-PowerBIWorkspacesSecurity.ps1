@@ -1,3 +1,34 @@
+<#
+  .SYNOPSIS
+    Exports a list of all Power BI workspaces and their members to an Excel file.
+
+  .DESCRIPTION
+    This script exports a list of all Power BI workspaces and their members to an Excel file. 
+    It first authenticates with Power BI using an access token. If the access token is not available, it prompts the user to authenticate with Azure Active Directory.
+    It then retrieves a list of all workspaces in the organization, excluding those that are deleted, not of type "Workspace", orphaned, or listed in the IgnoreList.json file. 
+    The resulting list of workspaces and their members is then exported to an Excel file with a timestamp in the filename. This can be useful for auditing and security purposes.
+
+  .LINK
+    [Source code](https://github.com/JamesDBartlett3/PowerBits)
+
+  .LINK
+    [The author's blog](https://datavolume.xyz)
+
+  .LINK
+    [Follow the author on LinkedIn](https://www.linkedin.com/in/jamesdbartlett3/)
+
+  .LINK
+    [Follow the author on Mastodon](https://techhub.social/@JamesDBartlett3)
+
+  .LINK
+    [Follow the author on BlueSky](https://bsky.app/profile/jamesdbartlett3.bsky.social)
+
+  .NOTES
+    ACKNOWLEDGEMENTS
+      - Thanks to my wife (@likeawednesday@techhub.social) for her support and encouragement.
+      - Thanks to the PowerShell and Power BI/Fabric communities for being so awesome.
+#>
+
 #Requires -PSEdition Core
 #Requires -Modules MicrosoftPowerBIMgmt, ImportExcel
 
@@ -23,8 +54,7 @@ finally {
       $_.State -NE "Deleted" -AND 
       $_.Type -EQ "Workspace" -AND 
       $_.IsOrphaned -EQ $False -AND 
-      $_.Name -NotIn $ignoreWorkspaces -AND
-      $_.Name -NotLike ".*"
+      $_.Name -NotIn $ignoreWorkspaces
     } | Select-Object -Property Id, Name |
     Sort-Object -Property Name -Unique
 

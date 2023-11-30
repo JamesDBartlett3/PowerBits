@@ -62,6 +62,7 @@
       - Thanks to @ruiromano on GitHub for his pbiscripts repo (https://github.com/RuiRomano/pbiscripts), 
         which inspired me, and taught me a lot about making Power BI REST API calls from PowerShell. 
         Much of the code in this repo is based on Rui's work.
+      - Thanks to the PowerShell and Power BI/Fabric communities for being so awesome.
 #>
 
 # PowerShell dependencies

@@ -56,6 +56,7 @@
         And if you're not already using his pbi-tools for Power BI
         version control, you should check it out: https://pbi.tools
       - Thanks to my wife (@likeawednesday@techhub.social) for her support and encouragement.
+      - Thanks to the PowerShell and Power BI/Fabric communities for being so awesome.
 #>
 
 #Requires -PSEdition Core
