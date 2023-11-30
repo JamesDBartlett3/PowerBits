@@ -202,7 +202,7 @@ process {
 }
 
 end {
-  Write-Verbose "Total number of Bare Datasets: $($hash.Count)"
+  Write-Verbose "Total number of Thin Models: $($hash.Count)"
   
   # Clear the PowerShell session's memory
   [gc]::Collect()

@@ -39,7 +39,7 @@
 		Export-PowerBIThinModelsFromWorkspaces -DatasetId "00000000-0000-0000-0000-000000000000" -WorkspaceId "00000000-0000-0000-0000-000000000000" -BlankPbix "C:\blank.pbix" -OutFile "C:\new.pbix"
 	
 	.EXAMPLE 
-		# Get a list of Bare Datasets from the Get-PowerBIThinModelsFromWorkspaces function
+		# Get a list of Thin Models from the Get-PowerBIThinModelsFromWorkspaces function
 		$bareDatasets = Get-PowerBIThinModelsFromWorkspaces -Interactive
 		# Then export them all as PBIX files
 		$bareDatasets | Export-PowerBIThinModelsFromWorkspaces
@@ -277,7 +277,7 @@ process {
 }
 
 end {
-	Write-Verbose "Bare Datasets successfully exported: $bareDatasetCount.$(if($errorCount -gt 0){" Errors encountered: $errorCount"})"
+	Write-Verbose "Thin Models successfully exported: $bareDatasetCount.$(if($errorCount -gt 0){" Errors encountered: $errorCount"})"
 	
 	# Remove any empty directories
 	Get-ChildItem $tempFolder -Recurse -Attributes Directory | Where-Object { $_.GetFileSystemInfos().Count -eq 0 } | Remove-Item
