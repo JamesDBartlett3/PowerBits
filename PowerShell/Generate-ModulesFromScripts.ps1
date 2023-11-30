@@ -27,7 +27,7 @@ foreach ($module in $ModuleList) {
     $moduleContent += (Get-Content -Raw -Path $scriptPath).Replace('#Requires -PSEdition Core', '')
     $moduleContent += "`n}"
   }
-  # Replace multiple newlines and/or carriage returns with one newline, then remove whitespace from empty lines
-  $moduleContent = $moduleContent.Replace("`r+", "`n").Replace("`n+", "`n") -Replace "`n\s+`n", "`n"
+  # Replace multiple newlines and/or carriage returns with one newline, then remove any lines that only contain whitespace
+  $moduleContent = $moduleContent -Replace "`r+", "`n" -Replace "`n+", "`n" -Replace "`n\s+`n", "`n"
   Invoke-Formatter -ScriptDefinition $moduleContent -Settings $formatterSettings | Set-Content -Path $modulePath -Force
 }

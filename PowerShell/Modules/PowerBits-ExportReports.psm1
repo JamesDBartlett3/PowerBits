@@ -1,52 +1,52 @@
 #Requires -PSEdition Core
 Function Copy-PowerBIReportContentToBlankPBIXFile {
   <#
-.SYNOPSIS
-Function: Copy-PowerBIReportContentToBlankPBIXFile
-Author: @JamesDBartlett3@techhub.social (James D. Bartlett III)
-.DESCRIPTION
-- This script will copy the contents of a published Power BI 
-report into a new report published from a blank PBIX 
-- This solves the problem where a Power BI report originally 
-created in the web browser cannot be downloaded from the 
-Power BI service as a PBIX file.
-.PARAMETER SourceReportId 
-The ID of the report to copy from
-.PARAMETER SourceWorkspaceId
-The ID of the workspace to copy from
-.PARAMETER TargetReportId
-The ID of the report to copy to
-.PARAMETER TargetWorkspaceId
-The ID of the workspace to copy to
-.PARAMETER BlankPbix 
-Local path (or URL) to a blank PBIX file to upload and copy the source report's contents into
-.PARAMETER OutFile 
-Local path to save the new PBIX file to
-.EXAMPLE
-Copy-PowerBIReportContentToBlankPBIXFile -SourceReportId "12345678-1234-1234-1234-123456789012" -SourceWorkspaceId "12345678-1234-1234-1234-123456789012" -TargetReportId "12345678-1234-1234-1234-123456789012" -TargetWorkspaceId "12345678-1234-1234-1234-123456789012"
-.NOTES
-This function does NOT require Azure AD app registration, 
-service principal creation, or any other special setup.
-The only requirements are:
-- The user must be able to run PowerShell (and install the
-MicrosoftPowerBIMgmt module, if it's not already installed).
-- The user must be allowed to download report PBIX files
-(see: "Download reports" setting in the Power BI Admin Portal).
-- The user must have "Contributor" or higher permissions 
-on the source and target workspace(s).
-TODO
-- [ValidateScript({Test-Path $_})][string]$path on all file paths
-- Testing
-- Add usage, help, and examples.
-- Rename the function to something more accurate to its current capabilities.
-- [gc]::Collect() to free up memory
-ACKNOWLEDGEMENTS
-- This PS function was inspired by a blog article written by 
-one of the top minds in the Power BI space, Mathias Thierbach.
-Check out his article here: https://bit.ly/37ofVou
-And if you're not already using his pbi-tools for Power BI
-version control, you should check it out: https://pbi.tools
-- Thanks to my wife (@likeawednesday@techhub.social) for her support and encouragement.
+  .SYNOPSIS
+    Function: Copy-PowerBIReportContentToBlankPBIXFile
+    Author: @JamesDBartlett3@techhub.social (James D. Bartlett III)
+  .DESCRIPTION
+    - This script will copy the contents of a published Power BI 
+      report into a new report published from a blank PBIX 
+    - This solves the problem where a Power BI report originally 
+      created in the web browser cannot be downloaded from the 
+      Power BI service as a PBIX file.
+  .PARAMETER SourceReportId 
+    The ID of the report to copy from
+  .PARAMETER SourceWorkspaceId
+    The ID of the workspace to copy from
+  .PARAMETER TargetReportId
+    The ID of the report to copy to
+  .PARAMETER TargetWorkspaceId
+    The ID of the workspace to copy to
+  .PARAMETER BlankPbix 
+    Local path (or URL) to a blank PBIX file to upload and copy the source report's contents into
+  .PARAMETER OutFile 
+    Local path to save the new PBIX file to
+  .EXAMPLE
+    Copy-PowerBIReportContentToBlankPBIXFile -SourceReportId "12345678-1234-1234-1234-123456789012" -SourceWorkspaceId "12345678-1234-1234-1234-123456789012" -TargetReportId "12345678-1234-1234-1234-123456789012" -TargetWorkspaceId "12345678-1234-1234-1234-123456789012"
+  .NOTES
+    This function does NOT require Azure AD app registration, 
+    service principal creation, or any other special setup.
+    The only requirements are:
+      - The user must be able to run PowerShell (and install the
+        MicrosoftPowerBIMgmt module, if it's not already installed).
+      - The user must be allowed to download report PBIX files
+        (see: "Download reports" setting in the Power BI Admin Portal).
+      - The user must have "Contributor" or higher permissions 
+        on the source and target workspace(s).
+    TODO
+      - [ValidateScript({Test-Path $_})][string]$path on all file paths
+      - Testing
+      - Add usage, help, and examples.
+      - Rename the function to something more accurate to its current capabilities.
+      - [gc]::Collect() to free up memory
+    ACKNOWLEDGEMENTS
+      - This PS function was inspired by a blog article written by 
+        one of the top minds in the Power BI space, Mathias Thierbach.
+        Check out his article here: https://bit.ly/37ofVou
+        And if you're not already using his pbi-tools for Power BI
+        version control, you should check it out: https://pbi.tools
+      - Thanks to my wife (@likeawednesday@techhub.social) for her support and encouragement.
 #>
   #Requires -Modules MicrosoftPowerBIMgmt
   [CmdletBinding()]
@@ -138,13 +138,13 @@ version control, you should check it out: https://pbi.tools
     # Assemble the UpdateReportContent API URI and request body
     $updateReportContentEndpoint = "$pbiApiBaseUri/groups/$TargetWorkspaceId/reports/$TargetReportId/UpdateReportContent"
     $body = @"
-{
-"sourceReport": {
-"sourceReportId": "$SourceReportId",
-"sourceWorkspaceId": "$SourceWorkspaceId"
-},
-"sourceType": "ExistingReport"
-}
+    {
+      "sourceReport": {
+        "sourceReportId": "$SourceReportId",
+        "sourceWorkspaceId": "$SourceWorkspaceId"
+      },
+      "sourceType": "ExistingReport"
+    }
 "@
     # Update the target report with the source report's content
     $headers.Add('Content-Type', 'application/json')
@@ -162,50 +162,50 @@ version control, you should check it out: https://pbi.tools
 }
 Function Export-PowerBIReportsFromWorkspaces {
   <#
-.SYNOPSIS
-Function: Export-PowerBIReportsFromWorkspaces
-Author: @JamesDBartlett3@techhub.social (James D. Bartlett III)
-.DESCRIPTION
-Export Power BI reports from multiple workspaces in parallel
-.EXAMPLE
-Export-PowerBIReportsFromWorkspaces -OutputFolder C:\Reports -ExtractWithPbiTools -SkipExistingFiles -ThrottleLimit 10
-.PARAMETER OutputFolder
-The folder where the reports will be saved. If the folder does
-not exist, it will be created.
-.PARAMETER ExtractWithPbiTools
-If specified, exported PBIX reports will be extracted with 
-pbi-tools after they are exported. Requires pbi-tools to be
-installed. See: https://pbi.tools
-.PARAMETER SkipExistingFiles
-If specified, existing files will be skipped. If not specified,
-existing files will be overwritten.
-.PARAMETER ThrottleLimit
-The maximum number of reports that will be exported in parallel.
-Defaults to 1.
-.NOTES
-This function does NOT require Azure AD app registration, 
-service principal creation, or any other special setup.
-The only requirements are:
-- The user must be able to run PowerShell (and install the
-MicrosoftPowerBIMgmt module, if it's not already installed).
-- The user must be allowed to download report PBIX files
-(see: "Download reports" setting in the Power BI Admin Portal).
-TODO
-- [ValidateScript({Test-Path $_})][string]$path on all file paths
-- Add ability to find and export report-less datasets
-- Fix bug where reports with illegal characters in name cannot be extracted
-- Add $workspacesToExport parameter to allow user to specify
-which workspaces to export from.
-- This would require a change to the Get-PowerBIWorkspace
-function to allow filtering by workspace name.
-- Add dynamic rate limiting to avoid throttling
-- Use pbimonitor scripts for inspiration
-- https://github.com/RuiRomano/pbiscripts/blob/main/Workspace-TenantScan.ps1
-- Add logic to spread parallelism over multiple workspaces
-- Experiment with using classes (https://bit.ly/3glYGZf)
-to improve parallelism performance
-- Add usage, help, and examples
-- [gc]::Collect() to free up memory
+  .SYNOPSIS
+    Function: Export-PowerBIReportsFromWorkspaces
+    Author: @JamesDBartlett3@techhub.social (James D. Bartlett III)
+  .DESCRIPTION
+    Export Power BI reports from multiple workspaces in parallel
+  .EXAMPLE
+    Export-PowerBIReportsFromWorkspaces -OutputFolder C:\Reports -ExtractWithPbiTools -SkipExistingFiles -ThrottleLimit 10
+  .PARAMETER OutputFolder
+    The folder where the reports will be saved. If the folder does
+    not exist, it will be created.
+  .PARAMETER ExtractWithPbiTools
+    If specified, exported PBIX reports will be extracted with 
+    pbi-tools after they are exported. Requires pbi-tools to be
+    installed. See: https://pbi.tools
+  .PARAMETER SkipExistingFiles
+    If specified, existing files will be skipped. If not specified,
+    existing files will be overwritten.
+  .PARAMETER ThrottleLimit
+    The maximum number of reports that will be exported in parallel.
+    Defaults to 1.
+  .NOTES
+    This function does NOT require Azure AD app registration, 
+    service principal creation, or any other special setup.
+    The only requirements are:
+      - The user must be able to run PowerShell (and install the
+        MicrosoftPowerBIMgmt module, if it's not already installed).
+      - The user must be allowed to download report PBIX files
+        (see: "Download reports" setting in the Power BI Admin Portal).
+    TODO
+      - [ValidateScript({Test-Path $_})][string]$path on all file paths
+      - Add ability to find and export report-less datasets
+      - Fix bug where reports with illegal characters in name cannot be extracted
+      - Add $workspacesToExport parameter to allow user to specify
+        which workspaces to export from.
+        - This would require a change to the Get-PowerBIWorkspace
+          function to allow filtering by workspace name.
+      - Add dynamic rate limiting to avoid throttling
+        - Use pbimonitor scripts for inspiration
+        - https://github.com/RuiRomano/pbiscripts/blob/main/Workspace-TenantScan.ps1
+      - Add logic to spread parallelism over multiple workspaces
+      - Experiment with using classes (https://bit.ly/3glYGZf)
+        to improve parallelism performance
+      - Add usage, help, and examples
+      - [gc]::Collect() to free up memory
 #>
   #Requires -Modules MicrosoftPowerBIMgmt, Microsoft.PowerShell.ConsoleGuiTools
   [CmdletBinding()]

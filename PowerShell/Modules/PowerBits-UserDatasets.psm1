@@ -1,29 +1,29 @@
 #Requires -PSEdition Core
 Function Get-UserDatasets {
   <#
-.SYNOPSIS
-Function: Get-UserDatasets
-Author: @JamesDBartlett3@techhub.social (James D. Bartlett III)
-.DESCRIPTION
-Get a list of all Power BI datasets marked as "configured by" a given user
-.PARAMETER UserEmail
-Email address of the user
-.EXAMPLE
-Get-UserDatasets user@domain.tld
-.OUTPUTS
-List of dataset IDs
-.NOTES
-This function does NOT require Azure AD app registration, 
-service principal creation, or any other special setup.
-The only requirements are:
-- The user must be able to run PowerShell (and install the
-MicrosoftPowerBIMgmt module, if it's not already installed).
-- The user must have permissions to access the workspace(s)
-in the Power BI service.
-TODO
-- Re-implement token logic
-- Testing
-#>
+  .SYNOPSIS
+    Function: Get-UserDatasets
+    Author: @JamesDBartlett3@techhub.social (James D. Bartlett III)
+  .DESCRIPTION
+    Get a list of all Power BI datasets marked as "configured by" a given user
+  .PARAMETER UserEmail
+    Email address of the user
+  .EXAMPLE
+    Get-UserDatasets user@domain.tld
+  .OUTPUTS
+    List of dataset IDs
+  .NOTES
+    This function does NOT require Azure AD app registration, 
+    service principal creation, or any other special setup.
+    The only requirements are:
+      - The user must be able to run PowerShell (and install the
+        MicrosoftPowerBIMgmt module, if it's not already installed).
+      - The user must have permissions to access the workspace(s)
+        in the Power BI service.
+    TODO
+      - Re-implement token logic
+      - Testing
+  #>
   #Requires -Modules MicrosoftPowerBIMgmt
   Param(
     [parameter(Mandatory = $true)][string]$UserEmail
@@ -49,29 +49,29 @@ TODO
 }
 Function Join-UserDatasetsWithWorkspaces {
   <#
-.SYNOPSIS
-Function: Join-UserDatasetsWithWorkspaces
-Author: @JamesDBartlett3@techhub.social (James D. Bartlett III)
-.DESCRIPTION
-- Audit the security settings of Power BI Workspaces
-.PARAMETER DatasetList
-- list of dataset IDs -- set to output from Get-UserDatasets
-.OUTPUTS
-- Table with two columns: DatasetId and WorkspaceId
-.EXAMPLE
-Join-UserDatasetsWithWorkspaces $DatasetList
-.NOTES
-This function does NOT require Azure AD app registration, 
-service principal creation, or any other special setup.
-The only requirements are:
-- The user must be able to run PowerShell (and install the
-MicrosoftPowerBIMgmt module, if it's not already installed).
-- The user must have permissions to access the workspace(s)
-in the Power BI service.
-TODO
-- Add process block to enable pipeline input
-- Re-implement token logic
-#>
+  .SYNOPSIS
+    Function: Join-UserDatasetsWithWorkspaces
+    Author: @JamesDBartlett3@techhub.social (James D. Bartlett III)
+  .DESCRIPTION
+    - Audit the security settings of Power BI Workspaces
+  .PARAMETER DatasetList
+    - list of dataset IDs -- set to output from Get-UserDatasets
+  .OUTPUTS
+    - Table with two columns: DatasetId and WorkspaceId
+  .EXAMPLE
+    Join-UserDatasetsWithWorkspaces $DatasetList
+  .NOTES
+    This function does NOT require Azure AD app registration, 
+    service principal creation, or any other special setup.
+    The only requirements are:
+      - The user must be able to run PowerShell (and install the
+        MicrosoftPowerBIMgmt module, if it's not already installed).
+      - The user must have permissions to access the workspace(s)
+        in the Power BI service.
+    TODO
+      - Add process block to enable pipeline input
+      - Re-implement token logic
+  #>
   #Requires -Modules MicrosoftPowerBIMgmt
   Param(
     [parameter(Mandatory = $true, ValueFromPipeline = $true)]$DatasetList
@@ -107,29 +107,29 @@ TODO
 }
 Function Update-UserDatasetsOwner {
   <#
-.SYNOPSIS
-Function: Update-UserDatasetsOwner
-Author: @JamesDBartlett3@techhub.social (James D. Bartlett III)
-.DESCRIPTION
-Take over a Power BI dataset that is currently configured by another user
-.PARAMETER DatasetWorkspaceTable
-Table with two columns: DatasetId and WorkspaceId -- set to output from Join-UserDatasetsWithWorkspaces
-.EXAMPLE
-Update-UserDatasetsOwner -DatasetWorkspaceTable $DatasetWorkspaceTable
-.OUTPUTS
-Nothing, if everything goes right ;-)
-.NOTES
-This function does NOT require Azure AD app registration, 
-service principal creation, or any other special setup.
-The only requirements are:
-- The user must be able to run PowerShell (and install the
-MicrosoftPowerBIMgmt module, if it's not already installed).
-- The user must have permissions to access the workspace(s)
-in the Power BI service.
-TODO
-- Write as function
-- Re-implement token logic
-- Testing
+  .SYNOPSIS
+    Function: Update-UserDatasetsOwner
+    Author: @JamesDBartlett3@techhub.social (James D. Bartlett III)
+  .DESCRIPTION
+    Take over a Power BI dataset that is currently configured by another user
+  .PARAMETER DatasetWorkspaceTable
+    Table with two columns: DatasetId and WorkspaceId -- set to output from Join-UserDatasetsWithWorkspaces
+  .EXAMPLE
+    Update-UserDatasetsOwner -DatasetWorkspaceTable $DatasetWorkspaceTable
+  .OUTPUTS
+    Nothing, if everything goes right ;-)
+  .NOTES
+    This function does NOT require Azure AD app registration, 
+    service principal creation, or any other special setup.
+    The only requirements are:
+      - The user must be able to run PowerShell (and install the
+        MicrosoftPowerBIMgmt module, if it's not already installed).
+      - The user must have permissions to access the workspace(s)
+        in the Power BI service.
+    TODO
+      - Write as function
+      - Re-implement token logic
+      - Testing
 #>
   #Requires -Modules MicrosoftPowerBIMgmt
   Param(
