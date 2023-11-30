@@ -2,20 +2,20 @@
   .SYNOPSIS
     Function: Get-PowerBIThinModelsFromWorkspaces
     Author: @JamesDBartlett3@techhub.social (James D. Bartlett III)
-  
+
   .DESCRIPTION
     Get all "bare" Power BI Datasets (Datasets without a corresponding report) from selected Workspaces in parallel
-  
+
   .PARAMETER ThrottleLimit
     The maximum number of parallel processes to run.
     Defaults to 1.
-  
+
   .PARAMETER Interactive
     If specified, displays a grid view of Workspaces and allows the user to select which ones to scan for bare Datasets.
-  
+
   .INPUTS
     This function does not accept pipeline input.
-  
+
   .OUTPUTS
     Selected.System.String (one or more objects with the following properties):
       - DatasetName
@@ -24,26 +24,26 @@
       - IsRefreshable
       - WorkspaceName
       - WorkspaceId
-  
+
   .EXAMPLE
     Get-PowerBIThinModelsFromWorkspaces -Interactive -ThrottleLimit 4
-  
+
   .LINK
     https://github.com/JamesDBartlett3/PowerBits
-  
+
   .LINK
     https://techhub.social/@JamesDBartlett3
-  
+
   .LINK
     https://datavolume.xyz
-  
+
   .NOTES
     This function does NOT require Azure AD app registration, 
     service principal creation, or any other special setup.
     The only requirements are:
       - The user must be able to run PowerShell (and install the
         MicrosoftPowerBIMgmt module, if it's not already installed).
-  
+
     TODO
       - Separate verbose and debug outputs
       - HelpMessage on all parameters (https://youtu.be/UnjKVanzIOk)
@@ -54,7 +54,7 @@
       - Service Principal authentication
       - [gc]::Collect() to free up memory
       - Testing
-  
+
     ACKNOWLEDGEMENTS
       - Thanks to my wife (@likeawednesday@techhub.social) for her support and encouragement.
       - Thanks to @santisq & @seeminglyscience on PowerShell Discord for their guidance on using 
@@ -62,7 +62,7 @@
       - Thanks to @ruiromano on GitHub for his pbiscripts repo (https://github.com/RuiRomano/pbiscripts), 
         which inspired me, and taught me a lot about making Power BI REST API calls from PowerShell. 
         Much of the code in this repo is based on Rui's work.
-  #>
+#>
 
 # PowerShell dependencies
 #Requires -PSEdition Core
