@@ -27,6 +27,6 @@ foreach ($module in $ModuleList) {
 		$moduleContent += (Get-Content -Raw -Path $scriptPath).Replace('#Requires -PSEdition Core', '')
 		$moduleContent += "`n}"
 	}
-	$moduleContent = $moduleContent.Replace("`r+", "`n").Replace("`n+", "`n") -Replace "`n\s+", "`n" -Replace "`n\t+", "`n"
+	$moduleContent = $moduleContent.Replace("`r+", "`n").Replace("`n+", "`n") -Replace "`n\s+", "`n"
 	Invoke-Formatter -ScriptDefinition $moduleContent -Settings $formatterSettings | Set-Content -Path $modulePath -Force
 }
