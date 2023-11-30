@@ -8,6 +8,6 @@ exit $LASTEXITCODE
 Contents of pre-commit file in .git/hooks folder:
 #!/bin/sh
 echo 
-exec pwsh.exe -ExecutionPolicy RemoteSigned -File '.\pre-commit.ps1'
+exec pwsh.exe -ExecutionPolicy Bypass -File '.\pre-commit.ps1'
 exit
 #>
