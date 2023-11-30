@@ -24,10 +24,10 @@ foreach ($module in $ModuleList) {
 		$scriptPath = Join-Path -Path $PSScriptRoot -ChildPath "Scripts/$($function).ps1"
 		Write-Verbose "Function: $function -- Script Path: $scriptPath"
 		$moduleContent += "`nFunction $function {"
-		$moduleContent += (Get-Content -Raw -Path $scriptPath).Replace('#Requires -PSEdition Core', '')
+		$moduleContent += (Get-Content -Raw -Path $scriptPath).Replace('#Requires -PSEdition Core', '').Trim() -ne ''
 		$moduleContent += "`n}"
 	}
-	# Replace multiple newlines and/or carriage returns with one newline, then remove whitespace from empty lines
-	$moduleContent = $moduleContent.Replace("`r+", "`n").Replace("`n+", "`n") -Replace "`n\s+`n", "`n" -Replace "`n\t+`n", "`n"
+	# Replace multiple newlines and/or carriage returns with one newline
+	# $moduleContent = $moduleContent.Replace("`r+", "`n").Replace("`n+", "`n") -Replace "`n\s+`n", "`n" -Replace "`n\t+`n", "`n"
 	Invoke-Formatter -ScriptDefinition $moduleContent -Settings $formatterSettings | Set-Content -Path $modulePath -Force
 }
