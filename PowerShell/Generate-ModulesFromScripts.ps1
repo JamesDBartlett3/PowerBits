@@ -43,8 +43,7 @@
 
 #Requires -Modules PSScriptAnalyzer
 
-[PSCustomObject]$ModuleList = Get-Content -Path (Join-Path -Path $PSScriptRoot -ChildPath 'ModuleList.json') | ConvertFrom-Json
-
+# Define the settings to use when formatting the generated modules
 $formatterSettings = @{
   IncludeRules = @('PSPlaceOpenBrace', 'PSUseConsistentIndentation')
   Rules        = @{
@@ -59,7 +58,21 @@ $formatterSettings = @{
   }
 }
 
-foreach ($module in $ModuleList) {
+# Create a PSCustomObject from the ModuleList.json file
+[PSCustomObject]$ModuleList = Get-Content -Path (Join-Path -Path $PSScriptRoot -ChildPath 'ModuleList.json') | ConvertFrom-Json
+
+# Get a list of all scripts in the Scripts folder which have been changed since the last commit
+$changedScriptNames = (git diff --name-only).ForEach({Split-Path -Leaf $_}).Replace(".ps1","")
+
+# Add a property to each module object to indicate whether it should be updated
+# based on whether any of its functions have changed since the last commit
+$ModuleList.ForEach({
+  $_ | Add-Member -NotePropertyName "update" -NotePropertyValue $_.functions.ForEach({
+    $_ -in $changedScriptNames
+  }).Contains($true)
+})
+
+foreach ($module in ($ModuleList | Where-Object update)) {
   $modulePath = Join-Path -Path $PSScriptRoot -ChildPath "Modules/$($module.name).psm1"
   Write-Verbose "Module Name: $($module.name) -- Path: $modulePath"
   $moduleContent = '#Requires -PSEdition Core'
