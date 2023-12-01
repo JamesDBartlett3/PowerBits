@@ -5,7 +5,7 @@
 
   .DESCRIPTION
     This script will get all available data from the Power BI Scanner API and write it to a JSON file.
-  
+
   .INPUTS
     - Parameters are currently the only way to pass input to this script
     - Pipeline inputs are not yet supported
