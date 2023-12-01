@@ -3,6 +3,8 @@
 # Original author: 	Craig Porteous @cporteous
 # Synopsis: List out all SSRS (native mode) folders and their security policies, then output dataset to Excel or CSV file
 #
+# TODO FIRST: Refactor to use ReportingServicesTools module and add support for PowerShell Core
+# ---------------------------------------------------------------------------------------------------------------------------------
 # TODO: The inheritance logic currently only checks if the GroupUserName matches. Need to also check if the roles match.
 # TODO: Add item-level permissions to the output
 # TODO: Add activity check to see if the user/group has accessed the folder in the last X days
