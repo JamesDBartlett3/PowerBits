@@ -167,7 +167,7 @@ process {
     }, @{
       Name = 'WorkspaceId'; Expression = { $workspaceId }
     } | Sort-Object -Property Name
-    
+
     # For each Dataset, check for any corresponding reports with the same name
     $workspaceModels | ForEach-Object {
       $datasetProperties = '' | Select-Object DatasetName, DatasetId, WebUrl, IsRefreshable, WorkspaceName, WorkspaceId
