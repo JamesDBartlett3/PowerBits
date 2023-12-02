@@ -27,7 +27,7 @@
     TODO
       - Add process block to enable pipeline input
       - Re-implement token logic
-    
+
     ACKNOWLEDGEMENTS
       - Thanks to my wife (@likeawednesday@techhub.social) for her support and encouragement.
       - Thanks to the PowerShell and Power BI/Fabric communities for being so awesome.
