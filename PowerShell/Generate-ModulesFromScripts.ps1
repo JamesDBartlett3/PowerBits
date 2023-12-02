@@ -42,7 +42,6 @@
       - Thanks to the PowerShell and Power BI/Fabric communities for being so awesome.
 #>
 
-
 #Requires -Modules PSScriptAnalyzer
 
 # Define the settings to use when formatting the generated modules
@@ -63,14 +62,14 @@ $formatterSettings = @{
 # Create a PSCustomObject from the ModuleList.json file
 [PSCustomObject]$ModuleList = Get-Content -Path (Join-Path -Path $PSScriptRoot -ChildPath 'ModuleList.json') | ConvertFrom-Json
 
-# Get a list of all scripts in the Scripts folder with staged changes
-$changedScriptNames = (git diff --cached --name-only).ForEach({Split-Path -Leaf $_}).Replace(".ps1","")
+# Get a list of all files with staged changes
+$stagedFiles = (git diff --cached --name-only).ForEach({Split-Path -Leaf $_}).ForEach({[system.io.path]::GetFileNameWithoutExtension($_)})
 
 # Add a property to each module object to indicate whether it should be updated
 # based on whether any of its functions have changed since the last commit
 $ModuleList.ForEach({
   $_ | Add-Member -NotePropertyName "update" -NotePropertyValue $_.functions.ForEach({
-    $_ -in $changedScriptNames
+    $_ -in $stagedFiles
   }).Contains($true)
 })
 
