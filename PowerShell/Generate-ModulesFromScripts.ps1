@@ -63,7 +63,7 @@ $formatterSettings = @{
 [PSCustomObject]$ModuleList = Get-Content -Path (Join-Path -Path $PSScriptRoot -ChildPath 'ModuleList.json') | ConvertFrom-Json
 
 # Get a list of all files with staged changes
-$stagedFiles = (git diff --name-only).ForEach({[system.io.path]::GetFileNameWithoutExtension($_)})
+$stagedFiles = (git diff --cached --name-only).ForEach({[system.io.path]::GetFileNameWithoutExtension($_)})
 
 # Add a property to each module object to indicate whether it should be updated
 # based on whether any of its functions have changed since the last commit
