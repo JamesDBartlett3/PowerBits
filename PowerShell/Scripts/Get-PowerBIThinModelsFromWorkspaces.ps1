@@ -120,7 +120,7 @@ process {
 
   # Get the user's UPN or Object ID, depending on whether the user is a service principal or not
   $pbiUserIdentifier = $servicePrincipalId ? $tokenPayload.oid : $tokenPayload.upn
-    
+
   # If debugging, display the access token and user identifier
   Write-Debug "Headers: `n $($headers.Keys)`n $($headers.Values)`n"
   Write-Debug "User Identifier: `n $pbiUserIdentifier"
