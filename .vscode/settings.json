@@ -1,4 +1,4 @@
 {
 	"powershell.integratedConsole.showOnStartup": false,
-	"editor.insertSpaces": false
+	"editor.insertSpaces": true
 }
