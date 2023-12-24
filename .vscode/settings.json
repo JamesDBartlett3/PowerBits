@@ -1,4 +1,6 @@
 {
-	"powershell.integratedConsole.showOnStartup": false,
-	"editor.insertSpaces": true
+  "powershell.integratedConsole.showOnStartup": false,
+  "editor.tabSize": 2,
+  "editor.detectIndentation": false,
+  "editor.insertSpaces": true
 }
