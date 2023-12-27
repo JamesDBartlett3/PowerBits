@@ -18,14 +18,14 @@
 
 [CmdletBinding()]
 param (
-  [Parameter(Mandatory)][string]$ReportServerName,
-  [Parameter(Mandatory)][string]$ReportServerPort,
-  [Parameter()][string]$OutputDirectory = $PSScriptRoot,
+  [Parameter(Mandatory)][string]$ServerName,
+  [Parameter(Mandatory)][int]$ServerPort,
+  [Parameter()][string]$OutputDirectory = (Get-Location),
   [Parameter()][string]$OutputFileNamePrefix = "ReportServer_SecurityAudit",
   [Parameter()][ValidateSet("Excel","CSV")][string]$OutputFileFormat = "Excel",
   [Parameter()][boolean]$InheritParent = $true,
   [Parameter()][boolean]$IncludeADCheck = $true,
-  [Parameter()][string]$SSRSroot = "/"
+  [Parameter()][string]$RsRoot = "/"
 )
 
 $CurrentPSVersion = [Version]::new($PSVersionTable.PSVersion.Major, $PSVersionTable.PSVersion.Minor)
@@ -69,9 +69,9 @@ if ($IncludeADCheck) {
   }
 }
 
-$currentDate = Get-Date -UFormat "%Y%m%d_%H%M%S"
-$OutputFilePath = Join-Path -Path $OutputDirectory -ChildPath ($OutputFileNamePrefix + "_-_" + $ReportServerName + "_" + $currentDate)
-$ReportServerUri = "https://" + $ReportServerName + ":" + $ReportServerPort + "/ReportServer/ReportService2010.asmx?wsdl"
+$currentDate = Get-Date -Format 'yyyyMMdd_HHmmss'
+$OutputFilePath = Join-Path -Path $OutputDirectory -ChildPath ($OutputFileNamePrefix + "_" + $ServerName + "_" + $currentDate)
+$ReportServerUri = "https://$($ServerName):$($ServerPort)/ReportServer/ReportService2010.asmx?wsdl"
 $rsPerms = @()
 $rsResult = @()
 $Separator = ""
@@ -80,7 +80,7 @@ $Separator = ""
 $rsProxy = New-WebServiceProxy -Uri $ReportServerUri -UseDefaultCredential
 
 # List out all subfolders under the parent directory and Select their "Path"
-$folderList = $rsProxy.ListChildren($SSRSroot, $true) | Where-Object {$_.TypeName -EQ "Folder"}
+$folderList = $rsProxy.ListChildren($RsRoot, $true) | Where-Object {$_.TypeName -EQ "Folder"}
 
 # Iterate through every folder 
 foreach($folder in $folderList) {
