@@ -191,5 +191,4 @@ try {
   
   # Delete the target dataset and report from the target workspace
   Invoke-RestMethod "$datasetsEndpoint/$($response.datasetId)" -Method DELETE -Headers $headers
-  
 }

@@ -2,36 +2,36 @@
   .SYNOPSIS
     Title: Export-PowerBIScannerApiData
     Author: James D. Bartlett III
-
+  
   .DESCRIPTION
     This script will get all available data from the Power BI Scanner API and write it to a JSON file.
-
+  
   .INPUTS
     - Parameters are currently the only way to pass input to this script
     - Pipeline inputs are not yet supported
-
+  
   .OUTPUTS
     - A .json file containing all available data from the Power BI Scanner API
     - Pipeline outputs are not yet supported
-
+  
   .PARAMETER OutFile
     The destination path for the JSON file. Defaults to "~\Downloads\PowerBIScannerApiData_{timestamp}.json"
-
+  
   .PARAMETER OpenFile
     Specify to open the JSON file in the default application after it's created.
-
+  
   .EXAMPLE
     .\Export-PowerBIScannerApiData.ps1 -OutFile "C:\temp\MyPowerBIScannerApiData.json"
     # Export data to "C:\temp\MyPowerBIScannerApiData.json"
-
+  
   .EXAMPLE
     .\Export-PowerBIScannerApiData.ps1 -OpenFile
     # Export data to the default location ("~\Downloads\PowerBIScannerApiData_{timestamp}.json")
     # and open the file in the system's default .json file handler/editor
-
+  
   .LINK
     [Source code](https://github.com/JamesDBartlett3/PowerBits)
-
+  
   .LINK
     [The author's blog](https://datavolume.xyz)
     
@@ -40,19 +40,19 @@
   
   .LINK
     [Follow the author on Mastodon](https://techhub.social/@JamesDBartlett3)
-
+  
   .LINK
     [Follow the author on BlueSky](https://bsky.app/profile/jamesdbartlett3.bsky.social)
-
+  
   .NOTES
     - Requires the Power BI Management module: https://docs.microsoft.com/en-us/powershell/power-bi/overview?view=powerbi-ps
     - Requires the Power BI Scanner API to be enabled: https://learn.microsoft.com/en-us/power-bi/enterprise/service-admin-metadata-scanning#enabling-enhanced-metadata-scanning
     - Currently only works with workspaces that have been modified in the last 30 days
     - Tenants with a lot of workspaces may not work properly due to API rate limits
-
+  
     TODO:
       - Add parameters for all available API options
-
+    
     ACKNOWLEDGEMENTS
       - Thanks to my wife (@likeawednesday@techhub.social) for her support and encouragement.
       - Thanks to the PowerShell and Power BI/Fabric communities for being so awesome.

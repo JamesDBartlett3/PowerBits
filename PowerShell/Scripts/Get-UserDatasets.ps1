@@ -2,19 +2,19 @@
   .SYNOPSIS
     Function: Get-UserDatasets
     Author: @JamesDBartlett3@techhub.social (James D. Bartlett III)
-
+  
   .DESCRIPTION
     Get a list of all Power BI datasets marked as "configured by" a given user
-
+  
   .PARAMETER UserEmail
     Email address of the user
-
+  
   .EXAMPLE
     Get-UserDatasets user@domain.tld
-
+  
   .OUTPUTS
     List of dataset IDs
-
+  
   .NOTES
     This function does NOT require Azure AD app registration, 
     service principal creation, or any other special setup.
@@ -23,11 +23,11 @@
         MicrosoftPowerBIMgmt module, if it's not already installed).
       - The user must have permissions to access the workspace(s)
         in the Power BI service.
-
+      
     TODO
       - Re-implement token logic
       - Testing
-
+    
     ACKNOWLEDGEMENTS
       - Thanks to my wife (@likeawednesday@techhub.social) for her support and encouragement.
       - Thanks to the PowerShell and Power BI/Fabric communities for being so awesome.

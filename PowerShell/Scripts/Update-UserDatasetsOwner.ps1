@@ -2,19 +2,19 @@
   .SYNOPSIS
     Function: Update-UserDatasetsOwner
     Author: @JamesDBartlett3@techhub.social (James D. Bartlett III)
-
+  
   .DESCRIPTION
     Take over a Power BI dataset that is currently configured by another user
-
+  
   .PARAMETER DatasetWorkspaceTable
     Table with two columns: DatasetId and WorkspaceId -- set to output from Join-UserDatasetsWithWorkspaces
-
+  
   .EXAMPLE
     Update-UserDatasetsOwner -DatasetWorkspaceTable $DatasetWorkspaceTable
-
+  
   .OUTPUTS
     Nothing, if everything goes right ;-)
-
+  
   .NOTES
     This function does NOT require Azure AD app registration, 
     service principal creation, or any other special setup.
@@ -23,12 +23,11 @@
         MicrosoftPowerBIMgmt module, if it's not already installed).
       - The user must have permissions to access the workspace(s)
         in the Power BI service.
-
+      
     TODO
-      - Write as function
       - Re-implement token logic
       - Testing
-
+    
     ACKNOWLEDGEMENTS
       - Thanks to my wife (@likeawednesday@techhub.social) for her support and encouragement.
       - Thanks to the PowerShell and Power BI/Fabric communities for being so awesome.
