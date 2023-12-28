@@ -239,7 +239,6 @@ Function Export-PowerBIThinModelsFromWorkspaces {
       - 429 throttling (see Rui's repo and this article: https://powerbi.microsoft.com/en-us/blog/best-practices-to-prevent-getgroupsasadmin-api-timeout/)
       - Call Power BI REST API endpoints directly instead of MicrosoftPowerBIMgmt cmdlets
       - Service Principal authentication
-      - [gc]::Collect() to free up memory
       - Testing
     ACKNOWLEDGEMENTS
       - Thanks to my wife (@likeawednesday@techhub.social) for her support and encouragement.
