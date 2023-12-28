@@ -1,6 +1,6 @@
 #!pwsh
 Set-Location $(git rev-parse --show-toplevel)
-. './PowerShell/Generate-ModulesFromScripts.ps1'
+'./PowerShell/Generate-ModulesFromScripts.ps1 -GenerateAll'
 git add "./PowerShell/Modules/*"
 exit $LASTEXITCODE
 
