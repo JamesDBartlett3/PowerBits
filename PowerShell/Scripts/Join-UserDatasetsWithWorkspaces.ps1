@@ -2,19 +2,19 @@
   .SYNOPSIS
     Function: Join-UserDatasetsWithWorkspaces
     Author: @JamesDBartlett3@techhub.social (James D. Bartlett III)
-
+  
   .DESCRIPTION
     - Audit the security settings of Power BI Workspaces
-
+  
   .PARAMETER DatasetList
     - list of dataset IDs -- set to output from Get-UserDatasets
-
+  
   .OUTPUTS
     - Table with two columns: DatasetId and WorkspaceId
-
+  
   .EXAMPLE
     Join-UserDatasetsWithWorkspaces $DatasetList
-
+  
   .NOTES
     This function does NOT require Azure AD app registration, 
     service principal creation, or any other special setup.
@@ -23,11 +23,11 @@
         MicrosoftPowerBIMgmt module, if it's not already installed).
       - The user must have permissions to access the workspace(s)
         in the Power BI service.
-
+      
     TODO
       - Add process block to enable pipeline input
       - Re-implement token logic
-
+    
     ACKNOWLEDGEMENTS
       - Thanks to my wife (@likeawednesday@techhub.social) for her support and encouragement.
       - Thanks to the PowerShell and Power BI/Fabric communities for being so awesome.
