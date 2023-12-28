@@ -133,7 +133,6 @@ Function Update-UserDatasetsOwner {
       - The user must have permissions to access the workspace(s)
         in the Power BI service.
     TODO
-      - Write as function
       - Re-implement token logic
       - Testing
     ACKNOWLEDGEMENTS
