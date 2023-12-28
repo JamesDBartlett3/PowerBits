@@ -37,6 +37,8 @@
   .NOTES
     TODO:
       - If a script has been modified but not staged, get its contents from the previous commit.
+      - Handle deleted scripts.
+      - Once the above is implemented, remove the -GenerateAll switch from pre-commit.ps1.
     ACKNOWLEDGEMENTS
       - Thanks to my wife (@likeawednesday@techhub.social) for her support and encouragement.
       - Thanks to the PowerShell and Power BI/Fabric communities for being so awesome.
