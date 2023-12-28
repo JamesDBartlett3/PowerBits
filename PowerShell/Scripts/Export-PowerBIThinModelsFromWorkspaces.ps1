@@ -43,6 +43,10 @@
     $thinModels = Get-PowerBIThinModelsFromWorkspaces -Interactive
     # Then export them all as PBIX files
     $thinModels | Export-PowerBIThinModelsFromWorkspaces
+
+  .EXAMPLE
+    # Get all Thin Models from all Workspaces in the tenant and export them as PBIX files
+    Get-PowerBIThinModelsFromWorkspaces | Export-PowerBIThinModelsFromWorkspaces
   
   .LINK
     https://github.com/JamesDBartlett3/PowerBits
@@ -110,7 +114,7 @@ begin {
   [bool]$localFileIsValid = $false
   [int]$thinModelCount = 0
   [int]$errorCount = 0
-  if(!(Test-Path $tempFolder)) {
+  if (!(Test-Path $tempFolder)) {
     New-Item -Path $tempFolder -ItemType Directory | Out-Null
   }
   Invoke-Item -Path $tempFolder
