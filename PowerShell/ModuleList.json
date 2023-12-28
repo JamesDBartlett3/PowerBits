@@ -16,8 +16,8 @@
 	{
 		"name": "PowerBits-TenantAdmin",
 		"functions": [
-			"Export-PowerBIWorkspacesSecurity"
-			, "Get-DataGatewayNodesStatus"
+			"Audit-PowerBIWorkspaceSecurity"
+			, "Get-DataGatewayStatus"
 			, "Export-PowerBIScannerApiData"
 		]
 	},

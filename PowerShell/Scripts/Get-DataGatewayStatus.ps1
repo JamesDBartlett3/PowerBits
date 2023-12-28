@@ -1,6 +1,6 @@
 <#
   .SYNOPSIS
-    Function: Get-DataGatewayNodesStatus
+    Function: Get-DataGatewayStatus
     Author: @JamesDBartlett3@techhub.social (James D. Bartlett III)
 
   .DESCRIPTION
