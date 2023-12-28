@@ -7,7 +7,7 @@
     - Imports modules for the "PowerShell Hacks for Power BI" demo session
   
   .EXAMPLE
-    . .\Import-PSHacks4PowerBIModules.ps1
+    .\Import-PSHacks4PowerBIModules.ps1
   
   .NOTES
     ACKNOWLEDGEMENTS
