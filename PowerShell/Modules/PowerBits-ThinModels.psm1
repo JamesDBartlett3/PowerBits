@@ -247,18 +247,10 @@ Function Export-PowerBIThinModelsFromWorkspaces {
   #Requires -Modules MicrosoftPowerBIMgmt
   [CmdletBinding()]
   Param(
-    [Parameter(
-      Mandatory,
-      ValueFromPipelineByPropertyName
-    )][Alias('Id')][guid]$DatasetId,
-    [Parameter(
-      Mandatory,
-      ValueFromPipelineByPropertyName
-    )][guid]$WorkspaceId,
-    [Parameter(ValueFromPipelineByPropertyName)]
-    [Alias('Name')][string]$DatasetName,
-    [Parameter(ValueFromPipelineByPropertyName)]
-    [string]$WorkspaceName,
+    [Parameter(Mandatory, ValueFromPipelineByPropertyName)][Alias('Id')][guid]$DatasetId,
+    [Parameter(Mandatory, ValueFromPipelineByPropertyName)][guid]$WorkspaceId,
+    [Parameter(ValueFromPipelineByPropertyName)][Alias('Name')][string]$ModelName,
+    [Parameter(ValueFromPipelineByPropertyName)][string]$WorkspaceName,
     [Parameter()][string]$BlankPbix,
     [Parameter()][string]$OutFile
   )
@@ -279,8 +271,8 @@ Function Export-PowerBIThinModelsFromWorkspaces {
     Invoke-Item -Path $tempFolder
   }
   process {
-    Write-Debug "DatasetId: $DatasetId, WorkspaceId: $WorkspaceId, DatasetName: $DatasetName, WorkspaceName: $WorkspaceName"
-    $headers = [System.Collections.Generic.Dictionary[[String],[String]]]::New()
+    Write-Debug "DatasetId: $DatasetId, WorkspaceId: $WorkspaceId, DatasetName: $ModelName, WorkspaceName: $WorkspaceName"
+    $headers = [System.Collections.Generic.Dictionary[[String], [String]]]::New()
     [string]$uniqueName = 'temp_' + [guid]::NewGuid().ToString().Replace('-', '')
     Function FileIsBlankPbix($file) {
       $zip = [System.IO.Compression.ZipFile]::OpenRead($file)
@@ -290,7 +282,8 @@ Function Export-PowerBIThinModelsFromWorkspaces {
       if ($fileIsPbix -and $fileIsBlank) {
         Write-Verbose "$file is a valid blank PBIX file."
         return $true
-      } else {
+      }
+      else {
         Write-Error "$file is NOT a valid PBIX file and/or NOT blank."
         return $false
       }
@@ -342,13 +335,14 @@ Function Export-PowerBIThinModelsFromWorkspaces {
       $headers = Get-PowerBIAccessToken
       if ($headers) {
         Write-Host '🔑 Power BI Access Token acquired. Proceeding...'
-      } else {
+      }
+      else {
         Write-Host '❌ Power BI Access Token not acquired. Exiting...'
         Exit
       }
     }
     # If user did not specify a Model name, get it from the API
-    $DatasetName = $DatasetName ?? (Get-PowerBIDataset -Id $DatasetId -WorkspaceId $WorkspaceId).Name
+    $ModelName = $ModelName ?? (Get-PowerBIDataset -Id $DatasetId -WorkspaceId $WorkspaceId).Name
     # If user did not specify a Workspace name, get it from the API
     $WorkspaceName = $WorkspaceName ?? (Get-PowerBIWorkspace -Id $WorkspaceId).Name
     # Publish the blank PBIX file to the target workspace
@@ -381,9 +375,10 @@ Function Export-PowerBIThinModelsFromWorkspaces {
     }
     # If user did not specify an output file name, use the Model's name and save it in the default temp folder
     $OutFile = if (!!$OutFile) { $OutFile } else {
-      Join-Path -Path $tempFolder -ChildPath (Join-Path -Path $WorkspaceName -ChildPath "$($DatasetName).pbix")
+      Join-Path -Path $tempFolder -ChildPath (Join-Path -Path $WorkspaceName -ChildPath "$($ModelName).pbix")
     }
-    # Export the re-bound Report and Model (a.k.a. "Thick Report") PBIX file to a temp file first, then rename it to the correct name (workaround for Models with special characters in their names)
+    # Export the re-bound Report and Model (a.k.a. "Thick Report") PBIX file to a temp file first, then 
+    # rename it to the correct name (workaround for Models with special characters in their names)
     Write-Verbose "Exporting re-bound blank Report and Model (a.k.a. 'Thick Report') $publishedReportId to temporary file $($uniqueName).pbix..."
     $tempFileName = Join-Path -Path $tempFolder -ChildPath "$uniqueName.pbix"
     Invoke-RestMethod -Uri "$exportEndpoint" `
@@ -396,10 +391,11 @@ Function Export-PowerBIThinModelsFromWorkspaces {
     if ($message) {
       $errorCount++
       $errorCode = ($message.ErrorRecord.ErrorDetails.Message | ConvertFrom-Json).error.code
-      Write-Error "Error exporting Thin Model `"$DatasetName`" from `"$WorkspaceName`"`: $errorCode"
-    } else {
+      Write-Error "Error exporting Thin Model `"$ModelName`" from `"$WorkspaceName`"`: $errorCode"
+    }
+    else {
       $thinModelCount++
-      Write-Verbose "Exported Thin Model `"$DatasetName`" from `"$WorkspaceName`" to $tempFileName"
+      Write-Verbose "Exported Thin Model `"$ModelName`" from `"$WorkspaceName`" to $tempFileName"
       Write-Verbose "Moving and renaming temp file $($uniqueName).pbix to $OutFile..."
       Move-Item -Path $tempFileName -Destination $OutFile -Force
     }

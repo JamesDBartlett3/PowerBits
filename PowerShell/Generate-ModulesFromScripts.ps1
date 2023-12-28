@@ -42,6 +42,10 @@
       - Thanks to the PowerShell and Power BI/Fabric communities for being so awesome.
 #>
 
+Param(
+  [switch]$GenerateAll
+)
+
 #Requires -Modules PSScriptAnalyzer
 
 # Define the settings to use when formatting the generated modules
@@ -63,17 +67,19 @@ $formatterSettings = @{
 [PSCustomObject]$ModuleList = Get-Content -Path (Join-Path -Path $PSScriptRoot -ChildPath 'ModuleList.json') | ConvertFrom-Json
 
 # Get a list of all files with staged changes
-$stagedFiles = (git diff --cached --name-only).ForEach({[system.io.path]::GetFileNameWithoutExtension($_)})
+$stagedFiles = (git diff --cached --name-only).ForEach({ [system.io.path]::GetFileNameWithoutExtension($_) })
 
 # Add a property to each module object to indicate whether it should be updated
 # based on whether any of its functions have changed since the last commit
 $ModuleList.ForEach({
-  $_ | Add-Member -NotePropertyName "update" -NotePropertyValue $_.functions.ForEach({
-    $_ -in $stagedFiles
-  }).Contains($true)
-})
+    $_ | Add-Member -NotePropertyName "update" -NotePropertyValue $_.functions.ForEach({
+        $_ -in $stagedFiles
+      }).Contains($true)
+  })
 
-foreach ($module in ($ModuleList | Where-Object update)) {
+$ModuleList = $ModuleList | Where-Object { $_.update -or $GenerateAll }
+
+foreach ($module in ($ModuleList)) {
   $modulePath = Join-Path -Path $PSScriptRoot -ChildPath "Modules/$($module.name).psm1"
   Write-Verbose "Module Name: $($module.name) -- Path: $modulePath"
   $moduleContent = '#Requires -PSEdition Core'
