@@ -1,5 +1,5 @@
 #Requires -PSEdition Core
-Function Audit-PowerBIWorkspaceSecurity {
+Function Checkpoint-PowerBIWorkspaceSecurity {
   <#
   .SYNOPSIS
     Exports a list of all Power BI workspaces and their members to an Excel file.
