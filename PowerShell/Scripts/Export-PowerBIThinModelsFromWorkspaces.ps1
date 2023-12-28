@@ -90,7 +90,7 @@
 Param(
   [Parameter(Mandatory, ValueFromPipelineByPropertyName)][Alias('Id')][guid]$DatasetId,
   [Parameter(Mandatory, ValueFromPipelineByPropertyName)][guid]$WorkspaceId,
-  [Parameter(ValueFromPipelineByPropertyName)][Alias('Name')][string]$ModelName,
+  [Parameter(ValueFromPipelineByPropertyName)][Alias('Name')][string]$DatasetName,
   [Parameter(ValueFromPipelineByPropertyName)][string]$WorkspaceName,
   [Parameter()][string]$BlankPbix,
   [Parameter()][string]$OutFile
@@ -110,12 +110,15 @@ begin {
   [bool]$localFileIsValid = $false
   [int]$thinModelCount = 0
   [int]$errorCount = 0
+  if(!(Test-Path $tempFolder)) {
+    New-Item -Path $tempFolder -ItemType Directory | Out-Null
+  }
   Invoke-Item -Path $tempFolder
 }
 
 process {
   
-  Write-Debug "DatasetId: $DatasetId, WorkspaceId: $WorkspaceId, DatasetName: $ModelName, WorkspaceName: $WorkspaceName"
+  Write-Debug "DatasetId: $DatasetId, WorkspaceId: $WorkspaceId, DatasetName: $DatasetName, WorkspaceName: $WorkspaceName"
   
   $headers = [System.Collections.Generic.Dictionary[[String], [String]]]::New()
   
@@ -199,7 +202,7 @@ process {
   }
   
   # If user did not specify a Model name, get it from the API
-  $ModelName = $ModelName ?? (Get-PowerBIDataset -Id $DatasetId -WorkspaceId $WorkspaceId).Name
+  $DatasetName = $DatasetName ?? (Get-PowerBIDataset -Id $DatasetId -WorkspaceId $WorkspaceId).Name
   
   # If user did not specify a Workspace name, get it from the API
   $WorkspaceName = $WorkspaceName ?? (Get-PowerBIWorkspace -Id $WorkspaceId).Name
@@ -239,7 +242,7 @@ process {
   
   # If user did not specify an output file name, use the Model's name and save it in the default temp folder
   $OutFile = if (!!$OutFile) { $OutFile } else {
-    Join-Path -Path $tempFolder -ChildPath (Join-Path -Path $WorkspaceName -ChildPath "$($ModelName).pbix")
+    Join-Path -Path $tempFolder -ChildPath (Join-Path -Path $WorkspaceName -ChildPath "$($DatasetName).pbix")
   }
   
   # Export the re-bound Report and Model (a.k.a. "Thick Report") PBIX file to a temp file first, then 
@@ -256,11 +259,11 @@ process {
   if ($message) {
     $errorCount++
     $errorCode = ($message.ErrorRecord.ErrorDetails.Message | ConvertFrom-Json).error.code
-    Write-Error "Error exporting Thin Model `"$ModelName`" from `"$WorkspaceName`"`: $errorCode"
+    Write-Error "Error exporting Thin Model `"$DatasetName`" from `"$WorkspaceName`"`: $errorCode"
   }
   else {
     $thinModelCount++
-    Write-Verbose "Exported Thin Model `"$ModelName`" from `"$WorkspaceName`" to $tempFileName"
+    Write-Verbose "Exported Thin Model `"$DatasetName`" from `"$WorkspaceName`" to $tempFileName"
     Write-Verbose "Moving and renaming temp file $($uniqueName).pbix to $OutFile..."
     Move-Item -Path $tempFileName -Destination $OutFile -Force
   }
