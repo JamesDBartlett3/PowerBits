@@ -1,39 +1,39 @@
 [
-	{
-		"name": "PowerBits-ThinModels",
-		"functions": [
-			"Get-PowerBIThinModelsFromWorkspaces"
-			, "Export-PowerBIThinModelsFromWorkspaces"
-		]
-	},
-	{
-		"name": "PowerBits-ExportReports",
-		"functions": [
-			"Copy-PowerBIReportContentToBlankPBIXFile"
-			, "Export-PowerBIReportsFromWorkspaces"
-		]
-	},
-	{
-		"name": "PowerBits-TenantAdmin",
-		"functions": [
-			"Audit-PowerBIWorkspaceSecurity"
-			, "Get-DataGatewayStatus"
-			, "Export-PowerBIScannerApiData"
-		]
-	},
-	{
-		"name": "PowerBits-UserDatasets",
-		"functions": [
-			"Get-UserDatasets"
-			, "Join-UserDatasetsWithWorkspaces"
-			, "Update-UserDatasetsOwner"
-		]
-	},
-	{
-		"name": "PowerBits-Utilities",
-		"functions": [
-			"Get-ArrayInBatches"
-			, "Wait-On429Error"
-		]
-	}
+  {
+    "name": "PowerBits-ThinModels",
+    "functions": [
+      "Get-PowerBIThinModelsFromWorkspaces",
+      "Export-PowerBIThinModelsFromWorkspaces"
+    ]
+  },
+  {
+    "name": "PowerBits-ExportReports",
+    "functions": [
+      "Copy-PowerBIReportContentToBlankPBIXFile",
+      "Export-PowerBIReportsFromWorkspaces"
+    ]
+  },
+  {
+    "name": "PowerBits-TenantAdmin",
+    "functions": [
+      "Checkpoint-PowerBIWorkspaceSecurity",
+      "Get-DataGatewayStatus",
+      "Export-PowerBIScannerApiData"
+    ]
+  },
+  {
+    "name": "PowerBits-UserDatasets",
+    "functions": [
+      "Get-UserDatasets",
+      "Join-UserDatasetsWithWorkspaces",
+      "Update-UserDatasetsOwner"
+    ]
+  },
+  {
+    "name": "PowerBits-Utilities",
+    "functions": [
+      "Get-ArrayInBatches",
+      "Wait-On429Error"
+    ]
+  }
 ]
