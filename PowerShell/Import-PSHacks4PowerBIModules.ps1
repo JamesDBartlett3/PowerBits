@@ -15,8 +15,14 @@
       - Thanks to the PowerShell and Power BI/Fabric communities for being so awesome.
 #>
 
-# Pre-emptively import problematic modules
-Import-Module Az.Resources -Force -ErrorAction SilentlyContinue | Out-Null
+Param(
+  [Parameter()][switch]$ForceImportAzResources
+)
+
+if ($ForceImportAzResources) {
+  Write-Host "Force importing `e[38;2;0;255;0mAz.Resources`e[0m module..."
+  Import-Module Az.Resources -Force -ErrorAction SilentlyContinue | Out-Null
+}
 
 # List of modules to import
 [PSCustomObject]$ModuleList = Get-Content -Path (Join-Path -Path $PSScriptRoot -ChildPath 'ModuleList.json') | ConvertFrom-Json
