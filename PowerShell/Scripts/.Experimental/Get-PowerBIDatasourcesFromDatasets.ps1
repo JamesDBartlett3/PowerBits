@@ -1,3 +1,23 @@
+<#
+.SYNOPSIS
+  Get the datasources for all datasets in a Power BI tenant.
+.DESCRIPTION
+  Get the datasources for all datasets in a Power BI tenant, optionally filtered by datasource type, server name, and/or database name.
+.PARAMETER DatasourceType
+  The datasource type to filter on.
+.PARAMETER DatasourceServer
+  The datasource server to filter on.
+.PARAMETER DatasourceDatabase
+  The datasource database to filter on.
+.PARAMETER BatchStart
+  The index of the first dataset to return.
+.PARAMETER BatchEnd 
+  The index of the last dataset to return.
+.EXAMPLE
+  # Get the datasources for all datasets in a Power BI tenant, filtered by datasource type, server, and database.
+  .\Get-PowerBIDatasourcesFromDatasets.ps1 -DatasourceType Sql -DatasourceServer 'myserver.database.windows.net' -DatasourceDatabase 'mydatabase'
+#>
+
 [CmdletBinding()]
 Param (
   [Parameter()][string]$DatasourceType,
