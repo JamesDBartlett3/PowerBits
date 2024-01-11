@@ -3,10 +3,10 @@ Param (
   [Parameter()][string]$DatasourceType,
   [Parameter()][string]$DatasourceServer,
   [Parameter()][string]$DatasourceDatabase,
-  [Parameter()][int]$MaxResults = 50
+  [Parameter()][int]$MaxResults
 )
 
-#Requires -Module MicrosoftPowerBIMgmt
+#Requires -Modules MicrosoftPowerBIMgmt -PSEdition Core
 
 begin {
   $headers = [System.Collections.Generic.Dictionary[[String], [String]]]::New()
@@ -41,8 +41,9 @@ process {
 
   $datasets = $datasets | Where-Object { $_.IsRefreshable -eq $true -and $_.contentProviderType -eq 'PbixInImportMode' }
   
+  $limit = $MaxResults ?? $datasets.Count
 
-  [PSCustomObject]$datasources = foreach ($dataset in $datasets[0..$MaxResults]) {
+  [PSCustomObject]$datasources = foreach ($dataset in $datasets[0..$limit]) {
 
     $datasetId = $dataset.id
     $datasetName = $dataset.name
@@ -84,10 +85,10 @@ process {
 
   }
   
-  $result | Where-Object { 
-    if (!$DatasourceType) { $true } else { $_.DatasourceType -contains $DatasourceType } -and
-    if (!$DatasourceServer) { $true } else { $_.DatasourceServer -contains $DatasourceServer } -and 
-    if (!$DatasourceDatabase) { $true } else { $_.DatasourceDatabase -contains $DatasourceDatabase }
-  } | Format-Table -AutoSize
+  $result | Where-Object {
+    (if (!$DatasourceType) { $true } else { $_.DatasourceType -contains $DatasourceType }) -and `
+    (if (!$DatasourceServer) { $true } else { $_.DatasourceServer -contains $DatasourceServer }) -and `
+    (if (!$DatasourceDatabase) { $true } else { $_.DatasourceDatabase -contains $DatasourceDatabase })
+  } | Format-List
 
 }
