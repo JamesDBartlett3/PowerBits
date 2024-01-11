@@ -1,3 +1,13 @@
+[CmdletBinding()]
+Param (
+  [Parameter()][string]$DatasourceType,
+  [Parameter()][string]$DatasourceServer,
+  [Parameter()][string]$DatasourceDatabase,
+  [Parameter()][int]$MaxResults = 50
+)
+
+#Requires -Module MicrosoftPowerBIMgmt
+
 begin {
   $headers = [System.Collections.Generic.Dictionary[[String], [String]]]::New()
   $pbiApiBaseUrl = 'https://api.powerbi.com/v1.0/myorg'
@@ -9,6 +19,7 @@ process {
   try {
     $headers = Get-PowerBIAccessToken
   }
+
   catch {
     if ($servicePrincipalId) {
       $headers = Connect-PowerBIServiceAccount -ServicePrincipal -Tenant $servicePrincipalTenantId -Credential $credential
@@ -31,7 +42,7 @@ process {
   $datasets = $datasets | Where-Object { $_.IsRefreshable -eq $true -and $_.contentProviderType -eq 'PbixInImportMode' }
   
 
-  [PSCustomObject]$datasources = foreach ($dataset in $datasets[0..50]) {
+  [PSCustomObject]$datasources = foreach ($dataset in $datasets[0..$MaxResults]) {
 
     $datasetId = $dataset.id
     $datasetName = $dataset.name
@@ -73,6 +84,10 @@ process {
 
   }
   
-  $result | Where-Object { $_.DatasourceType -contains 'Sql' } | Format-Table -AutoSize
+  $result | Where-Object { 
+    if (!$DatasourceType) { $true } else { $_.DatasourceType -contains $DatasourceType } -and
+    if (!$DatasourceServer) { $true } else { $_.DatasourceServer -contains $DatasourceServer } -and 
+    if (!$DatasourceDatabase) { $true } else { $_.DatasourceDatabase -contains $DatasourceDatabase }
+  } | Format-Table -AutoSize
 
 }
