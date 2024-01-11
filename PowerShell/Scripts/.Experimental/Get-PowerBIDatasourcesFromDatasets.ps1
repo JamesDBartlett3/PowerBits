@@ -15,7 +15,7 @@
   The index of the last dataset to return.
 .EXAMPLE
   # Get the datasources for all datasets in a Power BI tenant, filtered by datasource type, server, and database.
-  .\Get-PowerBIDatasourcesFromDatasets.ps1 -DatasourceType Sql -DatasourceServer 'myserver.database.windows.net' -DatasourceDatabase 'mydatabase'
+  .\Get-PowerBIDatasourcesFromDatasets.ps1 -DatasourceType 'sql' -DatasourceServer 'myserver.database.windows.net' -DatasourceDatabase 'mydatabase'
 #>
 
 [CmdletBinding()]
@@ -106,13 +106,13 @@ process {
 
   # Filter results using the parameters
   if ($DatasourceType) {
-    $result = $result | Where-Object { $_.DatasourceType -contains $DatasourceType }
+    $result = $result | Where-Object { $_.DatasourceType -icontains $DatasourceType }
   }
   if ($DatasourceServer) {
-    $result = $result | Where-Object { $_.DatasourceServer -contains $DatasourceServer }
+    $result = $result | Where-Object { $_.DatasourceServer -icontains $DatasourceServer }
   }
   if ($DatasourceDatabase) {
-    $result = $result | Where-Object { $_.DatasourceDatabase -contains $DatasourceDatabase }
+    $result = $result | Where-Object { $_.DatasourceDatabase -icontains $DatasourceDatabase }
   }
   
   return $result
