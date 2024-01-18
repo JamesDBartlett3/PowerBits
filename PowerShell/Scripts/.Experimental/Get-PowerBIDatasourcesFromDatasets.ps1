@@ -16,6 +16,8 @@
 .EXAMPLE
   # Get the datasources for all datasets in a Power BI tenant, filtered by datasource type, server, and database.
   .\Get-PowerBIDatasourcesFromDatasets.ps1 -DatasourceType 'sql' -DatasourceServer 'myserver.database.windows.net' -DatasourceDatabase 'mydatabase'
+.NOTES
+  TODO: Refactor to use the Scanner API instead of the Admin API.
 #>
 
 [CmdletBinding()]
