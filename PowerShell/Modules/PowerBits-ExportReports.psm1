@@ -25,6 +25,12 @@ Function Copy-PowerBIReportContentToBlankPBIXFile {
       - The user must be able to run PowerShell (and install the MicrosoftPowerBIMgmt module, if it's not already installed).
       - The user must be allowed to download report PBIX files (see: "Download reports" setting in the Power BI Admin Portal).
       - The user must have "Contributor" or higher permissions on the source and target workspace(s).
+    TODO
+      - [ValidateScript({Test-Path $_})][string]$path on all file paths
+      - Testing
+      - Add usage, help, and examples.
+      - Rename the function to something more accurate to its current capabilities.
+      - [gc]::Collect() to free up memory
     ACKNOWLEDGEMENTS
       - This PS script was inspired by a blog article written by 
         one of the top minds in the Power BI space, Mathias Thierbach.

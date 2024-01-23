@@ -31,13 +31,7 @@
     The only requirements are:
       - The user must be able to run PowerShell (and install the MicrosoftPowerBIMgmt module, if it's not already installed).
       - The user must be allowed to download report PBIX files (see: "Download reports" setting in the Power BI Admin Portal).
-      - The user must be able to run PowerShell (and install the
-        MicrosoftPowerBIMgmt module, if it's not already installed).
-      - The user must be allowed to download report PBIX files
-        (see: "Download reports" setting in the Power BI Admin Portal).
-      - The user must have "Contributor" or higher permissions 
-        on the source and target workspace(s).
-    
+      - The user must have "Contributor" or higher permissions on the source and target workspace(s).
     TODO
       - [ValidateScript({Test-Path $_})][string]$path on all file paths
       - Testing
