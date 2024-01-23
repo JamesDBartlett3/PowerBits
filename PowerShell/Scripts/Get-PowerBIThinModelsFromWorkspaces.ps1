@@ -1,49 +1,41 @@
 <#
   .SYNOPSIS
-    Function: Get-PowerBIThinModelsFromWorkspaces
-    Author: @JamesDBartlett3@techhub.social (James D. Bartlett III)
+    Get all "Thin" Models (Power BI Semantic Models without a corresponding report) from Power BI Workspaces
   
   .DESCRIPTION
-    Get all "Thin" Models (Power BI Semantic Models without a corresponding report) from selected Workspaces in parallel
+    Get all "Thin" Models (Power BI Semantic Models without a corresponding report) from selected Power BI Workspaces in parallel, and output them to the pipeline.
   
   .PARAMETER ThrottleLimit
-    The maximum number of parallel processes to run.
-    Defaults to 1.
+    The maximum number of parallel processes to run. Defaults to the number of logical processors in the system.
   
   .PARAMETER Interactive
     If specified, displays a grid view of Workspaces and allows the user to select which ones to scan for Thin Models.
   
   .INPUTS
-    This function does not accept pipeline input.
+    This script does not accept pipeline input.
   
   .OUTPUTS
-    Selected.System.String (one or more objects with the following properties):
-      - DatasetName
+    One or more objects with the following properties:
+      - ModelName
       - DatasetId
       - WebUrl
       - IsRefreshable
       - WorkspaceName
       - WorkspaceId
+  
+  .EXAMPLE
+    # Get all Thin Models from all workspaces to which the user has access, one at a time
+    .\Get-PowerBIThinModelsFromWorkspaces.ps1 -ThrottleLimit 1
     
   .EXAMPLE
-    Get-PowerBIThinModelsFromWorkspaces -Interactive -ThrottleLimit 4
-  
-  .LINK
-    https://github.com/JamesDBartlett3/PowerBits
-  
-  .LINK
-    https://techhub.social/@JamesDBartlett3
-  
-  .LINK
-    https://datavolume.xyz
+    # Get all Thin Models from all workspaces specified by the user in an interactive prompt, in parallel
+    .\Get-PowerBIThinModelsFromWorkspaces.ps1 -Interactive
   
   .NOTES
-    This function does NOT require Azure AD app registration, 
-    service principal creation, or any other special setup.
+    This script does NOT require Azure AD app registration, service principal creation, or any other special setup.
     The only requirements are:
-      - The user must be able to run PowerShell (and install the
-        MicrosoftPowerBIMgmt module, if it's not already installed).
-      
+      - The user must be able to run PowerShell (and install the MicrosoftPowerBIMgmt module, if it's not already installed).
+    
     TODO
       - Separate verbose and debug outputs
       - HelpMessage on all parameters (https://youtu.be/UnjKVanzIOk)
@@ -63,6 +55,21 @@
         which inspired me, and taught me a lot about making Power BI REST API calls from PowerShell. 
         Much of the code in this repo is based on Rui's work.
       - Thanks to the PowerShell and Power BI/Fabric communities for being so awesome.
+  
+  .LINK
+    [Source code](https://github.com/JamesDBartlett3/PowerBits/blob/main/PowerShell/Scripts/Get-PowerBIThinModelsFromWorkspaces.ps1)
+  
+  .LINK
+    [The author's blog](https://datavolume.xyz)
+    
+  .LINK
+    [Follow the author on LinkedIn](https://www.linkedin.com/in/jamesdbartlett3/)
+  
+  .LINK
+    [Follow the author on Mastodon](https://techhub.social/@JamesDBartlett3)
+  
+  .LINK
+    [Follow the author on BlueSky](https://bsky.app/profile/jamesdbartlett3.bsky.social)
 #>
 
 # PowerShell dependencies
@@ -98,7 +105,8 @@ process {
   catch {
     if ($servicePrincipalId) {
       $headers = Connect-PowerBIServiceAccount -ServicePrincipal -Tenant $servicePrincipalTenantId -Credential $credential
-    } else {
+    }
+    else {
       Write-Host '🔒 Power BI Access Token required. Launching Azure Active Directory authentication dialog...'
       Start-Sleep -s 1
       Connect-PowerBIServiceAccount -WarningAction SilentlyContinue | Out-Null
@@ -106,11 +114,13 @@ process {
     }
     if ($headers) {
       Write-Host '🔑 Power BI Access Token acquired. Proceeding...'
-    } else {
+    }
+    else {
       Write-Host '❌ Power BI Access Token not acquired. Exiting...'
       exit
     }
   }
+  
   # Get the access token payload and convert it to JSON
   $token = $headers['Authorization'].Split(' ')[1]
   $tokenPayload = $token.Split('.')[1].Replace('-', '+').Replace('_', '/')
@@ -125,7 +135,7 @@ process {
   Write-Debug "User Identifier: `n $pbiUserIdentifier"
   
   # Get list of Workspaces
-  $workspaces = Get-PowerBIWorkspace -Scope Organization -All -ErrorAction SilentlyContinue | 
+  $workspaces = Get-PowerBIWorkspace -Scope Organization -All | 
   Where-Object {
     $_.Type -eq 'Workspace' -and
     $_.State -eq 'Active' -and
@@ -146,7 +156,7 @@ process {
     $workspaceId = $_.Id
     
     # Get Datasets from the Workspace
-    $workspaceModels = Get-PowerBIDataset -Scope Organization -WorkspaceId $workspaceId -ErrorAction SilentlyContinue |
+    $workspaceModels = Get-PowerBIDataset -Scope Organization -WorkspaceId $workspaceId |
     Where-Object {
       $_.IsRefreshable -eq $true -and
       $_.Name -notIn $ignoreReports
@@ -157,7 +167,7 @@ process {
     } | Sort-Object -Property Name
     
     # Get reports from the Workspace
-    $workspaceReports = Get-PowerBIReport -Scope Organization -WorkspaceId $workspaceId -ErrorAction SilentlyContinue |
+    $workspaceReports = Get-PowerBIReport -Scope Organization -WorkspaceId $workspaceId |
     Where-Object {
       $_.Name -notIn $ignoreReports -and
       $_.WebUrl -notlike '*/rdlreports/*'
@@ -169,9 +179,9 @@ process {
     
     # For each Dataset, check for any corresponding reports with the same name
     $workspaceModels | ForEach-Object {
-      $datasetProperties = '' | Select-Object DatasetName, DatasetId, WebUrl, IsRefreshable, WorkspaceName, WorkspaceId
-      $datasetName, $datasetId, $datasetWebUrl, $datasetIsRefreshable, $datasetWorkspaceName, $datasetWorkspaceId = $null
-      $datasetName = $_.Name
+      $datasetProperties = '' | Select-Object ModelName, DatasetId, WebUrl, IsRefreshable, WorkspaceName, WorkspaceId
+      $modelName, $datasetId, $datasetWebUrl, $datasetIsRefreshable, $datasetWorkspaceName, $datasetWorkspaceId = $null
+      $modelName = $_.Name
       $datasetId = $_.Id
       $datasetWebUrl = $_.WebUrl
       $datasetIsRefreshable = $_.IsRefreshable
@@ -179,8 +189,8 @@ process {
       $datasetWorkspaceId = $_.WorkspaceId
       
       # If no corresponding report is found, output the Dataset's properties for processing downstream
-      if (!($workspaceReports | Where-Object { $_.Name -eq $datasetName -and $_.WorkspaceId -eq $datasetWorkspaceId })) {
-        $datasetProperties.DatasetName = $datasetName
+      if (!($workspaceReports | Where-Object { $_.Name -eq $modelName -and $_.WorkspaceId -eq $datasetWorkspaceId })) {
+        $datasetProperties.ModelName = $modelName
         $datasetProperties.DatasetId = $datasetId
         $datasetProperties.WebUrl = $datasetWebUrl
         $datasetProperties.IsRefreshable = $datasetIsRefreshable
@@ -197,7 +207,7 @@ process {
     will be returned in the output. But if the DatasetId has already been added to the hashset, 
     $hash.Add() will return false, and the duplicate object will not be returned in the output.
     #> 
-    |	Where-Object { $hash.Add($_.DatasetId) }
+  | Where-Object { $hash.Add($_.DatasetId) }
 }
 
 end {
