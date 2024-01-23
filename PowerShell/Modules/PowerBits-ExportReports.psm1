@@ -105,7 +105,7 @@ Function Copy-PowerBIReportContentToBlankPBIXFile {
     # download one from GitHub and check if it's valid and blank
     else {
       Write-Debug "Downloading a blank pbix file from GitHub to $blankPbixTempFile..."
-      $BlankPbixUri = 'https://github.com/JamesDBartlett3/ps-for-pbi/raw/main/.bin/blank.pbix'
+      $BlankPbixUri = 'https://github.com/JamesDBartlett3/PowerBits/raw/main/Misc/blank.pbix'
       Invoke-WebRequest -Uri $BlankPbixUri -OutFile $blankPbixTempFile
       $defaultFileIsValid = FileIsBlankPbix($blankPbixTempFile)
     }
@@ -195,6 +195,22 @@ Function Export-PowerBIReportsFromWorkspaces {
     The only requirements are:
       - The user must be able to run PowerShell (and install the MicrosoftPowerBIMgmt module, if it's not already installed).
       - The user must be allowed to download report PBIX files (see: "Download reports" setting in the Power BI Admin Portal).
+    TODO
+      - [ValidateScript({Test-Path $_})][string]$path on all file paths
+      - Add ability to find and export report-less datasets
+      - Fix bug where reports with illegal characters in name cannot be extracted
+      - Add $workspacesToExport parameter to allow user to specify
+        which workspaces to export from.
+        - This would require a change to the Get-PowerBIWorkspace
+          function to allow filtering by workspace name.
+      - Add dynamic rate limiting to avoid throttling
+        - Use pbimonitor scripts for inspiration
+        - https://github.com/RuiRomano/pbiscripts/blob/main/Workspace-TenantScan.ps1
+      - Add logic to spread parallelism over multiple workspaces
+      - Experiment with using classes (https://bit.ly/3glYGZf)
+        to improve parallelism performance
+      - Add usage, help, and examples
+      - [gc]::Collect() to free up memory
     ACKNOWLEDGEMENTS
       - Thanks to my wife (@likeawednesday@techhub.social) for her support and encouragement.
       - Thanks to the PowerShell and Power BI/Fabric communities for being so awesome.

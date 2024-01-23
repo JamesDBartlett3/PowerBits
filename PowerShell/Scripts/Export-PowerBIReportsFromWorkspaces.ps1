@@ -1,39 +1,40 @@
 <#
   .SYNOPSIS
-    Function: Export-PowerBIReportsFromWorkspaces
-    Author: @JamesDBartlett3@techhub.social (James D. Bartlett III)
+    Exports Power BI reports (.pbix and .rdl) from Power BI workspaces to a local folder.
   
   .DESCRIPTION
-    Export Power BI reports from multiple workspaces in parallel
-  
-  .EXAMPLE
-    Export-PowerBIReportsFromWorkspaces -OutputFolder C:\Reports -ExtractWithPbiTools -SkipExistingFiles -ThrottleLimit 10
+    This script will export Power BI reports (.pbix and .rdl) from Power BI workspaces to a local folder.
+    Optional features:
+    - Extract the source code of exported PBIX files using pbi-tools.
+    - Skip existing files to avoid overwriting them.
+    - Export one report at a time or in parallel (default behavior: count processor cores and run that many parallel processes).
   
   .PARAMETER OutputFolder
-    The folder where the reports will be saved. If the folder does
-    not exist, it will be created.
+    The folder where the reports will be saved. If the folder does not exist, it will be created.
   
   .PARAMETER ExtractWithPbiTools
-    If specified, exported PBIX reports will be extracted with 
-    pbi-tools after they are exported. Requires pbi-tools to be
-    installed. See: https://pbi.tools
+    If specified, exported PBIX reports will be extracted with pbi-tools after they are exported. Requires pbi-tools to be installed. See: https://pbi.tools
   
   .PARAMETER SkipExistingFiles
-    If specified, existing files will be skipped. If not specified,
-    existing files will be overwritten.
+    If specified, existing files will be skipped. If not specified, existing files will be overwritten.
   
   .PARAMETER ThrottleLimit
-    The maximum number of reports that will be exported in parallel.
-    Defaults to 1.
+    The maximum number of reports that will be exported in parallel. Defaults to the number of processor cores detected.
+  
+  .EXAMPLE
+    # Export reports to the default folder in the temp directory, overwriting any existing files there
+    .\Export-PowerBIReportsFromWorkspaces.ps1
+  
+  .EXAMPLE
+    # Export reports, up to two at a time, to the "C:\Reports" folder, skip any files that already exist there, 
+    # and use pbi-tools to extract the source code of the PBIX files into subfolders named after the reports they came from
+    .\Export-PowerBIReportsFromWorkspaces.ps1 -OutputFolder C:\Reports -ExtractWithPbiTools -SkipExistingFiles -ThrottleLimit 2
   
   .NOTES
-    This function does NOT require Azure AD app registration, 
-    service principal creation, or any other special setup.
+    This script does NOT require Azure AD app registration, service principal creation, or any other special setup.
     The only requirements are:
-      - The user must be able to run PowerShell (and install the
-        MicrosoftPowerBIMgmt module, if it's not already installed).
-      - The user must be allowed to download report PBIX files
-        (see: "Download reports" setting in the Power BI Admin Portal).
+      - The user must be able to run PowerShell (and install the MicrosoftPowerBIMgmt module, if it's not already installed).
+      - The user must be allowed to download report PBIX files (see: "Download reports" setting in the Power BI Admin Portal).
     
     TODO
       - [ValidateScript({Test-Path $_})][string]$path on all file paths
@@ -55,6 +56,21 @@
     ACKNOWLEDGEMENTS
       - Thanks to my wife (@likeawednesday@techhub.social) for her support and encouragement.
       - Thanks to the PowerShell and Power BI/Fabric communities for being so awesome.
+  
+  .LINK
+    [Source code](https://github.com/JamesDBartlett3/PowerBits/blob/main/PowerShell/Scripts/Export-PowerBIReportsFromWorkspaces.ps1)
+  
+  .LINK
+    [The author's blog](https://datavolume.xyz)
+    
+  .LINK
+    [Follow the author on LinkedIn](https://www.linkedin.com/in/jamesdbartlett3/)
+  
+  .LINK
+    [Follow the author on Mastodon](https://techhub.social/@JamesDBartlett3)
+  
+  .LINK
+    [Follow the author on BlueSky](https://bsky.app/profile/jamesdbartlett3.bsky.social)
 #>
 
 #Requires -PSEdition Core
@@ -65,45 +81,67 @@ Param(
   [parameter(Mandatory = $false)][string]$OutputFolder,
   [parameter(Mandatory = $false)][switch]$ExtractWithPbiTools,
   [parameter(Mandatory = $false)][switch]$SkipExistingFiles,
-  [parameter(Mandatory = $false)][int]$ThrottleLimit = 1
+  [parameter(Mandatory = $false)][int]$ThrottleLimit = [Environment]::ProcessorCount
 )
 
-[string]$currentDateTime = Get-Date -UFormat "%Y%m%d_%H%M%S"
-[string]$fallbackDir = Join-Path -Path $env:TEMP -ChildPath "PowerBIWorkspaces"
+begin {
+  # Declare the servicePrincipal global variables
+  $global:servicePrincipalId = $null
+  $global:servicePrincipalTenantId = $null
+  $global:servicePrincipalSecret = $null
+  $global:credential = $servicePrincipalId ? (New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $servicePrincipalId, ($servicePrincipalSecret | ConvertTo-SecureString -AsPlainText -Force)) : $null
+  [string]$currentDateTime = Get-Date -UFormat "%Y%m%d_%H%M%S"
+  [string]$fallbackDir = Join-Path -Path $env:TEMP -ChildPath "PowerBIWorkspaces"
+  $headers = [System.Collections.Generic.Dictionary[[String], [String]]]::New()
 
-$headers = [System.Collections.Generic.Dictionary[[String],[String]]]::New()
-
-Function Convert-PbixToProj {
-  Param(
-    [Parameter(Mandatory = $true)][string]$PbixPath,
-    [Parameter(Mandatory = $true)][string]$ShortPath
-  )
-  try {
-    Invoke-Expression pbi-tools | Out-Null
-  } catch {
-    Write-Error "'pbi-tools' command not found. See: https://pbi.tools/tutorials/getting-started-cli.html"
-    Write-Warning $Error[0]
-  }
-  finally{
-    if (!$Error[0]) {
-      $command = "pbi-tools extract -pbixPath ""$PbixPath"""
-      Write-Debug "Running command: $command"
-      Write-Host "📦 Extracting: $ShortPath"
-      Invoke-Expression $command | Out-Null
+  Function Convert-PbixToProj {
+    Param(
+      [Parameter(Mandatory = $true)][string]$PbixPath,
+      [Parameter(Mandatory = $true)][string]$ShortPath
+    )
+    try {
+      Invoke-Expression pbi-tools | Out-Null
+    }
+    catch {
+      Write-Error "'pbi-tools' command not found. See: https://pbi.tools/tutorials/getting-started-cli.html"
+      Write-Warning $Error[0]
+    }
+    finally {
+      if (!$Error[0]) {
+        $command = "pbi-tools extract -pbixPath ""$PbixPath"""
+        Write-Debug "Running command: $command"
+        Write-Host "📦 Extracting: $ShortPath"
+        Invoke-Expression $command | Out-Null
+      }
     }
   }
+  $fn_PbixToProj = ${function:Convert-PbixToProj}.ToString()
 }
 
-$fn_PbixToProj = ${function:Convert-PbixToProj}.ToString()
+process{
 
-try {
-  $headers = Get-PowerBIAccessToken
-} catch {
-  Write-Host '🔒 Power BI Access Token required. Launching Azure Active Directory authentication dialog...'
-  Start-Sleep -s 1
-  Connect-PowerBIServiceAccount -WarningAction SilentlyContinue | Out-Null
-  $headers = Get-PowerBIAccessToken
-} finally {
+  try {
+    $headers = Get-PowerBIAccessToken
+  }
+  catch {
+    if ($servicePrincipalId) {
+      Connect-PowerBIServiceAccount -ServicePrincipal -Tenant $servicePrincipalTenantId -Credential $credential
+      $headers = Get-PowerBIAccessToken
+    }
+    else {
+      Write-Host '🔒 Power BI Access Token required. Launching Azure Active Directory authentication dialog...'
+      Start-Sleep -s 1
+      Connect-PowerBIServiceAccount -WarningAction SilentlyContinue | Out-Null
+      $headers = Get-PowerBIAccessToken
+    }
+    if ($headers) {
+      Write-Host '🔑 Power BI Access Token acquired. Proceeding...'
+    }
+    else {
+      Write-Host '❌ Power BI Access Token not acquired. Exiting...'
+      exit
+    }
+  }
   
   Write-Host '🔑 Power BI Access Token acquired.'
   
@@ -118,13 +156,12 @@ try {
   
   # Get list of workspaces and prompt user to select which ones to export
   $workspaces = Get-PowerBIWorkspace -Scope Organization -All |
-    Where-Object {
-      $_.Type -eq "Workspace" -and
-      $_.State -eq "Active" -and
-      $_.Name -notIn $ignoreWorkspaces -and
-      $_.Name -notLike ".*"
-    } | Select-Object Name, Id | Sort-Object -Property Name |
-    Out-ConsoleGridView -Title "Select Workspaces to Export"
+  Where-Object {
+    $_.Type -eq "Workspace" -and
+    $_.State -eq "Active" -and
+    $_.Name -notIn $ignoreWorkspaces
+  } | Select-Object Name, Id | Sort-Object -Property Name |
+  Out-ConsoleGridView -Title "Select Workspaces to Export"
   
   # If user didn't specify a destination folder, fall back to $fallbackDir
   $targetDir = $OutputFolder ? $OutputFolder : $fallbackDir
@@ -146,9 +183,9 @@ try {
     $workspaceID = $w.Id
     $workspaceName = $w.Name
     $reports = Get-PowerBIReport -WorkspaceId $workspaceID |
-      Where-Object {
-        $_.Name -notIn $ignoreReports
-      } | Sort-Object -Property Name
+    Where-Object {
+      $_.Name -notIn $ignoreReports
+    } | Sort-Object -Property Name
     
     # If user does not have access to the current workspace, log an error and skip it
     #TODO: Proper error handling
@@ -184,8 +221,8 @@ try {
       $targetReportPathBaseName = Join-Path -Path $workspacePath -ChildPath $reportName
       $shortPathBaseName = Join-Path -Path $workspaceName -ChildPath $reportName
       $targetFilePath, $shortPath = ($reportWebUrl -like "*/rdlreports/*") ?
-        "$targetReportPathBaseName.rdl", "$shortPathBaseName.rdl" :
-        "$targetReportPathBaseName.pbix", "$shortPathBaseName.pbix"
+      "$targetReportPathBaseName.rdl", "$shortPathBaseName.rdl" :
+      "$targetReportPathBaseName.pbix", "$shortPathBaseName.pbix"
       Write-Debug "Report WebUrl: $reportWebUrl"
       Write-Verbose "_______________________________________________________"
       Write-Verbose "Exporting $reportName to $targetFilePath..."
@@ -236,5 +273,5 @@ try {
   }
   # Remove any empty directories
   Get-ChildItem $targetDir -Recurse -Attributes Directory |
-    Where-Object { $_.GetFileSystemInfos().Count -eq 0 } | Remove-Item
+  Where-Object { $_.GetFileSystemInfos().Count -eq 0 } | Remove-Item
 }
