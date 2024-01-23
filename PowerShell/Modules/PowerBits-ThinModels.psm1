@@ -221,6 +221,16 @@ Function Export-PowerBIThinModelsFromWorkspaces {
         (see: "Download reports" setting in the Power BI Admin Portal).
       - The user must have "Contributor" or higher permissions on the 
         Workspace(s) where the Thin Model(s) to be exported are published.
+TODO
+      - Error handling and logging
+      - Parallelism
+      - ParameterSetName on mutually-exclusive parameters (https://youtu.be/OO2yu5RgOVo)
+      - HelpMessage on all parameters (https://youtu.be/UnjKVanzIOk)
+      - [ValidateScript({Test-Path $_})][string]$path on all file paths
+      - 429 throttling (see Rui's repo and this article: https://powerbi.microsoft.com/en-us/blog/best-practices-to-prevent-getgroupsasadmin-api-timeout/)
+      - Call Power BI REST API endpoints directly instead of MicrosoftPowerBIMgmt cmdlets
+      - Service Principal authentication
+      - Testing
     ACKNOWLEDGEMENTS
       - Thanks to my wife (@likeawednesday@techhub.social) for her support and encouragement.
       - Thanks to the PowerShell and Power BI/Fabric communities for being so awesome.
@@ -249,9 +259,9 @@ Function Export-PowerBIThinModelsFromWorkspaces {
     [Parameter()][string]$BlankPbix
   )
   begin {
+    [string]$blankPbixUri = 'https://github.com/JamesDBartlett3/PowerBits/raw/main/Misc/blank.pbix'
     [string]$tempFolder = Join-Path -Path $env:TEMP -ChildPath 'PowerBIThinModels'
     [string]$outputDirectory = if(!($OutputFolder)) {$tempFolder} else {$OutputFolder}
-    [string]$blankPbixUri = 'https://github.com/JamesDBartlett3/ps-for-pbi/raw/main/.bin/blank.pbix'
     [string]$blankPbixTempFile = Join-Path -Path $env:TEMP -ChildPath 'blank.pbix'
     [string]$pbiApiBaseUri = 'https://api.powerbi.com/v1.0/myorg'
     [string]$urlRegex = '(http[s]?|[s]?ftp[s]?)(:\/\/)([^\s,]+)'
