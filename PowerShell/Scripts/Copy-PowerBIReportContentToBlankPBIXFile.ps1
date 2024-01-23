@@ -1,16 +1,11 @@
 <#
   .SYNOPSIS
-    Function: Copy-PowerBIReportContentToBlankPBIXFile
-    Author: @JamesDBartlett3@techhub.social (James D. Bartlett III)
+    Copies the contents of a published Power BI report into a new report published from a blank PBIX file.
   
   .DESCRIPTION
-    - This script will copy the contents of a published Power BI 
-      report into a new report published from a blank PBIX 
-    - This solves the problem where a Power BI report originally 
-      created in the web browser cannot be downloaded from the 
-      Power BI service as a PBIX file.
+    This script will copy the contents of a published Power BI report into a new report published from a blank PBIX. This solves the problem where a Power BI report originally created in the web browser cannot be downloaded from the Power BI service as a PBIX file.
   
-  .PARAMETER SourceReportId 
+  .PARAMETER SourceReportId
     The ID of the report to copy from
   
   .PARAMETER SourceWorkspaceId
@@ -29,12 +24,13 @@
     Local path to save the new PBIX file to
   
   .EXAMPLE
-    Copy-PowerBIReportContentToBlankPBIXFile -SourceReportId "12345678-1234-1234-1234-123456789012" -SourceWorkspaceId "12345678-1234-1234-1234-123456789012" -TargetReportId "12345678-1234-1234-1234-123456789012" -TargetWorkspaceId "12345678-1234-1234-1234-123456789012"
+    .\Copy-PowerBIReportContentToBlankPBIXFile.ps1 -SourceReportId "12345678-1234-1234-1234-123456789012" -SourceWorkspaceId "12345678-1234-1234-1234-123456789012" -TargetReportId "12345678-1234-1234-1234-123456789012" -TargetWorkspaceId "12345678-1234-1234-1234-123456789012"
   
   .NOTES
-    This function does NOT require Azure AD app registration, 
-    service principal creation, or any other special setup.
+    This script does NOT require Azure AD app registration, service principal creation, or any other special setup.
     The only requirements are:
+      - The user must be able to run PowerShell (and install the MicrosoftPowerBIMgmt module, if it's not already installed).
+      - The user must be allowed to download report PBIX files (see: "Download reports" setting in the Power BI Admin Portal).
       - The user must be able to run PowerShell (and install the
         MicrosoftPowerBIMgmt module, if it's not already installed).
       - The user must be allowed to download report PBIX files
@@ -50,13 +46,28 @@
       - [gc]::Collect() to free up memory
     
     ACKNOWLEDGEMENTS
-      - This PS function was inspired by a blog article written by 
+      - This PS script was inspired by a blog article written by 
         one of the top minds in the Power BI space, Mathias Thierbach.
         Check out his article here: https://bit.ly/37ofVou
         And if you're not already using his pbi-tools for Power BI
         version control, you should check it out: https://pbi.tools
       - Thanks to my wife (@likeawednesday@techhub.social) for her support and encouragement.
       - Thanks to the PowerShell and Power BI/Fabric communities for being so awesome.
+  
+  .LINK
+    [Source code](https://github.com/JamesDBartlett3/PowerBits/blob/main/PowerShell/Scripts/Copy-PowerBIReportContentToBlankPBIXFile.ps1)
+  
+  .LINK
+    [The author's blog](https://datavolume.xyz)
+    
+  .LINK
+    [Follow the author on LinkedIn](https://www.linkedin.com/in/jamesdbartlett3/)
+  
+  .LINK
+    [Follow the author on Mastodon](https://techhub.social/@JamesDBartlett3)
+  
+  .LINK
+    [Follow the author on BlueSky](https://bsky.app/profile/jamesdbartlett3.bsky.social)
 #>
 
 #Requires -PSEdition Core
@@ -72,7 +83,7 @@ Param(
   [Parameter(Mandatory = $false)][string]$OutFile
 )
 
-$headers = [System.Collections.Generic.Dictionary[[String],[String]]]::New()
+$headers = [System.Collections.Generic.Dictionary[[String], [String]]]::New()
 
 [string]$blankPbixTempFile = Join-Path -Path $env:TEMP -ChildPath 'blank.pbix'
 [array]$validPbixContents = @('Layout', 'Metadata')
@@ -85,13 +96,14 @@ $headers = [System.Collections.Generic.Dictionary[[String],[String]]]::New()
 
 Function FileIsBlankPbix($file) {
   $zip = [System.IO.Compression.ZipFile]::OpenRead($file)
-  $fileIsPbix = @($validPbixContents | Where-Object {$zip.Entries.Name -Contains $_}).Count -gt 0
+  $fileIsPbix = @($validPbixContents | Where-Object { $zip.Entries.Name -Contains $_ }).Count -gt 0
   $fileIsBlank = (Get-Item $file).length / 1KB -lt 20
   $zip.Dispose()
   if ($fileIsPbix -and $fileIsBlank) {
     Write-Debug "$file is a valid blank pbix file."
     return $true
-  } else {
+  }
+  else {
     Write-Error "$file is NOT a valid blank pbix file."
     return $false
   }
@@ -146,12 +158,14 @@ if (!$TargetReportId) {
 
 try {
   $headers = Get-PowerBIAccessToken
-} catch {
+}
+catch {
   Write-Host '🔒 Power BI Access Token required. Launching Azure Active Directory authentication dialog...'
   Start-Sleep -s 1
   Connect-PowerBIServiceAccount -WarningAction SilentlyContinue | Out-Null
   $headers = Get-PowerBIAccessToken
-} finally {
+}
+finally {
   Write-Host '🔑 Power BI Access Token acquired.'
   Write-Debug "Target Report ID is null: $(!$TargetReportId)"
   $pbiApiBaseUri = 'https://api.powerbi.com/v1.0/myorg'
