@@ -2,49 +2,33 @@
 Function Get-PowerBIThinModelsFromWorkspaces {
   <#
   .SYNOPSIS
-    Function: Get-PowerBIThinModelsFromWorkspaces
-    Author: @JamesDBartlett3@techhub.social (James D. Bartlett III)
+    Get all "Thin" Models (Power BI Semantic Models without a corresponding report) from Power BI Workspaces
   .DESCRIPTION
-    Get all "Thin" Models (Power BI Semantic Models without a corresponding report) from selected Workspaces in parallel
+    Get all "Thin" Models (Power BI Semantic Models without a corresponding report) from selected Power BI Workspaces in parallel, and output them to the pipeline.
   .PARAMETER ThrottleLimit
-    The maximum number of parallel processes to run.
-    Defaults to 1.
+    The maximum number of parallel processes to run. Defaults to the number of logical processors in the system.
   .PARAMETER Interactive
     If specified, displays a grid view of Workspaces and allows the user to select which ones to scan for Thin Models.
   .INPUTS
-    This function does not accept pipeline input.
+    This script does not accept pipeline input.
   .OUTPUTS
-    Selected.System.String (one or more objects with the following properties):
-      - DatasetName
+    One or more objects with the following properties:
+      - ModelName
       - DatasetId
       - WebUrl
       - IsRefreshable
       - WorkspaceName
       - WorkspaceId
   .EXAMPLE
-    Get-PowerBIThinModelsFromWorkspaces -Interactive -ThrottleLimit 4
-  .LINK
-    https://github.com/JamesDBartlett3/PowerBits
-  .LINK
-    https://techhub.social/@JamesDBartlett3
-  .LINK
-    https://datavolume.xyz
+    # Get all Thin Models from all workspaces to which the user has access, one at a time
+    .\Get-PowerBIThinModelsFromWorkspaces.ps1 -ThrottleLimit 1
+  .EXAMPLE
+    # Get all Thin Models from all workspaces specified by the user in an interactive prompt, in parallel
+    .\Get-PowerBIThinModelsFromWorkspaces.ps1 -Interactive
   .NOTES
-    This function does NOT require Azure AD app registration, 
-    service principal creation, or any other special setup.
+    This script does NOT require Azure AD app registration, service principal creation, or any other special setup.
     The only requirements are:
-      - The user must be able to run PowerShell (and install the
-        MicrosoftPowerBIMgmt module, if it's not already installed).
-    TODO
-      - Separate verbose and debug outputs
-      - HelpMessage on all parameters (https://youtu.be/UnjKVanzIOk)
-      - 429 throttling (see Rui's repo and this article: https://powerbi.microsoft.com/en-us/blog/best-practices-to-prevent-getgroupsasadmin-api-timeout/)
-      - Individual Datasets within a Workspace
-      - Error handling and logging
-      - Call Power BI REST API endpoints directly instead of MicrosoftPowerBIMgmt cmdlets
-      - Service Principal authentication
-      - [gc]::Collect() to free up memory
-      - Testing
+      - The user must be able to run PowerShell (and install the MicrosoftPowerBIMgmt module, if it's not already installed).
     ACKNOWLEDGEMENTS
       - Thanks to my wife (@likeawednesday@techhub.social) for her support and encouragement.
       - Thanks to @santisq & @seeminglyscience on PowerShell Discord for their guidance on using 
@@ -53,6 +37,16 @@ Function Get-PowerBIThinModelsFromWorkspaces {
         which inspired me, and taught me a lot about making Power BI REST API calls from PowerShell. 
         Much of the code in this repo is based on Rui's work.
       - Thanks to the PowerShell and Power BI/Fabric communities for being so awesome.
+  .LINK
+    [Source code](https://github.com/JamesDBartlett3/PowerBits/blob/main/PowerShell/Scripts/Get-PowerBIThinModelsFromWorkspaces.ps1)
+  .LINK
+    [The author's blog](https://datavolume.xyz)
+  .LINK
+    [Follow the author on LinkedIn](https://www.linkedin.com/in/jamesdbartlett3/)
+  .LINK
+    [Follow the author on Mastodon](https://techhub.social/@JamesDBartlett3)
+  .LINK
+    [Follow the author on BlueSky](https://bsky.app/profile/jamesdbartlett3.bsky.social)
 #>
   # PowerShell dependencies
   #Requires -Modules MicrosoftPowerBIMgmt, Microsoft.PowerShell.ConsoleGuiTools
@@ -63,15 +57,13 @@ Function Get-PowerBIThinModelsFromWorkspaces {
   )
   begin {
     # Declare the servicePrincipal global variables
-    # TODO: replace these with parameters to allow service principal authentication
     $global:servicePrincipalId = $null
     $global:servicePrincipalTenantId = $null
     $global:servicePrincipalSecret = $null
-    # TODO: rewrite this line to use the PSCredential constructor instead of the New-Object cmdlet
     $global:credential = $servicePrincipalId ? (New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $servicePrincipalId, ($servicePrincipalSecret | ConvertTo-SecureString -AsPlainText -Force)) : $null
     # Get names of Workspaces and Reports to ignore from IgnoreList.json file
     # Most of these are template apps and/or auto-generated by Microsoft
-    [PSCustomObject]$ignoreObjects = Get-Content -Path (Join-Path -Path $PSScriptRoot -ChildPath "../IgnoreList.json") | ConvertFrom-Json
+    [PSCustomObject]$ignoreObjects = Get-Content -Path (Join-Path -Path $PSScriptRoot -ChildPath "IgnoreList.json") | ConvertFrom-Json
     [array]$global:ignoreWorkspaces = $ignoreObjects.IgnoreWorkspaces
     [array]$global:ignoreReports = $ignoreObjects.IgnoreReports
   }
@@ -82,7 +74,8 @@ Function Get-PowerBIThinModelsFromWorkspaces {
     catch {
       if ($servicePrincipalId) {
         $headers = Connect-PowerBIServiceAccount -ServicePrincipal -Tenant $servicePrincipalTenantId -Credential $credential
-      } else {
+      }
+      else {
         Write-Host '🔒 Power BI Access Token required. Launching Azure Active Directory authentication dialog...'
         Start-Sleep -s 1
         Connect-PowerBIServiceAccount -WarningAction SilentlyContinue | Out-Null
@@ -90,7 +83,8 @@ Function Get-PowerBIThinModelsFromWorkspaces {
       }
       if ($headers) {
         Write-Host '🔑 Power BI Access Token acquired. Proceeding...'
-      } else {
+      }
+      else {
         Write-Host '❌ Power BI Access Token not acquired. Exiting...'
         exit
       }
@@ -106,7 +100,7 @@ Function Get-PowerBIThinModelsFromWorkspaces {
     Write-Debug "Headers: `n $($headers.Keys)`n $($headers.Values)`n"
     Write-Debug "User Identifier: `n $pbiUserIdentifier"
     # Get list of Workspaces
-    $workspaces = Get-PowerBIWorkspace -Scope Organization -All -ErrorAction SilentlyContinue | 
+    $workspaces = Get-PowerBIWorkspace -Scope Organization -All | 
       Where-Object {
         $_.Type -eq 'Workspace' -and
         $_.State -eq 'Active' -and
@@ -122,7 +116,7 @@ Function Get-PowerBIThinModelsFromWorkspaces {
       $workspaceName = $_.Name
       $workspaceId = $_.Id
       # Get Datasets from the Workspace
-      $workspaceModels = Get-PowerBIDataset -Scope Organization -WorkspaceId $workspaceId -ErrorAction SilentlyContinue |
+      $workspaceModels = Get-PowerBIDataset -Scope Organization -WorkspaceId $workspaceId |
         Where-Object {
           $_.IsRefreshable -eq $true -and
           $_.Name -notIn $ignoreReports
@@ -132,7 +126,7 @@ Function Get-PowerBIThinModelsFromWorkspaces {
           Name = 'WorkspaceId'; Expression = { $workspaceId }
         } | Sort-Object -Property Name
         # Get reports from the Workspace
-        $workspaceReports = Get-PowerBIReport -Scope Organization -WorkspaceId $workspaceId -ErrorAction SilentlyContinue |
+        $workspaceReports = Get-PowerBIReport -Scope Organization -WorkspaceId $workspaceId |
           Where-Object {
             $_.Name -notIn $ignoreReports -and
             $_.WebUrl -notlike '*/rdlreports/*'
@@ -143,17 +137,17 @@ Function Get-PowerBIThinModelsFromWorkspaces {
           } | Sort-Object -Property Name
           # For each Dataset, check for any corresponding reports with the same name
           $workspaceModels | ForEach-Object {
-            $datasetProperties = '' | Select-Object DatasetName, DatasetId, WebUrl, IsRefreshable, WorkspaceName, WorkspaceId
-            $datasetName, $datasetId, $datasetWebUrl, $datasetIsRefreshable, $datasetWorkspaceName, $datasetWorkspaceId = $null
-            $datasetName = $_.Name
+            $datasetProperties = '' | Select-Object ModelName, DatasetId, WebUrl, IsRefreshable, WorkspaceName, WorkspaceId
+            $modelName, $datasetId, $datasetWebUrl, $datasetIsRefreshable, $datasetWorkspaceName, $datasetWorkspaceId = $null
+            $modelName = $_.Name
             $datasetId = $_.Id
             $datasetWebUrl = $_.WebUrl
             $datasetIsRefreshable = $_.IsRefreshable
             $datasetWorkspaceName = $_.WorkspaceName
             $datasetWorkspaceId = $_.WorkspaceId
             # If no corresponding report is found, output the Dataset's properties for processing downstream
-            if (!($workspaceReports | Where-Object { $_.Name -eq $datasetName -and $_.WorkspaceId -eq $datasetWorkspaceId })) {
-              $datasetProperties.DatasetName = $datasetName
+            if (!($workspaceReports | Where-Object { $_.Name -eq $modelName -and $_.WorkspaceId -eq $datasetWorkspaceId })) {
+              $datasetProperties.ModelName = $modelName
               $datasetProperties.DatasetId = $datasetId
               $datasetProperties.WebUrl = $datasetWebUrl
               $datasetProperties.IsRefreshable = $datasetIsRefreshable
@@ -179,10 +173,11 @@ Function Get-PowerBIThinModelsFromWorkspaces {
 Function Export-PowerBIThinModelsFromWorkspaces {
   <#
   .SYNOPSIS
-    Function: Export-PowerBIThinModelsFromWorkspaces
-    Author: @JamesDBartlett3@techhub.social (James D. Bartlett III)
+    Exports one or more "Thin" Models (Power BI Semantic Models with no corresponding Report) from Power BI as PBIX files.
   .DESCRIPTION
-    Exports "Thin" Model (Power BI Semantic Model with no corresponding Report) from Power BI as PBIX file
+    This script will export one or more "Thin" Models (Power BI Semantic Models with no corresponding Report) from Power BI as PBIX files.
+    It can be used to export a single Thin Model by specifying the DatasetId, WorkspaceId, BlankPbix, and OutputFile parameters.
+    It can also be used to export multiple Thin Models by piping the output of the Get-PowerBIThinModelsFromWorkspaces.ps1 script to it.
   .PARAMETER DatasetId
     The ID of the Model to export
   .PARAMETER WorkspaceId
@@ -191,10 +186,12 @@ Function Export-PowerBIThinModelsFromWorkspaces {
     The name of the Model to export
   .PARAMETER WorkspaceName
     The name of the Workspace containing the Model to export
+  .PARAMETER OutputFile
+    Local filename for one exported Model PBIX file
+  .PARAMETER OutputFolder
+    Local folder to store multiple workspace subfolders and exported Model PBIX files
   .PARAMETER BlankPbix
     Path (local or URL) to a blank PBIX file to upload and rebind to the Model to be exported
-  .PARAMETER OutFile
-    Local path to save the Model PBIX file to
   .INPUTS
     Selected.System.String (one or more objects with the following property names):
       - "DatasetId" or "Id" (required)
@@ -202,26 +199,20 @@ Function Export-PowerBIThinModelsFromWorkspaces {
       - "DatasetName" or "Name" (optional)
       - "WorkspaceName" (optional)
   .OUTPUTS
-    This function does not output anything to the pipeline
+    This script does not output anything to the pipeline
   .EXAMPLE
-    # Export a single Thin Model as a PBIX file by specifying the DatasetId, WorkspaceId, BlankPbix, and OutFile parameters
-    Export-PowerBIThinModelsFromWorkspaces -DatasetId "00000000-0000-0000-0000-000000000000" -WorkspaceId "00000000-0000-0000-0000-000000000000" -BlankPbix "C:\blank.pbix" -OutFile "C:\new.pbix"
+    # Export a single Thin Model as a PBIX file by specifying the DatasetId, WorkspaceId, BlankPbix, and OutputFile parameters
+    .\Export-PowerBIThinModelsFromWorkspaces.ps1 -DatasetId "00000000-0000-0000-0000-000000000000" -WorkspaceId "00000000-0000-0000-0000-000000000000" -BlankPbix "C:\blank.pbix" -OutputFile "C:\new.pbix"
   .EXAMPLE 
-    # Get a list of Thin Models from the Get-PowerBIThinModelsFromWorkspaces function
-    $thinModels = Get-PowerBIThinModelsFromWorkspaces -Interactive
-    # Then export them all as PBIX files
-    $thinModels | Export-PowerBIThinModelsFromWorkspaces
+    # Use the Get-PowerBIThinModelsFromWorkspaces.ps1 script with the Interactive switch to pick one or more Thin Models,
+    # and pipe the output into Export-PowerBIThinModelsFromWorkspaces.ps1 to export the selected Thin Models as PBIX files
+    .\Get-PowerBIThinModelsFromWorkspaces.ps1 -Interactive | .\Export-PowerBIThinModelsFromWorkspaces.ps1
   .EXAMPLE
-    # Get all Thin Models from all Workspaces in the tenant and export them as PBIX files
-    Get-PowerBIThinModelsFromWorkspaces | Export-PowerBIThinModelsFromWorkspaces
-  .LINK
-    https://github.com/JamesDBartlett3/PowerBits
-  .LINK
-    https://techhub.social/@JamesDBartlett3
-  .LINK
-    https://datavolume.xyz
+    # Pipe the output of the Get-PowerBIThinModelsFromWorkspaces.ps1 script to this script, export all detected thin models to which the user has access,
+    # and use the OutputFolder parameter to specify that they should be stored in a folder named "PowerBIThinModels" in the user's Downloads directory
+    .\Get-PowerBIThinModelsFromWorkspaces.ps1 | .\Export-PowerBIThinModelsFromWorkspaces.ps1 -OutputFolder "$env:USERPROFILE\Downloads\PowerBIThinModels"
   .NOTES
-    This function does NOT require Azure AD app registration, 
+    This script does NOT require Azure AD app registration, 
     service principal creation, or any other special setup.
     The only requirements are:
       - The user must be able to run PowerShell (and install the
@@ -230,35 +221,37 @@ Function Export-PowerBIThinModelsFromWorkspaces {
         (see: "Download reports" setting in the Power BI Admin Portal).
       - The user must have "Contributor" or higher permissions on the 
         Workspace(s) where the Thin Model(s) to be exported are published.
-    TODO
-      - Error handling and logging
-      - Parallelism
-      - ParameterSetName on mutually-exclusive parameters (https://youtu.be/OO2yu5RgOVo)
-      - HelpMessage on all parameters (https://youtu.be/UnjKVanzIOk)
-      - [ValidateScript({Test-Path $_})][string]$path on all file paths
-      - 429 throttling (see Rui's repo and this article: https://powerbi.microsoft.com/en-us/blog/best-practices-to-prevent-getgroupsasadmin-api-timeout/)
-      - Call Power BI REST API endpoints directly instead of MicrosoftPowerBIMgmt cmdlets
-      - Service Principal authentication
-      - Testing
     ACKNOWLEDGEMENTS
       - Thanks to my wife (@likeawednesday@techhub.social) for her support and encouragement.
       - Thanks to the PowerShell and Power BI/Fabric communities for being so awesome.
-      - Thanks to @santisq & @seeminglyscience on PowerShell Discord for their guidance on using 
-        a process block to enable streaming inputs from the pipeline.
+      - Thanks to @santisq & @seeminglyscience on PowerShell Discord for their guidance on using a process block to enable streaming inputs from the pipeline.
+    TODO: Add ExtractWithPbiTools switch parameter
+  .LINK
+    [Source code](https://github.com/JamesDBartlett3/PowerBits/blob/main/PowerShell/Scripts/Export-PowerBIThinModelsFromWorkspaces.ps1)
+  .LINK
+    [The author's blog](https://datavolume.xyz)
+  .LINK
+    [Follow the author on LinkedIn](https://www.linkedin.com/in/jamesdbartlett3/)
+  .LINK
+    [Follow the author on Mastodon](https://techhub.social/@JamesDBartlett3)
+  .LINK
+    [Follow the author on BlueSky](https://bsky.app/profile/jamesdbartlett3.bsky.social)
 #>
   #Requires -Modules MicrosoftPowerBIMgmt
   [CmdletBinding()]
   Param(
     [Parameter(Mandatory, ValueFromPipelineByPropertyName)][Alias('Id')][guid]$DatasetId,
     [Parameter(Mandatory, ValueFromPipelineByPropertyName)][guid]$WorkspaceId,
-    [Parameter(ValueFromPipelineByPropertyName)][Alias('Name')][string]$DatasetName,
+    [Parameter(ValueFromPipelineByPropertyName)][Alias('Name')][string]$ModelName,
     [Parameter(ValueFromPipelineByPropertyName)][string]$WorkspaceName,
-    [Parameter()][string]$BlankPbix,
-    [Parameter()][string]$OutFile
+    [Parameter()][string]$OutputFolder,
+    [Parameter()][string]$OutputFile,
+    [Parameter()][string]$BlankPbix
   )
   begin {
-    [string]$blankPbixUri = 'https://github.com/JamesDBartlett3/PowerBits/raw/main/Misc/blank.pbix'
     [string]$tempFolder = Join-Path -Path $env:TEMP -ChildPath 'PowerBIThinModels'
+    [string]$outputDirectory = if(!($OutputFolder)) {$tempFolder} else {$OutputFolder}
+    [string]$blankPbixUri = 'https://github.com/JamesDBartlett3/ps-for-pbi/raw/main/.bin/blank.pbix'
     [string]$blankPbixTempFile = Join-Path -Path $env:TEMP -ChildPath 'blank.pbix'
     [string]$pbiApiBaseUri = 'https://api.powerbi.com/v1.0/myorg'
     [string]$urlRegex = '(http[s]?|[s]?ftp[s]?)(:\/\/)([^\s,]+)'
@@ -270,15 +263,10 @@ Function Export-PowerBIThinModelsFromWorkspaces {
     [bool]$localFileIsValid = $false
     [int]$thinModelCount = 0
     [int]$errorCount = 0
-    if (!(Test-Path $tempFolder)) {
-      New-Item -Path $tempFolder -ItemType Directory | Out-Null
+    if(!(Test-Path -LiteralPath $outputDirectory)) {
+      New-Item -Path $outputDirectory -ItemType Directory | Out-Null
     }
-    Invoke-Item -Path $tempFolder
-  }
-  process {
-    Write-Debug "DatasetId: $DatasetId, WorkspaceId: $WorkspaceId, DatasetName: $DatasetName, WorkspaceName: $WorkspaceName"
-    $headers = [System.Collections.Generic.Dictionary[[String], [String]]]::New()
-    [string]$uniqueName = 'temp_' + [guid]::NewGuid().ToString().Replace('-', '')
+    Invoke-Item -Path $outputDirectory
     Function FileIsBlankPbix($file) {
       $zip = [System.IO.Compression.ZipFile]::OpenRead($file)
       $fileIsPbix = @($validPbixContents | Where-Object { $zip.Entries.Name -Contains $_ }).Count -gt 0
@@ -293,14 +281,19 @@ Function Export-PowerBIThinModelsFromWorkspaces {
         return $false
       }
     }
-    # If the temp folder doesn't exist and user has not specified OutFile location, create the temp folder
-    if (!(Test-Path -LiteralPath $tempFolder) -and !$OutFile) {
-      New-Item -Path $tempFolder -ItemType Directory | Out-Null
+  }
+  process {
+    Write-Debug "DatasetId: $DatasetId, WorkspaceId: $WorkspaceId, DatasetName: $ModelName, WorkspaceName: $WorkspaceName"
+    $headers = [System.Collections.Generic.Dictionary[[String], [String]]]::New()
+    [string]$uniqueName = 'temp_' + [guid]::NewGuid().ToString().Replace('-', '')
+    # If the output folder doesn't exist and user has not specified OutputFile location, create the output folder
+    if (!(Test-Path -LiteralPath $outputDirectory) -and !$OutputFile) {
+      New-Item -Path $outputDirectory -ItemType Directory | Out-Null
     }
     # If user specified a URL to a file, download and validate it as a blank PBIX file
     if ($blankPbixIsUrl) {
       Write-Verbose "Downloading file: $BlankPbix..."
-      Invoke-WebRequest -Uri $BlankPbix -OutFile $blankPbixTempFile
+      Invoke-WebRequest -Uri $BlankPbix -OutputFile $blankPbixTempFile
       Write-Verbose 'Validating downloaded file...'
       $remoteFileIsValid = FileIsBlankPbix($blankPbixTempFile)
     }
@@ -346,8 +339,10 @@ Function Export-PowerBIThinModelsFromWorkspaces {
         Exit
       }
     }
+    # Add Content-Type: application/json to the headers
+    $headers.Add('Content-Type', 'application/json')
     # If user did not specify a Model name, get it from the API
-    $DatasetName = $DatasetName ?? (Get-PowerBIDataset -Id $DatasetId -WorkspaceId $WorkspaceId).Name
+    $ModelName = $ModelName ?? (Get-PowerBIDataset -Id $DatasetId -WorkspaceId $WorkspaceId).Name
     # If user did not specify a Workspace name, get it from the API
     $WorkspaceName = $WorkspaceName ?? (Get-PowerBIWorkspace -Id $WorkspaceId).Name
     # Publish the blank PBIX file to the target workspace
@@ -358,34 +353,34 @@ Function Export-PowerBIThinModelsFromWorkspaces {
     $publishedDatasetId = (Get-PowerBIDataset -WorkspaceId $WorkspaceId | Where-Object { $_.Name -eq $uniqueName }).Id
     Write-Debug "Published Report ID: $publishedReportId; Published Model ID: $publishedDatasetId"
     # Assemble the Workspace base URI
-    $workspaceBaseUri = "$pbiApiBaseUri/groups/$WorkspaceId"
+    [string]$workspaceBaseUri = "$pbiApiBaseUri/groups/$WorkspaceId"
     # Assemble the Datasets API URI
-    $datasetsEndpoint = "$workspaceBaseUri/datasets"
+    [string]$datasetsEndpoint = "$workspaceBaseUri/datasets"
     # Assemble the Reports API URI
-    $reportsEndpoint = "$workspaceBaseUri/reports"
+    [string]$reportsEndpoint = "$workspaceBaseUri/reports"
     # Assemble the Rebind API URI
-    $updateReportContentEndpoint = "$reportsEndpoint/$publishedReportId/Rebind"
-    # Assemble the Rebind API request body
-    $body = "{`"datasetId`": `"$DatasetId`"}"
+    [string]$updateReportContentEndpoint = "$reportsEndpoint/$publishedReportId/Rebind"
     # Assemble the Export API URI
-    $exportEndpoint = "$reportsEndpoint/$publishedReportId/Export"
-    # Add the Content-Type header to the request
-    $headers.Add('Content-Type', 'application/json')
+    [string]$exportEndpoint = "$reportsEndpoint/$publishedReportId/Export"
+    # Assemble the Rebind API request body
+    [string]$body = "{`"datasetId`": `"$DatasetId`"}"
     # Rebind the published Report to the Thin Model
     Write-Verbose "Rebinding published Report $publishedReportId to Model $DatasetId..."
     Invoke-RestMethod -Uri $updateReportContentEndpoint -Method POST -Headers $headers -Body $body | Out-Null
     # If the Workspace folder doesn't exist, create it
-    if (!(Test-Path (Join-Path -Path $tempFolder -ChildPath $WorkspaceName))) {
-      New-Item -Path (Join-Path -Path $tempFolder -ChildPath $WorkspaceName) -ItemType Directory | Out-Null
+    if (!(Test-Path (Join-Path -Path $outputDirectory -ChildPath $WorkspaceName))) {
+      New-Item -Path (Join-Path -Path $outputDirectory -ChildPath $WorkspaceName) -ItemType Directory | Out-Null
     }
-    # If user did not specify an output file name, use the Model's name and save it in the default temp folder
-    $OutFile = if (!!$OutFile) { $OutFile } else {
-      Join-Path -Path $tempFolder -ChildPath (Join-Path -Path $WorkspaceName -ChildPath "$($DatasetName).pbix")
+    # If user did not specify an output file name, use the Model's name and save it in the output folder
+    $OutputFile = if (!$OutputFile) {
+      Join-Path -Path $outputDirectory -ChildPath (Join-Path -Path $WorkspaceName -ChildPath "$($ModelName).pbix") 
+    } else {
+      $OutputFile
     }
     # Export the re-bound Report and Model (a.k.a. "Thick Report") PBIX file to a temp file first, then 
     # rename it to the correct name (workaround for Models with special characters in their names)
     Write-Verbose "Exporting re-bound blank Report and Model (a.k.a. 'Thick Report') $publishedReportId to temporary file $($uniqueName).pbix..."
-    $tempFileName = Join-Path -Path $tempFolder -ChildPath "$uniqueName.pbix"
+    [string]$tempFileName = Join-Path -Path $outputDirectory -ChildPath "$uniqueName.pbix"
     Invoke-RestMethod -Uri "$exportEndpoint" `
       -Method GET -Headers $headers `
       -ContentType 'application/octet-stream' `
@@ -396,24 +391,24 @@ Function Export-PowerBIThinModelsFromWorkspaces {
     if ($message) {
       $errorCount++
       $errorCode = ($message.ErrorRecord.ErrorDetails.Message | ConvertFrom-Json).error.code
-      Write-Error "Error exporting Thin Model `"$DatasetName`" from `"$WorkspaceName`"`: $errorCode"
+      Write-Error "Error exporting Thin Model `"$ModelName`" from `"$WorkspaceName`"`: $errorCode"
     }
     else {
       $thinModelCount++
-      Write-Verbose "Exported Thin Model `"$DatasetName`" from `"$WorkspaceName`" to $tempFileName"
-      Write-Verbose "Moving and renaming temp file $($uniqueName).pbix to $OutFile..."
-      Move-Item -Path $tempFileName -Destination $OutFile -Force
+      Write-Verbose "Exported Thin Model `"$ModelName`" from `"$WorkspaceName`" to $tempFileName"
+      Write-Verbose "Moving and renaming temp file $($uniqueName).pbix to $OutputFile..."
+      Move-Item -Path $tempFileName -Destination $OutputFile -Force
     }
-    $OutFile = $null
+    $OutputFile = $null
     # Delete the blank Report and its original Model from the Workspace
     Write-Verbose "Deleting temporary blank Model $publishedDatasetId and Report $publishedReportId from Workspace $WorkspaceId..."
     Invoke-RestMethod "$datasetsEndpoint/$publishedDatasetId" -Method DELETE -Headers $headers | Out-Null
     Invoke-RestMethod "$reportsEndpoint/$publishedReportId" -Method DELETE -Headers $headers | Out-Null
   }
   end {
-    Write-Verbose "Thin Models successfully exported: $thinModelCount.$(if($errorCount -gt 0){" Errors encountered: $errorCount"})"
+    Write-Verbose "Thin Models successfully exported: $thinModelCount -- $(if($errorCount -gt 0){" Errors encountered: $errorCount"})"
     # Remove any empty directories
-    Get-ChildItem $tempFolder -Recurse -Attributes Directory | Where-Object { $_.GetFileSystemInfos().Count -eq 0 } | Remove-Item
+    Get-ChildItem $outputDirectory -Recurse -Attributes Directory | Where-Object { $_.GetFileSystemInfos().Count -eq 0 } | Remove-Item
     # Clear the PowerShell session's memory
     [gc]::Collect()
   }
