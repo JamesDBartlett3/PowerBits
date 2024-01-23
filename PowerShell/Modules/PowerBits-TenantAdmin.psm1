@@ -120,6 +120,8 @@ Function Get-DataGatewayStatus {
     The only requirements are:
     - The user must be able to run PowerShell (and install the DataGateway module, if it's not already installed).
     - The user must have permissions to query the Data Gateway service.
+    TODO
+      - Replace DataGateway module dependency with Invoke-RestMethod calls to the [GatewayClusters API](https://api.powerbi.com/v2.0/myorg/gatewayclusters).
     ACKNOWLEDGEMENTS
       - Thanks to my wife (@likeawednesday@techhub.social) for her support and encouragement.
       - Thanks to the PowerShell and Power BI/Fabric communities for being so awesome.
