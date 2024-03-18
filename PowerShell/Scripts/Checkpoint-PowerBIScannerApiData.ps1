@@ -66,19 +66,21 @@ Param(
   [Parameter(Mandatory = $false)]
   [switch]$OpenFile,
   [Parameter(Mandatory = $false)][ValidateRange(1, 100)]
-  [int]$BatchSize = 100
+  [int]$BatchSize = 100,
+  [Parameter(Mandatory = $false)]
+  [string]$Organization = 'myorg'
 )
 
 #Requires -Modules MicrosoftPowerBIMgmt
 
 # Declare starting variables
-[string]$baseUrl = 'https://api.powerbi.com/v1.0/myorg/admin/workspaces'
+[string]$baseUrl = "https://api.powerbi.com/v1.0/$organization/admin/workspaces"
 [string]$modifiedWorkspacesUrl = "$baseUrl/modified?excludePersonalWorkspaces=True"
 [string]$getInfoUrl = "$baseUrl/getInfo?lineage=True&datasourceDetails=True&datasetSchema=True&datasetExpressions=True&getArtifactUsers=True"
 $headers = [System.Collections.Generic.Dictionary[[String], [String]]]::New()
 $scanResults = [PSCustomObject]@{
-  workspaces = @()
-  datasourceInstances = @()
+  workspaces                       = @()
+  datasourceInstances              = @()
   misconfiguredDatasourceInstances = @()
 }
 
@@ -116,7 +118,7 @@ foreach ($w in $workspaceList) {
 [int]$workspaceCount = $workspaceIdsObject.workspaces.Count
 
 # Declare a variable to hold the workspace suffix (singular or plural)
-[string]$workspaceSuffix = if($workspaceCount -eq 1) {''} else {'s'}
+[string]$workspaceSuffix = if ($workspaceCount -eq 1) {''} else {'s'}
 
 # If no workspaces were found, exit the script
 if ($workspaceCount -eq 0) {
@@ -128,10 +130,10 @@ if ($workspaceCount -eq 0) {
 [int]$batchesToRun = [Math]::Ceiling($workspaceCount / $batchSize)
 
 # Declare a variable to hold the batch suffix (singular or plural)
-[string]$batchSuffx = if($batchesToRun -eq 1) {''} else {'es'}
+[string]$batchSuffx = if ($batchesToRun -eq 1) {''} else {'es'}
 
 Write-Host "Found $($workspaceCount) workspace$workspaceSuffix. Running $batchesToRun batch$batchSuffx of $batchSize..."
-Write-Host "----------------------------------"
+Write-Host '----------------------------------'
 
 # Loop through the workspaces in batches of $batchSize, get the scanner API data for each batch, and add it to the $scanResults object
 for ($i = 0; $i -lt $batchesToRun; $i++) {
@@ -159,7 +161,7 @@ for ($i = 0; $i -lt $batchesToRun; $i++) {
     Write-Host "Batch $batchNum status: $scanStatus"
   }
   Write-Host "Batch $batchNum complete. Getting data..."
-  Write-Host "----------------------------------"
+  Write-Host '----------------------------------'
 
   $completedScanId = $checkScanResponse.id
 
