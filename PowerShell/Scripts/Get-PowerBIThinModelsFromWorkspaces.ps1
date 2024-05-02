@@ -107,7 +107,7 @@ process {
       $headers = Connect-PowerBIServiceAccount -ServicePrincipal -Tenant $servicePrincipalTenantId -Credential $credential
     }
     else {
-      Write-Host '🔒 Power BI Access Token required. Launching Azure Active Directory authentication dialog...'
+      Write-Host '🔒 Power BI Access Token required. Launching Microsoft Entra ID (f.k.a. Azure Active Directory) authentication dialog...'
       Start-Sleep -s 1
       Connect-PowerBIServiceAccount -WarningAction SilentlyContinue | Out-Null
       $headers = Get-PowerBIAccessToken

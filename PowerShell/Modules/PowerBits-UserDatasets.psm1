@@ -38,7 +38,7 @@ Function Get-UserDatasets {
   try {
     Get-PowerBIAccessToken | Out-Null
   } catch {
-    Write-Host '🔒 Power BI Access Token required. Launching Azure Active Directory authentication dialog...'
+    Write-Host '🔒 Power BI Access Token required. Launching Microsoft Entra ID (f.k.a. Azure Active Directory) authentication dialog...'
     Start-Sleep -s 1
     Connect-PowerBIServiceAccount -WarningAction SilentlyContinue | Out-Null
   } finally {
@@ -90,7 +90,7 @@ Function Join-UserDatasetsWithWorkspaces {
   try {
     Get-PowerBIAccessToken | Out-Null
   } catch {
-    Write-Host '🔒 Power BI Access Token required. Launching Azure Active Directory authentication dialog...'
+    Write-Host '🔒 Power BI Access Token required. Launching Microsoft Entra ID (f.k.a. Azure Active Directory) authentication dialog...'
     Start-Sleep -s 1
     Connect-PowerBIServiceAccount -WarningAction SilentlyContinue | Out-Null
   } finally {
@@ -146,7 +146,7 @@ Function Update-UserDatasetsOwner {
   try {
     Get-PowerBIAccessToken | Out-Null
   } catch {
-    Write-Host '🔒 Power BI Access Token required. Launching Azure Active Directory authentication dialog...'
+    Write-Host '🔒 Power BI Access Token required. Launching Microsoft Entra ID (f.k.a. Azure Active Directory) authentication dialog...'
     Start-Sleep -s 1
     Connect-PowerBIServiceAccount -WarningAction SilentlyContinue | Out-Null
   } finally {

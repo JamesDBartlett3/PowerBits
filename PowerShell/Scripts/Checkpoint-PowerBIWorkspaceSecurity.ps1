@@ -4,7 +4,7 @@
   
   .DESCRIPTION
     This script exports a list of all Power BI workspaces and their members to an Excel file.
-    It first authenticates with Power BI using an access token. If the access token is not available, it prompts the user to authenticate with Azure Active Directory.
+    It first authenticates with Power BI using an access token. If the access token is not available, it prompts the user to authenticate with Microsoft Entra ID (f.k.a. Azure Active Directory).
     It then retrieves a list of all workspaces in the organization, excluding those that are deleted, not of type "Workspace", orphaned, or listed in the IgnoreList.json file.
     The resulting list of workspaces and their members is then exported to an Excel file with a timestamp in the filename. 
     This can be useful for auditing and security purposes.
@@ -55,7 +55,7 @@ begin{
 		$headers = Get-PowerBIAccessToken
 	}
 	catch {
-		Write-Host '🔒 Power BI Access Token required. Launching Azure Active Directory authentication dialog...'
+		Write-Host '🔒 Power BI Access Token required. Launching Microsoft Entra ID (f.k.a. Azure Active Directory) authentication dialog...'
 		Start-Sleep -s 1
 		Connect-PowerBIServiceAccount -WarningAction SilentlyContinue | Out-Null
 		$headers = Get-PowerBIAccessToken

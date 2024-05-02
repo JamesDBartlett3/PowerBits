@@ -4,7 +4,7 @@
   
   .DESCRIPTION
     This script will retrieve the status of all nodes in all Data Gateway clusters to which you have access. 
-    It will prompt you to authenticate with Azure Active Directory if you haven't already done so.
+    It will prompt you to authenticate with Microsoft Entra ID (f.k.a. Azure Active Directory) if you haven't already done so.
   
   .EXAMPLE
     .\Get-DataGatewayStatus.ps1
@@ -45,7 +45,7 @@ begin {
     Get-DataGatewayAccessToken | Out-Null
   }
   catch {
-    Write-Host '🔒 DataGatewayAccessToken required. Launching Azure Active Directory authentication dialog...'
+    Write-Host '🔒 DataGatewayAccessToken required. Launching Microsoft Entra ID (f.k.a. Azure Active Directory) authentication dialog...'
     Start-Sleep -s 1
     Login-DataGatewayServiceAccount -WarningAction SilentlyContinue | Out-Null
   }
