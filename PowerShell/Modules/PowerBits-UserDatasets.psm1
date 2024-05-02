@@ -38,11 +38,11 @@ Function Get-UserDatasets {
   try {
     Get-PowerBIAccessToken | Out-Null
   } catch {
-    Write-Host '🔒 Power BI Access Token required. Launching Microsoft Entra ID authentication dialog...'
+    Write-Host '🔒 Power BI Access Token required. Launching Microsoft Entra ID authentication dialog...' -ForegroundColor DarkYellow
     Start-Sleep -s 1
     Connect-PowerBIServiceAccount -WarningAction SilentlyContinue | Out-Null
   } finally {
-    Write-Host '🔑 Power BI Access Token acquired.'
+    Write-Host '🔑 Power BI Access Token acquired.' -ForegroundColor Green
     $result = Get-PowerBIDataset -Scope Organization |
       Where-Object -Property ConfiguredBy -eq $UserEmail |
       Where-Object -Property Name -NotIn $ignoreReports |
@@ -90,11 +90,11 @@ Function Join-UserDatasetsWithWorkspaces {
   try {
     Get-PowerBIAccessToken | Out-Null
   } catch {
-    Write-Host '🔒 Power BI Access Token required. Launching Microsoft Entra ID authentication dialog...'
+    Write-Host '🔒 Power BI Access Token required. Launching Microsoft Entra ID authentication dialog...' -ForegroundColor DarkYellow
     Start-Sleep -s 1
     Connect-PowerBIServiceAccount -WarningAction SilentlyContinue | Out-Null
   } finally {
-    Write-Host '🔑 Power BI Access Token acquired.'
+    Write-Host '🔑 Power BI Access Token acquired.' -ForegroundColor Green
     $workspaces = Get-PowerBIWorkspace -Scope Organization -All |
       Where-Object { $_.Type -EQ "Workspace" -AND $_.Name -NotIn $ignoreWorkspaces } |
       Select-Object Id
@@ -146,11 +146,11 @@ Function Update-UserDatasetsOwner {
   try {
     Get-PowerBIAccessToken | Out-Null
   } catch {
-    Write-Host '🔒 Power BI Access Token required. Launching Microsoft Entra ID authentication dialog...'
+    Write-Host '🔒 Power BI Access Token required. Launching Microsoft Entra ID authentication dialog...' -ForegroundColor DarkYellow
     Start-Sleep -s 1
     Connect-PowerBIServiceAccount -WarningAction SilentlyContinue | Out-Null
   } finally {
-    Write-Host '🔑 Power BI Access Token acquired.'
+    Write-Host '🔑 Power BI Access Token acquired.' -ForegroundColor Green
     ForEach ($key in $DatasetWorkspaceTable.Keys) {
       $workspaceId = $DatasetWorkspaceTable[$key]
       $datasetId = $key

@@ -49,7 +49,7 @@ begin {
     Start-Sleep -s 1
     Login-DataGatewayServiceAccount -WarningAction SilentlyContinue | Out-Null
   }
-  Write-Host '🔑 Data Gateway Access Token acquired.' -ForegroundColor Blue
+  Write-Host '🔑 Data Gateway Access Token acquired.' -ForegroundColor Green
   Write-Host '⏳ Retrieving status of all accesssible Data Gateway nodes...' -ForegroundColor Yellow
 }
 

@@ -2,12 +2,12 @@
 try {
   Get-PowerBIAccessToken
 } catch {
-  Write-Host '🔒 Power BI Access Token required. Launching Microsoft Entra ID authentication dialog...'
+  Write-Host '🔒 Power BI Access Token required. Launching Microsoft Entra ID authentication dialog...' -ForegroundColor DarkYellow
   Start-Sleep -s 1
   Connect-PowerBIServiceAccount -WarningAction SilentlyContinue | Out-Null
   Get-PowerBIAccessToken
 } finally {
-  Write-Host '🔑 Power BI Access Token acquired.'
+  Write-Host '🔑 Power BI Access Token acquired.' -ForegroundColor Green
   $session = New-Object Microsoft.PowerShell.Commands.WebRequestSession
   $session.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36 Edg/110.0.1587.63"
   $myRegionUrl = "wabi-us-north-central-h-primary-redirect.analysis.windows.net" # Replace with your own region's URL

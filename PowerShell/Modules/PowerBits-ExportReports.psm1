@@ -124,13 +124,13 @@ Function Copy-PowerBIReportContentToBlankPBIXFile {
     $headers = Get-PowerBIAccessToken
   }
   catch {
-    Write-Host '🔒 Power BI Access Token required. Launching Microsoft Entra ID authentication dialog...'
+    Write-Host '🔒 Power BI Access Token required. Launching Microsoft Entra ID authentication dialog...' -ForegroundColor DarkYellow
     Start-Sleep -s 1
     Connect-PowerBIServiceAccount -WarningAction SilentlyContinue | Out-Null
     $headers = Get-PowerBIAccessToken
   }
   finally {
-    Write-Host '🔑 Power BI Access Token acquired.'
+    Write-Host '🔑 Power BI Access Token acquired.' -ForegroundColor Green
     Write-Debug "Target Report ID is null: $(!$TargetReportId)"
     $pbiApiBaseUri = 'https://api.powerbi.com/v1.0/myorg'
     # If a valid blank PBIX was found, publish it to the target workspace
@@ -275,20 +275,17 @@ Function Export-PowerBIReportsFromWorkspaces {
         $headers = Get-PowerBIAccessToken
       }
       else {
-        Write-Host '🔒 Power BI Access Token required. Launching Microsoft Entra ID authentication dialog...'
+        Write-Host '🔒 Power BI Access Token required. Launching Microsoft Entra ID authentication dialog...' -ForegroundColor DarkYellow
         Start-Sleep -s 1
         Connect-PowerBIServiceAccount -WarningAction SilentlyContinue | Out-Null
         $headers = Get-PowerBIAccessToken
       }
-      if ($headers) {
-        Write-Host '🔑 Power BI Access Token acquired. Proceeding...'
-      }
-      else {
-        Write-Host '❌ Power BI Access Token not acquired. Exiting...'
-        exit
+      if (!$headers) {
+        Write-Host '❌ Power BI Access Token not acquired. Exiting...' -ForegroundColor Red
+        Exit
       }
     }
-    Write-Host '🔑 Power BI Access Token acquired.'
+    Write-Host '🔑 Power BI Access Token acquired.' -ForegroundColor Green
     # If debugging, display the access token
     Write-Debug "Headers: `n $($headers.Keys)`n $($headers.Values)"
     # Get names of Workspaces and Reports to ignore from IgnoreList.json file

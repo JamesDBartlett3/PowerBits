@@ -42,11 +42,11 @@ Param(
 try {
   Get-PowerBIAccessToken | Out-Null
 } catch {
-  Write-Host '🔒 Power BI Access Token required. Launching Microsoft Entra ID authentication dialog...'
+  Write-Host '🔒 Power BI Access Token required. Launching Microsoft Entra ID authentication dialog...' -ForegroundColor DarkYellow
   Start-Sleep -s 1
   Connect-PowerBIServiceAccount -WarningAction SilentlyContinue | Out-Null
 } finally {
-  Write-Host '🔑 Power BI Access Token acquired.'
+  Write-Host '🔑 Power BI Access Token acquired.' -ForegroundColor Green
   ForEach ($key in $DatasetWorkspaceTable.Keys) {
     $workspaceId = $DatasetWorkspaceTable[$key]
     $datasetId = $key

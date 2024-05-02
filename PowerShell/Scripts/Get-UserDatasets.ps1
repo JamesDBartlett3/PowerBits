@@ -48,11 +48,11 @@ Param(
 try {
   Get-PowerBIAccessToken | Out-Null
 } catch {
-  Write-Host '🔒 Power BI Access Token required. Launching Microsoft Entra ID authentication dialog...'
+  Write-Host '🔒 Power BI Access Token required. Launching Microsoft Entra ID authentication dialog...' -ForegroundColor DarkYellow
   Start-Sleep -s 1
   Connect-PowerBIServiceAccount -WarningAction SilentlyContinue | Out-Null
 } finally {
-  Write-Host '🔑 Power BI Access Token acquired.'
+  Write-Host '🔑 Power BI Access Token acquired.' -ForegroundColor Green
   $result = Get-PowerBIDataset -Scope Organization |
     Where-Object -Property ConfiguredBy -eq $UserEmail |
     Where-Object -Property Name -NotIn $ignoreReports |

@@ -129,21 +129,18 @@ process{
       $headers = Get-PowerBIAccessToken
     }
     else {
-      Write-Host '🔒 Power BI Access Token required. Launching Microsoft Entra ID authentication dialog...'
+      Write-Host '🔒 Power BI Access Token required. Launching Microsoft Entra ID authentication dialog...' -ForegroundColor DarkYellow
       Start-Sleep -s 1
       Connect-PowerBIServiceAccount -WarningAction SilentlyContinue | Out-Null
       $headers = Get-PowerBIAccessToken
     }
-    if ($headers) {
-      Write-Host '🔑 Power BI Access Token acquired. Proceeding...'
-    }
-    else {
-      Write-Host '❌ Power BI Access Token not acquired. Exiting...'
-      exit
-    }
+    if (!$headers) {
+			Write-Host '❌ Power BI Access Token not acquired. Exiting...' -ForegroundColor Red
+			Exit
+		}
   }
   
-  Write-Host '🔑 Power BI Access Token acquired.'
+  Write-Host '🔑 Power BI Access Token acquired.' -ForegroundColor Green
   
   # If debugging, display the access token
   Write-Debug "Headers: `n $($headers.Keys)`n $($headers.Values)"
