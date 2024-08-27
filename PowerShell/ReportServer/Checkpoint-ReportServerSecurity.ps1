@@ -19,7 +19,7 @@
 [CmdletBinding()]
 param (
   [Parameter(Mandatory)][string]$ServerName,
-  [Parameter(Mandatory)][int]$ServerPort,
+  [Parameter()][int]$ServerPort = 443,
   [Parameter()][string]$OutputDirectory = (Get-Location),
   [Parameter()][string]$OutputFileNamePrefix = "ReportServer_SecurityAudit",
   [Parameter()][ValidateSet("Excel","CSV")][string]$OutputFileFormat = "Excel",
