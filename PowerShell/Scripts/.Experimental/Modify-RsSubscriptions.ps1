@@ -21,17 +21,17 @@ Target folder in the report server. Should always start with a forward slash, e.
 Flag to determine if subfolders should be included in the action. Leave blank to only affect subscriptions in the provided folder.
 
 .EXAMPLE
-Modify-RSSubscriptionBulk -RSfolder '/' -Action 'Delete' -Recurse -Confirm
+Modify-RSSubscriptionBulk -ServerName "reportserver.example.com" -Action 'Delete' -RSfolder '/' -Recurse -Confirm
 
 This will remove all subscriptions from all reports in the root folder and all subfolders, prompting the user to confirm before each subscription is deleted.
 
 .EXAMPLE
-Modify-RSSubscriptionBulk -RSfolder '/Sales Reports' -Action 'Disable'
+Modify-RSSubscriptionBulk -ServerName "reportserver.example.com" -Action 'Disable' -RSfolder '/Sales Reports'
 
 This will disable all subscriptions on all reports in the '/Sales Reports' folder only. It will not affect subfolders.
 
 .EXAMPLE
-Modify-RSSubscriptionBulk -RSfolder '/Sales Reports' -Action 'Enable' -Recurse
+Modify-RSSubscriptionBulk -ServerName "reportserver.example.com" -Action 'Enable' -RSfolder '/Sales Reports' -Recurse
 
 This will enable all subscriptions on all reports in the '/Sales Reports' folder and all subfolders.
 
