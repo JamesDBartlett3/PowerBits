@@ -12,6 +12,13 @@
 #   $PortNumber     - [Optional] Port number on which the reportserver is running (default: 443)
 #   $OutFile        - [Optional] Path to logfile which will list all actions taken by the script (default: a txt file in the same dir)
 #   $WhatIf         - [Optional] Switch parameter to list out reports that would have been deleted (instead of actually deleting them)
+
+# TODO:
+#   - Refactor to use the ReportingServicesTools module
+#   - Add -RsFolder parameter to specify a specific folder to search for data sources
+#   - Add -Recurse parameter to include subfolders
+#   - Add [CmdletBinding(SupportsShouldProcess = $true)] to allow for implicit -WhatIf and -Confirm
+#   - Implement -WhatIf and -Confirm logic
 #*************************************************************************************************************************************
 [CmdletBinding()]
 Param(
@@ -23,8 +30,8 @@ Param(
 
 #Requires -Version 5.1
 
-$url = "https://$($ServerName):$($PortNumber)/reportserver/ReportService2010.asmx?wsdl"
-$ssrs = New-WebServiceProxy -uri $url -UseDefaultCredential -Namespace 'ReportingWebService'
+$uri = "https://$($ServerName):$($PortNumber)/reportserver/ReportService2010.asmx?wsdl"
+$ssrs = New-WebServiceProxy -uri $uri -UseDefaultCredential -Namespace 'ReportingWebService'
 
 # Connection to Web Service, grab all data sources
 $items = $ssrs.ListChildren('/', $true) | Where-Object {$_.typename -eq 'DataSource'}
