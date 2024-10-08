@@ -5,27 +5,40 @@ Removes, enables, or disables all subscriptions in a folder in Reporting Service
 .DESCRIPTION
 Performs the specified action (Remove, Enable, Disable) on all subscriptions in a provided folder with an optional Recurse flag to include subscriptions in subfolders of the target folder.
 
-.PARAMETER RsFolder
-Target folder. This should be preceded by a /. Eg. '/Sales Reports'. Default is '/' (the root folder).
+.PARAMETER ServerName (Mandatory)
+The name of the Reporting Services server. This should be the server name or IP address. Do not include the protocol or port number.
 
-.PARAMETER Recurse
-Flag to determine if subfolders should be included in the action. Leave blank to only affect subscriptions in the provided folder.
-
-.PARAMETER Action
+.PARAMETER Action (Mandatory)
 Specifies the action to perform on the subscriptions. Valid values are 'Enable', 'Disable', and 'Delete'.
 
-.EXAMPLE
-Modify-RSSubscriptionBulk -RSfolder '/' -Recurse -Action 'Delete'
+.PARAMETER PortNumber (Optional)
+Port number on which the report server is running. Default is 443.
 
-This will remove all subscriptions in an entire instance
+.PARAMETER RsFolder (Optional)
+Target folder in the report server. Should always start with a forward slash, e.g., '/Sales Reports'. Default is '/' (the root folder).
+
+.PARAMETER Recurse (Optional)
+Flag to determine if subfolders should be included in the action. Leave blank to only affect subscriptions in the provided folder.
+
+.EXAMPLE
+Modify-RSSubscriptionBulk -RSfolder '/' -Action 'Delete' -Recurse -Confirm
+
+This will remove all subscriptions from all reports in the root folder and all subfolders, prompting the user to confirm before each subscription is deleted.
 
 .EXAMPLE
 Modify-RSSubscriptionBulk -RSfolder '/Sales Reports' -Action 'Disable'
 
-This will disable all subscriptions in the Sales Reports folder only. It will not affect subfolders.
+This will disable all subscriptions on all reports in the '/Sales Reports' folder only. It will not affect subfolders.
+
+.EXAMPLE
+Modify-RSSubscriptionBulk -RSfolder '/Sales Reports' -Action 'Enable' -Recurse
+
+This will enable all subscriptions on all reports in the '/Sales Reports' folder and all subfolders.
 
 .NOTES
-General notes
+  ACKNOWLEDGEMENTS
+    - Thanks to my wife (@likeawednesday@techhub.social) for her support and encouragement.
+    - Thanks to the PowerShell and Power BI/Fabric communities for being so awesome.
 #>
 
 [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
