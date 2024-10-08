@@ -58,7 +58,7 @@ process {
     Write-Verbose "$($subs.Count) Subscriptions will be processed for action: $Action."
     foreach ($sub in $subs) {
       $methodName = "${Action}Subscription"
-      if ($pscmdlet.ShouldProcess($sub.Path, "$Action Subscription with ID: $($sub.SubscriptionID)")) {
+      if ($pscmdlet.ShouldProcess($sub.Path, "$Action Subscription '$($sub.Description)' (ID: $($sub.SubscriptionID))")) {
         $proxy.$methodName($sub.SubscriptionID)
       }
       Write-Verbose "Subscription $($Action): $($sub.SubscriptionID)"
@@ -68,7 +68,7 @@ process {
   }  
 }    
 end {
-  if ($subs) {
+  if (!$WhatIfPreference.IsPresent -and $subs) {
     Write-Host "$Action completed for $($subs.Count) Subscriptions"
   }
 }
