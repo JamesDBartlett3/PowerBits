@@ -1,0 +1,27 @@
+@-moz-document domain("app.powerbi.com") {
+  /*============================================================*\
+  
+    Title: Power BI - Hide Custom Branding
+  
+    Author: @JamesDBartlett3 (https://github.com/JamesDBartlett3)
+  
+    Description: With this user style, you can hide the custom 
+    branding elements in the Power BI service.
+  
+    Usage: Add this user style to your Stylus browser extension,
+    then enable it. Have fun!
+  
+  \*============================================================*/
+
+
+  #header > header > div.topNavLeft > brand-logo,
+  #header > header > div.topNavRight.fluentTheme > tri-trial-button > trident-trial-button > button > div {
+    display: none !important;
+  }
+  #header > header, 
+  #pbiThemed0 .pbi-bcl-tp, 
+  #pbiThemed0 .pbi-bgc-tp {
+    background-color: #200e31 !important;
+  }
+
+}

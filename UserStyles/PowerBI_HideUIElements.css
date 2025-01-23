@@ -1,0 +1,91 @@
+@-moz-document domain("app.powerbi.com") {
+  /*============================================================*\
+  
+    Title: Power BI - Hide UI Elements
+  
+    Author: @JamesDBartlett3 (https://github.com/JamesDBartlett3)
+  
+    Description: With this user style, you can hide all of the
+    unused UI elements cluttering up your screen on PowerBI.com.
+  
+    Usage: Add this user style to your Stylus browser extension,
+    then enable it. All supported UI elements are hidden by
+    default, but if there are some supported UI elements that you
+    still want to see, you can comment-out or remove them from
+    the code below. Have fun!
+  
+  \*============================================================*/
+  
+  
+  /*===============*\
+  Left Nav/Task Bar
+  \*===============*/
+  
+  /* "Home" button */
+  .home { 
+    display: none;
+  }
+  
+  /* "Create" button */
+  .create { 
+    display: none;
+  }
+  
+  /* "Browse" button */
+  .browse { 
+    display: none;
+  }
+  
+  /* "OneLake data hub" button */
+  /* .datahub { 
+    display: none;
+  } */
+  
+  /* "Apps" button */
+  /* .myApps { 
+    display: none;
+  } */
+  
+  /* "Metrics" button */
+  /* .goalshub { 
+    display: none;
+  } */
+  
+  /* "Monitoring hub" button */
+  /* .monitoringhub {
+    display: none;
+  } */
+  
+  /* "Deployment pipelines" button */
+  /* [aria-label="Deployment pipelines"]{
+    display: none;
+  } */
+  
+  /* "Learn" button */
+  .learn {
+    display: none;
+  }
+  /*--------------*/
+  
+  
+  /*==============*\
+    Top Menu Bar
+  \*==============*/
+  report-copilot-entry-button { /* Copilot Button */
+    display: none;
+  }
+  /*--------------*/
+  
+  
+  /*===============*\
+    Fabric Pipeline
+  \*===============*/
+  [aria-label="Copilot"]{ /* Copilot Button */
+    display: none;
+  }
+  #Copilot-group { /* Copilot Button */
+    display: none;
+  }
+  /*--------------*/
+
+}
