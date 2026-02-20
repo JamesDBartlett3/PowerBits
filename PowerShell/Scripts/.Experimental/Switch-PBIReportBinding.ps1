@@ -159,7 +159,16 @@ function Get-PwrBtsAccessToken {
         }
     }
 
-    $tokenResult = Get-AzAccessToken -ResourceUrl $resourceUrl -ErrorAction Stop
+    try {
+        $tokenResult = Get-AzAccessToken -ResourceUrl $resourceUrl -ErrorAction Stop
+    }
+    catch {
+        Write-Warning "Failed to acquire token from existing session: $($_.Exception.Message)"
+        Write-Host "Re-authenticating..." -ForegroundColor Cyan
+        Connect-AzAccount -ErrorAction Stop | Out-Null
+        $tokenResult = Get-AzAccessToken -ResourceUrl $resourceUrl -ErrorAction Stop
+    }
+
     # Az.Accounts >= 5.x returns a SecureString; older versions return plain text
     if ($tokenResult.Token -is [System.Security.SecureString]) {
         $token = $tokenResult.Token | ConvertFrom-SecureString -AsPlainText
